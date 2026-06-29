@@ -2,34 +2,51 @@
 
 import { t, type AppDefinition } from "@/data";
 import { useLocale } from "./locale-store";
+import { AboutApp } from "@/components/apps/AboutApp";
+import { ProjectsApp } from "@/components/apps/ProjectsApp";
+import { ExperienceApp } from "@/components/apps/ExperienceApp";
+import { ContactApp } from "@/components/apps/ContactApp";
+import { ResumeApp } from "@/components/apps/ResumeApp";
 
 /**
- * Placeholder window body for phase 3 — enough to prove the chrome and window
- * manager. Real per-app content (About, Projects, Terminal, …) lands in phase 4.
+ * Routes a window to its app component by `kind`. The four core apps (About,
+ * Projects, Experience, Contact) are real, data-driven content. The remaining
+ * kinds (playground, terminal, music, link) still show a placeholder until
+ * their phases land.
  */
-const BLURBS: Record<AppDefinition["kind"], string> = {
-  about: "A little about who I am and how I think.",
-  projects: "Things I'm building — live, cooking, and experimental.",
+const PLACEHOLDER: Partial<Record<AppDefinition["kind"], string>> = {
   playground: "Half-baked experiments with no obligation to become anything.",
   terminal: "A toy shell. Type 'help' once it's wired up.",
   music: "Aero FM — soft synth pads on tap.",
-  contact: "No forms. Just pick whatever feels right.",
-  resume: "The story so far, as chapters.",
   link: "Opens elsewhere once the pages exist.",
 };
 
 export function WindowContent({ app }: { app: AppDefinition }) {
-  const { locale } = useLocale();
+  switch (app.kind) {
+    case "about":
+      return <AboutApp />;
+    case "projects":
+      return <ProjectsApp />;
+    case "experience":
+      return <ExperienceApp />;
+    case "resume":
+      return <ResumeApp />;
+    case "contact":
+      return <ContactApp />;
+    default:
+      return <Placeholder app={app} />;
+  }
+}
 
+function Placeholder({ app }: { app: AppDefinition }) {
+  const { locale } = useLocale();
   return (
     <div>
-      <div className="mb-2 text-xs font-bold uppercase tracking-[0.16em] text-aqua-deep">
-        {app.kind}
-      </div>
+      <div className="os-eyebrow">{app.kind}</div>
       <h2 className="font-brand text-2xl tracking-tight">{t(app.title, locale)}</h2>
-      <p className="mt-1.5 text-ink-soft">{BLURBS[app.kind]}</p>
+      <p className="mt-1.5 text-ink-soft">{PLACEHOLDER[app.kind] ?? "Coming soon."}</p>
       <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/45 px-3 py-1.5 text-[13px] font-semibold text-ink-soft">
-        ✨ Content arrives in phase 4
+        ✨ Content arrives in a later phase
       </p>
     </div>
   );
