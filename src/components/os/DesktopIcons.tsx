@@ -1,8 +1,12 @@
-import { apps, t, DEFAULT_LOCALE } from "@/data";
-import { Tile } from "./Tile";
+"use client";
 
-/** Static column of launchable desktop icons (display only in phase 1). */
+import { apps, t } from "@/data";
+import { Tile } from "./Tile";
+import { useLocale } from "./locale-store";
+
+/** Column of launchable desktop icons (launching arrives in phase 3). */
 export function DesktopIcons() {
+  const { locale } = useLocale();
   const icons = apps.filter((app) => app.onDesktop);
 
   return (
@@ -14,7 +18,7 @@ export function DesktopIcons() {
         >
           <Tile icon={app.icon} palette={app.tile} className="h-12 w-12 text-2xl" />
           <span className="text-xs font-semibold leading-tight text-white [text-shadow:0_1px_3px_rgba(10,40,90,0.7)]">
-            {t(app.title, DEFAULT_LOCALE)}
+            {t(app.title, locale)}
           </span>
         </div>
       ))}

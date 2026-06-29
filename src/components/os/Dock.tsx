@@ -1,8 +1,12 @@
-import { apps, t, DEFAULT_LOCALE } from "@/data";
-import { Tile } from "./Tile";
+"use client";
 
-/** Centered glass dock with static glossy app tiles (display only in phase 1). */
+import { apps, t } from "@/data";
+import { Tile } from "./Tile";
+import { useLocale } from "./locale-store";
+
+/** Centered glass dock with glossy app tiles (launching arrives in phase 3). */
 export function Dock() {
+  const { locale } = useLocale();
   const dockApps = apps.filter((app) => app.inDock);
 
   return (
@@ -12,7 +16,7 @@ export function Dock() {
         className="os-dock flex max-w-[96vw] items-end gap-2.5 overflow-x-auto rounded-3xl px-3 py-2.5 [scrollbar-width:none]"
       >
         {dockApps.map((app) => (
-          <div key={app.id} className="flex-none" title={t(app.title, DEFAULT_LOCALE)}>
+          <div key={app.id} className="flex-none" title={t(app.title, locale)}>
             <Tile icon={app.icon} palette={app.tile} className="h-[52px] w-[52px] text-[26px]" />
           </div>
         ))}

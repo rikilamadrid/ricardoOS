@@ -138,21 +138,104 @@
    rather than as inline styles.
    ============================================================ */
 @layer components {
-  /* ---- Wallpaper (static: sky + sun glow + green hill) ---- */
+  /* ---- Living wallpaper (phase 2) ---------------------------------------
+     Two stacked sky layers crossfade on day↔night (opacity, ~1.1s). The day
+     layer reads the active wallpaper from the --wp-* custom properties set by
+     the theme store; the night layer is a fixed deep-aurora gradient. ------ */
+  .os-scene {
+    position: fixed;
+    inset: 0;
+    overflow: hidden;
+  }
   .os-sky {
     position: absolute;
     inset: 0;
+    transition: opacity 1.1s ease;
+  }
+  .os-sky--day {
     background:
       radial-gradient(120% 90% at 78% -10%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 42%),
-      radial-gradient(120% 80% at 20% 110%, rgba(126, 217, 87, 0.55), rgba(126, 217, 87, 0) 55%),
-      linear-gradient(180deg, var(--color-sky-top) 0%, var(--color-sky-mid) 46%, var(--color-sky-low) 78%, #eaf7e0 100%);
+      radial-gradient(120% 80% at 20% 110%, rgba(126, 217, 87, var(--wp-grass, 0.55)), rgba(126, 217, 87, 0) 55%),
+      linear-gradient(180deg,
+        var(--wp-top, var(--color-sky-top)) 0%,
+        var(--wp-mid, var(--color-sky-mid)) 46%,
+        var(--wp-low, var(--color-sky-low)) 78%,
+        #eaf7e0 100%);
+    transition: background 1.1s ease, opacity 1.1s ease;
   }
-  .dark .os-sky {
+  .os-sky--night {
+    opacity: 0;
     background:
       radial-gradient(120% 90% at 80% 8%, rgba(120, 230, 200, 0.3), rgba(120, 230, 200, 0) 40%),
       radial-gradient(120% 70% at 18% 100%, rgba(90, 120, 255, 0.35), rgba(90, 120, 255, 0) 55%),
       linear-gradient(180deg, #06122e 0%, #0b2350 40%, #123a73 72%, #1c4f93 100%);
   }
+  .dark .os-sky--day {
+    opacity: 0;
+  }
+  .dark .os-sky--night {
+    opacity: 1;
+  }
+
+  /* Slow rotating light rays (sun shafts). */
+  .os-rays {
+    position: absolute;
+    inset: -20%;
+    pointer-events: none;
+    mix-blend-mode: screen;
+    opacity: 0.5;
+    background: conic-gradient(from 200deg at 78% -6%,
+      rgba(255, 255, 255, 0) 0deg, rgba(255, 255, 255, 0.55) 6deg, rgba(255, 255, 255, 0) 12deg,
+      rgba(255, 255, 255, 0) 26deg, rgba(255, 255, 255, 0.4) 32deg, rgba(255, 255, 255, 0) 38deg,
+      rgba(255, 255, 255, 0) 60deg, rgba(255, 255, 255, 0.45) 66deg, rgba(255, 255, 255, 0) 74deg);
+    animation: os-spin 90s linear infinite;
+  }
+  .dark .os-rays {
+    opacity: 0.25;
+    background: conic-gradient(from 180deg at 80% 8%,
+      rgba(150, 255, 225, 0), rgba(150, 255, 225, 0.5) 8deg, rgba(150, 255, 225, 0) 16deg,
+      rgba(140, 180, 255, 0) 50deg, rgba(140, 180, 255, 0.4) 58deg, rgba(140, 180, 255, 0) 66deg);
+  }
+  @keyframes os-spin {
+    to { transform: rotate(360deg); }
+  }
+
+  /* Night star field (canvas), faded in with the night theme. */
+  .os-stars {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    transition: opacity 1.1s ease;
+    pointer-events: none;
+  }
+  .dark .os-stars {
+    opacity: 0.8;
+  }
+
+  /* Drifting translucent bubbles. */
+  .os-bubbles {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .os-bubble {
+    position: absolute;
+    bottom: -12vh;
+    border-radius: 50%;
+    opacity: 0;
+    background:
+      radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.15) 42%, rgba(255, 255, 255, 0) 60%),
+      radial-gradient(circle at 70% 75%, rgba(120, 200, 255, 0.45), rgba(120, 200, 255, 0) 60%);
+    box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.6), 0 0 14px rgba(255, 255, 255, 0.25);
+    animation: os-rise linear infinite;
+  }
+  @keyframes os-rise {
+    0% { transform: translateY(0) translateX(0) scale(0.9); opacity: 0; }
+    10% { opacity: 0.85; }
+    90% { opacity: 0.7; }
+    100% { transform: translateY(-118vh) translateX(var(--drift, 0)) scale(1.05); opacity: 0; }
+  }
+
   .os-sun {
     position: absolute;
     top: -14%;
@@ -277,4 +360,171 @@
   .os-light--close { background: radial-gradient(circle at 50% 120%, #ff8b8b, #ff4d4d); }
   .os-light--min { background: radial-gradient(circle at 50% 120%, #ffd98b, #ffb52e); }
   .os-light--max { background: radial-gradient(circle at 50% 120%, #9bf08b, #3fcc4d); }
+
+  /* ---- Boot screen ---- */
+  .os-boot {
+    position: fixed;
+    inset: 0;
+    z-index: 99999;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: radial-gradient(120% 100% at 50% 30%, #2a7de0, #0a2a63);
+    transition: opacity 0.8s ease;
+  }
+  .os-boot--gone {
+    opacity: 0;
+    pointer-events: none;
+  }
+  .os-boot-orb {
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 36% 32%, #fff, rgba(150, 220, 255, 0.8) 50%, rgba(80, 160, 240, 0.3) 75%);
+    box-shadow: 0 0 40px rgba(150, 210, 255, 0.8);
+    animation: os-breathe 2s ease-in-out infinite;
+  }
+  .os-boot-bar {
+    width: 220px;
+    height: 8px;
+    margin: 30px auto 0;
+    border-radius: 99px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.2);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.3);
+  }
+  .os-boot-bar > i {
+    display: block;
+    height: 100%;
+    width: 0;
+    border-radius: 99px;
+    background: linear-gradient(90deg, #bfefff, #fff);
+    box-shadow: 0 0 12px #cff;
+    animation: os-load 2.1s ease forwards;
+  }
+  @keyframes os-load { to { width: 100%; } }
+  @keyframes os-breathe {
+    0%, 100% { transform: scale(0.82); opacity: 0.8; }
+    50% { transform: scale(1.08); opacity: 1; }
+  }
+
+  /* ---- Menu-bar glyph buttons + clock ---- */
+  .os-glyph {
+    width: 30px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    font-size: 13px;
+    opacity: 0.9;
+    transition: background 0.15s, transform 0.1s;
+  }
+  .os-glyph:hover { background: rgba(255, 255, 255, 0.55); }
+  .os-glyph:active { transform: scale(0.94); }
+  .dark .os-glyph:hover { background: rgba(120, 170, 225, 0.28); }
+
+  /* ---- Floating aqua menu / popover (Radix dropdown, popover, context) ---- */
+  .os-menu {
+    min-width: 200px;
+    padding: 6px;
+    border-radius: 13px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+  }
+  .os-menu-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    text-align: left;
+    padding: 8px 11px;
+    border-radius: 9px;
+    font-size: 13.5px;
+    font-weight: 500;
+    cursor: default;
+    outline: none;
+    transition: background 0.12s;
+  }
+  .os-menu-item[data-highlighted],
+  .os-menu-item:hover {
+    background: linear-gradient(180deg, var(--color-aqua), var(--color-aqua-deep));
+    color: #fff;
+  }
+  .os-menu-item small { opacity: 0.55; font-weight: 600; }
+  .os-menu-sep {
+    height: 1px;
+    margin: 4px 6px;
+    background: var(--glass-edge);
+  }
+  .os-popover-title {
+    font-family: var(--font-brand);
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  .os-meter {
+    height: 8px;
+    margin: 6px 0 2px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: rgba(120, 160, 210, 0.25);
+  }
+  .os-meter > i {
+    display: block;
+    height: 100%;
+    border-radius: 6px;
+    background: linear-gradient(90deg, var(--color-grass), var(--color-aqua));
+  }
+  .wp-swatch {
+    width: 16px;
+    height: 16px;
+    flex: 0 0 auto;
+    border-radius: 5px;
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+  }
+  .os-pop-in {
+    animation: os-pop 0.16s ease;
+  }
+  @keyframes os-pop {
+    from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+    to { opacity: 1; transform: none; }
+  }
+
+  /* ---- Desktop hint pill ---- */
+  .os-hint {
+    position: fixed;
+    left: 50%;
+    bottom: 78px;
+    transform: translateX(-50%);
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 6px 14px;
+    border-radius: 99px;
+    font-size: 12.5px;
+    font-weight: 600;
+    color: #fff;
+    pointer-events: none;
+    background: rgba(20, 60, 120, 0.28);
+    text-shadow: 0 1px 4px rgba(10, 40, 90, 0.7);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    transition: opacity 0.6s ease;
+  }
+  .os-hint--gone { opacity: 0; }
+}
+
+/* Honor reduced motion + tab-hidden: disable the ambient loops. The bubbles
+   are unmounted in React; this pauses the ray rotation as a CSS fallback. */
+.os-scene--still .os-rays {
+  animation: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  .os-rays,
+  .os-boot-orb,
+  .os-boot-bar > i {
+    animation: none;
+  }
+  .os-boot-bar > i { width: 100%; }
 }
