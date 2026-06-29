@@ -6,6 +6,7 @@ import { MenuBar } from "./MenuBar";
 import { DesktopIcons } from "./DesktopIcons";
 import { Dock } from "./Dock";
 import { DesktopContextMenu } from "./DesktopContextMenu";
+import { WindowManager } from "./WindowManager";
 import { Hint } from "./Hint";
 import { Toaster } from "@/components/ui/sonner";
 
@@ -23,6 +24,7 @@ export function Desktop() {
             <Wallpaper />
             <MenuBar />
             <DesktopIcons />
+            <WindowManager />
             <Dock />
             <Hint />
           </main>

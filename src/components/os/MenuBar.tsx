@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { branding, menuBar, t, LOCALE_LABELS } from "@/data";
 import { useTheme } from "./theme-store";
 import { useLocale } from "./locale-store";
+import { useWindowStore } from "@/lib/window-store";
 
 /** 12-hour live clock; placeholder until mounted to keep hydration stable. */
 function useClock() {
@@ -32,6 +33,7 @@ function useClock() {
 export function MenuBar() {
   const { theme, setTheme } = useTheme();
   const { locale, cycleLocale } = useLocale();
+  const openApp = useWindowStore((s) => s.openApp);
   const time = useClock();
   const isNight = theme === "night";
 
@@ -95,6 +97,7 @@ export function MenuBar() {
           <button
             key={item.id}
             type="button"
+            onClick={() => openApp(item.target)}
             className="rounded-[9px] px-2.5 py-1 font-semibold transition-colors hover:bg-white/55"
           >
             {t(item.label, locale)}

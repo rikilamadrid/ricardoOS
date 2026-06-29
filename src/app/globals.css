@@ -297,6 +297,74 @@
     background: linear-gradient(180deg, rgba(40, 64, 110, 0.5), rgba(24, 44, 84, 0.35));
   }
 
+  /* Dock app: single-icon hover lift (no neighbor magnification) + running dot. */
+  .os-dock-app {
+    position: relative;
+    flex: 0 0 auto;
+    transform-origin: bottom center;
+    transition: transform 0.14s cubic-bezier(0.3, 1.4, 0.5, 1);
+  }
+  .os-dock-app:hover {
+    transform: translateY(-6px);
+  }
+  .os-dock-app.is-bouncing {
+    animation: os-bounce 0.5s ease;
+  }
+  @keyframes os-bounce {
+    0%, 100% { transform: translateY(0); }
+    40% { transform: translateY(-18px); }
+  }
+  .os-dock-dot {
+    position: absolute;
+    bottom: -7px;
+    left: 50%;
+    width: 5px;
+    height: 5px;
+    border-radius: 50%;
+    background: #0b2f5e;
+    box-shadow: 0 0 6px rgba(255, 255, 255, 0.6);
+    transform: translateX(-50%);
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .dark .os-dock-dot {
+    background: #bfe3ff;
+  }
+  .os-dock-app.is-running .os-dock-dot {
+    opacity: 0.85;
+  }
+  .os-dock-sep {
+    flex: 0 0 auto;
+    align-self: center;
+    width: 1px;
+    height: 34px;
+    margin: 0 3px;
+    background: var(--glass-edge);
+  }
+
+  /* Window resize grip (bottom-right). */
+  .os-resize::before {
+    content: "";
+    position: absolute;
+    right: 4px;
+    bottom: 4px;
+    width: 9px;
+    height: 9px;
+    border-right: 2px solid rgba(90, 140, 200, 0.7);
+    border-bottom: 2px solid rgba(90, 140, 200, 0.7);
+    border-radius: 0 0 3px 0;
+  }
+  .os-resize::after {
+    content: "";
+    position: absolute;
+    right: 4px;
+    bottom: 8px;
+    width: 5px;
+    height: 5px;
+    border-right: 2px solid rgba(90, 140, 200, 0.5);
+    border-bottom: 2px solid rgba(90, 140, 200, 0.5);
+  }
+
   /* ---- Glossy app tile (per-app palette via modifier) ---- */
   .os-tile {
     position: relative;
