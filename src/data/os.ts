@@ -6,10 +6,15 @@ import type { Localized } from "./types";
  * playground, terminal, music). Matches the Aqua-style mockups.
  */
 
+/** Glossy app-tile color palette (maps to .os-tile--* in globals.css). */
+export type TilePalette = "blue" | "sky" | "green" | "violet" | "teal" | "pink" | "graphite";
+
 export interface AppDefinition {
   id: string;
   title: Localized<string>;
   icon: string;
+  /** Glossy tile gradient palette used in the dock and on the desktop. */
+  tile: TilePalette;
   /** Which content module renders inside the window. */
   kind: "about" | "projects" | "playground" | "terminal" | "music" | "contact" | "resume" | "link";
   /** Default window placement (% of viewport) + size in px. Tweak per phase. */
@@ -29,6 +34,7 @@ export const apps: AppDefinition[] = [
     id: "about",
     title: { en: "About Me", es: "Sobre Mí", fr: "À Propos" },
     icon: "😄",
+    tile: "blue",
     kind: "about",
     window: { x: 36, y: 16, width: 660, height: 720 },
     onDesktop: true,
@@ -39,6 +45,7 @@ export const apps: AppDefinition[] = [
     id: "projects",
     title: { en: "Projects", es: "Proyectos", fr: "Projets" },
     icon: "🧩",
+    tile: "sky",
     kind: "projects",
     window: { x: 19, y: 24, width: 620, height: 640 },
     onDesktop: true,
@@ -49,6 +56,7 @@ export const apps: AppDefinition[] = [
     id: "playground",
     title: { en: "Playground", es: "Patio de Juegos", fr: "Bac à Sable" },
     icon: "🧪",
+    tile: "green",
     kind: "playground",
     window: { x: 2, y: 6, width: 640, height: 760 },
     onDesktop: true,
@@ -59,6 +67,7 @@ export const apps: AppDefinition[] = [
     id: "blog",
     title: { en: "Notes", es: "Notas", fr: "Notes" },
     icon: "✍️",
+    tile: "violet",
     kind: "link",
     window: { x: 30, y: 20, width: 600, height: 640 },
     onDesktop: false,
@@ -70,6 +79,7 @@ export const apps: AppDefinition[] = [
     id: "resume",
     title: { en: "Résumé", es: "Currículum", fr: "CV" },
     icon: "📖",
+    tile: "teal",
     kind: "resume",
     window: { x: 28, y: 14, width: 720, height: 800 },
     onDesktop: false,
@@ -80,6 +90,7 @@ export const apps: AppDefinition[] = [
     id: "contact",
     title: { en: "Contact", es: "Contacto", fr: "Contact" },
     icon: "✉️",
+    tile: "blue",
     kind: "contact",
     window: { x: 34, y: 22, width: 520, height: 520 },
     onDesktop: false,
@@ -90,6 +101,7 @@ export const apps: AppDefinition[] = [
     id: "music",
     title: { en: "Aero FM", es: "Aero FM", fr: "Aero FM" },
     icon: "🎵",
+    tile: "pink",
     kind: "music",
     window: { x: 70, y: 12, width: 380, height: 560 },
     onDesktop: false,
@@ -100,6 +112,7 @@ export const apps: AppDefinition[] = [
     id: "terminal",
     title: { en: "Terminal", es: "Terminal", fr: "Terminal" },
     icon: "⌨️",
+    tile: "graphite",
     kind: "terminal",
     window: { x: 4, y: 44, width: 560, height: 460 },
     onDesktop: false,
