@@ -23,3 +23,4 @@ export { playground } from "./playground";
 export { aeroFm } from "./music";
 export { terminal } from "./terminal";
 export { apps, menuBar, statusBar, branding, desktop } from "./os";
+export type { AppDefinition, TilePalette } from "./os";

@@ -1,0 +1,44 @@
+/* ============================================================
+   RicardoOS — Frutiger Aero design tokens
+   Ported from the reference prototype (context/ricardo-os.html).
+   Colors live in @theme so they become Tailwind utilities
+   (bg-sky-top, text-ink, rounded-os, …). Glass/shadow are raw
+   CSS vars consumed by the surface classes in globals.css.
+   Night theme overrides ride on shadcn's `.dark` class.
+   ============================================================ */
+
+@theme {
+  /* Sky / brand */
+  --color-sky-top: #1e6fd9;
+  --color-sky-mid: #4fa8f5;
+  --color-sky-low: #bfe3ff;
+  --color-aqua: #00c2ff;
+  --color-aqua-deep: #1c8ce0;
+  --color-grass: #7ed957;
+
+  /* Ink (text) */
+  --color-ink: #0a2540;
+  --color-ink-soft: #41607e;
+
+  /* Form */
+  --radius-os: 18px;
+}
+
+:root {
+  /* Glass surfaces */
+  --glass: rgba(255, 255, 255, 0.45);
+  --glass-strong: rgba(255, 255, 255, 0.62);
+  --glass-line: rgba(255, 255, 255, 0.85);
+  --glass-edge: rgba(120, 170, 225, 0.45);
+  --os-shadow: 0 22px 50px -18px rgba(13, 52, 99, 0.55);
+}
+
+/* Night theme — visual tokens only; the toggle ships in phase 2. */
+.dark {
+  --color-ink: #eaf3ff;
+  --color-ink-soft: #a9c4e6;
+  --glass: rgba(28, 52, 92, 0.5);
+  --glass-strong: rgba(30, 56, 98, 0.66);
+  --glass-line: rgba(140, 190, 255, 0.45);
+  --glass-edge: rgba(120, 180, 255, 0.4);
+}

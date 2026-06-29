@@ -1,1 +1,280 @@
 @import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+@import "../styles/tokens.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+    --font-heading: var(--font-brand);
+    --font-brand: var(--font-brand);
+    --font-sans: var(--font-sans);
+    --color-sidebar-ring: var(--sidebar-ring);
+    --color-sidebar-border: var(--sidebar-border);
+    --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+    --color-sidebar-accent: var(--sidebar-accent);
+    --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+    --color-sidebar-primary: var(--sidebar-primary);
+    --color-sidebar-foreground: var(--sidebar-foreground);
+    --color-sidebar: var(--sidebar);
+    --color-chart-5: var(--chart-5);
+    --color-chart-4: var(--chart-4);
+    --color-chart-3: var(--chart-3);
+    --color-chart-2: var(--chart-2);
+    --color-chart-1: var(--chart-1);
+    --color-ring: var(--ring);
+    --color-input: var(--input);
+    --color-border: var(--border);
+    --color-destructive: var(--destructive);
+    --color-accent-foreground: var(--accent-foreground);
+    --color-accent: var(--accent);
+    --color-muted-foreground: var(--muted-foreground);
+    --color-muted: var(--muted);
+    --color-secondary-foreground: var(--secondary-foreground);
+    --color-secondary: var(--secondary);
+    --color-primary-foreground: var(--primary-foreground);
+    --color-primary: var(--primary);
+    --color-popover-foreground: var(--popover-foreground);
+    --color-popover: var(--popover);
+    --color-card-foreground: var(--card-foreground);
+    --color-card: var(--card);
+    --color-foreground: var(--foreground);
+    --color-background: var(--background);
+    --radius-sm: calc(var(--radius) * 0.6);
+    --radius-md: calc(var(--radius) * 0.8);
+    --radius-lg: var(--radius);
+    --radius-xl: calc(var(--radius) * 1.4);
+    --radius-2xl: calc(var(--radius) * 1.8);
+    --radius-3xl: calc(var(--radius) * 2.2);
+    --radius-4xl: calc(var(--radius) * 2.6);
+}
+
+:root {
+    --background: oklch(1 0 0);
+    --foreground: oklch(0.145 0 0);
+    --card: oklch(1 0 0);
+    --card-foreground: oklch(0.145 0 0);
+    --popover: oklch(1 0 0);
+    --popover-foreground: oklch(0.145 0 0);
+    --primary: oklch(0.205 0 0);
+    --primary-foreground: oklch(0.985 0 0);
+    --secondary: oklch(0.97 0 0);
+    --secondary-foreground: oklch(0.205 0 0);
+    --muted: oklch(0.97 0 0);
+    --muted-foreground: oklch(0.556 0 0);
+    --accent: oklch(0.97 0 0);
+    --accent-foreground: oklch(0.205 0 0);
+    --destructive: oklch(0.577 0.245 27.325);
+    --border: oklch(0.922 0 0);
+    --input: oklch(0.922 0 0);
+    --ring: oklch(0.708 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --radius: 0.625rem;
+    --sidebar: oklch(0.985 0 0);
+    --sidebar-foreground: oklch(0.145 0 0);
+    --sidebar-primary: oklch(0.205 0 0);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.97 0 0);
+    --sidebar-accent-foreground: oklch(0.205 0 0);
+    --sidebar-border: oklch(0.922 0 0);
+    --sidebar-ring: oklch(0.708 0 0);
+}
+
+.dark {
+    --background: oklch(0.145 0 0);
+    --foreground: oklch(0.985 0 0);
+    --card: oklch(0.205 0 0);
+    --card-foreground: oklch(0.985 0 0);
+    --popover: oklch(0.205 0 0);
+    --popover-foreground: oklch(0.985 0 0);
+    --primary: oklch(0.922 0 0);
+    --primary-foreground: oklch(0.205 0 0);
+    --secondary: oklch(0.269 0 0);
+    --secondary-foreground: oklch(0.985 0 0);
+    --muted: oklch(0.269 0 0);
+    --muted-foreground: oklch(0.708 0 0);
+    --accent: oklch(0.269 0 0);
+    --accent-foreground: oklch(0.985 0 0);
+    --destructive: oklch(0.704 0.191 22.216);
+    --border: oklch(1 0 0 / 10%);
+    --input: oklch(1 0 0 / 15%);
+    --ring: oklch(0.556 0 0);
+    --chart-1: oklch(0.87 0 0);
+    --chart-2: oklch(0.556 0 0);
+    --chart-3: oklch(0.439 0 0);
+    --chart-4: oklch(0.371 0 0);
+    --chart-5: oklch(0.269 0 0);
+    --sidebar: oklch(0.205 0 0);
+    --sidebar-foreground: oklch(0.985 0 0);
+    --sidebar-primary: oklch(0.488 0.243 264.376);
+    --sidebar-primary-foreground: oklch(0.985 0 0);
+    --sidebar-accent: oklch(0.269 0 0);
+    --sidebar-accent-foreground: oklch(0.985 0 0);
+    --sidebar-border: oklch(1 0 0 / 10%);
+    --sidebar-ring: oklch(0.556 0 0);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+    }
+  body {
+    @apply bg-sky-top text-ink font-sans;
+    }
+  html {
+    @apply font-sans;
+    }
+}
+
+/* ============================================================
+   RicardoOS — Frutiger Aero surfaces
+   Reusable glass / tile / chrome classes built on the tokens
+   in src/styles/tokens.css. Complex aqua surfaces (gloss
+   highlights, specular dots, layered gradients) live here
+   rather than as inline styles.
+   ============================================================ */
+@layer components {
+  /* ---- Wallpaper (static: sky + sun glow + green hill) ---- */
+  .os-sky {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(120% 90% at 78% -10%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 42%),
+      radial-gradient(120% 80% at 20% 110%, rgba(126, 217, 87, 0.55), rgba(126, 217, 87, 0) 55%),
+      linear-gradient(180deg, var(--color-sky-top) 0%, var(--color-sky-mid) 46%, var(--color-sky-low) 78%, #eaf7e0 100%);
+  }
+  .dark .os-sky {
+    background:
+      radial-gradient(120% 90% at 80% 8%, rgba(120, 230, 200, 0.3), rgba(120, 230, 200, 0) 40%),
+      radial-gradient(120% 70% at 18% 100%, rgba(90, 120, 255, 0.35), rgba(90, 120, 255, 0) 55%),
+      linear-gradient(180deg, #06122e 0%, #0b2350 40%, #123a73 72%, #1c4f93 100%);
+  }
+  .os-sun {
+    position: absolute;
+    top: -14%;
+    right: 8%;
+    width: 46vmax;
+    height: 46vmax;
+    border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.9), rgba(255, 255, 255, 0.25) 38%, rgba(255, 255, 255, 0) 62%);
+    filter: blur(6px);
+  }
+  .dark .os-sun {
+    background: radial-gradient(circle, rgba(180, 255, 235, 0.5), rgba(180, 255, 235, 0) 60%);
+    opacity: 0.6;
+  }
+  .os-hill {
+    position: absolute;
+    left: -5%;
+    right: -5%;
+    bottom: -2%;
+    height: 34%;
+    background: radial-gradient(120% 150% at 50% 100%, #8fe06a 0%, #4fb84f 55%, #2f9a44 100%);
+    border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+    box-shadow: inset 0 8px 30px rgba(255, 255, 255, 0.5), inset 0 -40px 60px rgba(0, 60, 20, 0.35);
+  }
+  .dark .os-hill {
+    filter: brightness(0.5) saturate(0.8);
+  }
+
+  /* ---- Frosted glass panel ---- */
+  .os-glass {
+    background: var(--glass-strong);
+    backdrop-filter: blur(28px) saturate(185%);
+    -webkit-backdrop-filter: blur(28px) saturate(185%);
+    border: 1px solid var(--glass-line);
+    box-shadow: var(--os-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 0 0 1px rgba(120, 170, 225, 0.25);
+  }
+
+  /* ---- Menu bar ---- */
+  .os-menubar {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(228, 240, 255, 0.45));
+    backdrop-filter: blur(18px) saturate(180%);
+    -webkit-backdrop-filter: blur(18px) saturate(180%);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.6);
+    box-shadow: 0 1px 0 rgba(110, 160, 220, 0.25), 0 6px 18px rgba(20, 60, 120, 0.12);
+  }
+  .dark .os-menubar {
+    background: linear-gradient(180deg, rgba(40, 64, 110, 0.7), rgba(24, 44, 84, 0.5));
+  }
+
+  /* ---- Dock ---- */
+  .os-dock {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.5), rgba(215, 235, 255, 0.32));
+    backdrop-filter: blur(24px) saturate(180%);
+    -webkit-backdrop-filter: blur(24px) saturate(180%);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 18px 50px -10px rgba(15, 55, 115, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+  }
+  .dark .os-dock {
+    background: linear-gradient(180deg, rgba(40, 64, 110, 0.5), rgba(24, 44, 84, 0.35));
+  }
+
+  /* ---- Glossy app tile (per-app palette via modifier) ---- */
+  .os-tile {
+    position: relative;
+    display: grid;
+    place-items: center;
+    border-radius: 14px;
+    background: linear-gradient(180deg, var(--t-light, #7fd4ff), var(--t-dark, #1f8be0));
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), inset 0 -8px 14px rgba(0, 40, 90, 0.28), 0 6px 14px rgba(12, 52, 110, 0.35);
+  }
+  .os-tile::before {
+    content: "";
+    position: absolute;
+    left: 8%;
+    right: 8%;
+    top: 5%;
+    height: 42%;
+    border-radius: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0));
+    pointer-events: none;
+  }
+  .os-tile > * {
+    position: relative;
+    z-index: 1;
+    filter: drop-shadow(0 1px 1px rgba(0, 30, 70, 0.35));
+  }
+  .os-tile--blue { --t-light: #aee6ff; --t-dark: #2d9be0; }
+  .os-tile--sky { --t-light: #9be4ff; --t-dark: #1d86d8; }
+  .os-tile--green { --t-light: #bff0b0; --t-dark: #46b85a; }
+  .os-tile--violet { --t-light: #d3c0ff; --t-dark: #7d5ce0; }
+  .os-tile--teal { --t-light: #8fe6d2; --t-dark: #1f9fb0; }
+  .os-tile--pink { --t-light: #ffb6e0; --t-dark: #b66cff; }
+  .os-tile--graphite { --t-light: #3a5878; --t-dark: #11243f; }
+
+  /* ---- Window chrome ---- */
+  .os-titlebar {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(214, 234, 255, 0.5));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.5);
+  }
+  .dark .os-titlebar {
+    background: linear-gradient(180deg, rgba(60, 96, 150, 0.7), rgba(30, 56, 100, 0.5));
+  }
+
+  /* ---- Jellybean traffic lights ---- */
+  .os-light {
+    position: relative;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.9), 0 1px 2px rgba(0, 0, 0, 0.25);
+  }
+  .os-light::after {
+    content: "";
+    position: absolute;
+    left: 2px;
+    top: 1px;
+    width: 7px;
+    height: 5px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+  }
+  .os-light--close { background: radial-gradient(circle at 50% 120%, #ff8b8b, #ff4d4d); }
+  .os-light--min { background: radial-gradient(circle at 50% 120%, #ffd98b, #ffb52e); }
+  .os-light--max { background: radial-gradient(circle at 50% 120%, #9bf08b, #3fcc4d); }
+}
