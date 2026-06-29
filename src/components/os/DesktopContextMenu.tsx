@@ -1,0 +1,54 @@
+"use client";
+
+import { type ReactNode } from "react";
+import { ContextMenu } from "radix-ui";
+import { toast } from "sonner";
+import { t } from "@/data";
+import { wallpaperList } from "@/content/wallpapers";
+import { useTheme } from "./theme-store";
+import { useLocale } from "./locale-store";
+
+/**
+ * Right-click anywhere on the desktop for the aqua context menu: pick a
+ * wallpaper or flip day/night. Wraps the desktop surface as the trigger.
+ */
+export function DesktopContextMenu({ children }: { children: ReactNode }) {
+  const { theme, setTheme, setWallpaper } = useTheme();
+  const { locale } = useLocale();
+
+  return (
+    <ContextMenu.Root>
+      <ContextMenu.Trigger asChild>
+        <div className="relative h-full w-full">{children}</div>
+      </ContextMenu.Trigger>
+      <ContextMenu.Portal>
+        <ContextMenu.Content className="os-glass os-menu os-pop-in z-[9500] text-ink">
+          {wallpaperList.map((wp) => (
+            <ContextMenu.Item
+              key={wp.id}
+              className="os-menu-item"
+              onSelect={() => {
+                setWallpaper(wp.id);
+                toast(`🖼️ ${t(wp.label, locale)} wallpaper`);
+              }}
+            >
+              <span>{t(wp.label, locale)}</span>
+              <span className="wp-swatch" style={{ background: wp.swatch }} />
+            </ContextMenu.Item>
+          ))}
+          <ContextMenu.Separator className="os-menu-sep" />
+          <ContextMenu.Item
+            className="os-menu-item"
+            onSelect={() => {
+              const next = theme === "day" ? "night" : "day";
+              setTheme(next);
+              toast(next === "night" ? "🌙 Night mode" : "☀️ Day mode");
+            }}
+          >
+            Toggle day / night
+          </ContextMenu.Item>
+        </ContextMenu.Content>
+      </ContextMenu.Portal>
+    </ContextMenu.Root>
+  );
+}

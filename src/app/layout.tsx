@@ -27,7 +27,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    // Default theme is day / light; the night toggle ships in phase 2.
+    // Default theme is day / light; the theme store toggles `.dark` after mount.
     <html
       lang="en"
       className={`${hankenGrotesk.variable} ${quicksand.variable} h-full antialiased`}
