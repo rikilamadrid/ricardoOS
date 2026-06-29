@@ -13,7 +13,7 @@ import { useLocale } from "./locale-store";
  * wallpaper or flip day/night. Wraps the desktop surface as the trigger.
  */
 export function DesktopContextMenu({ children }: { children: ReactNode }) {
-  const { theme, setTheme, setWallpaper } = useTheme();
+  const { theme, setTheme, setWallpaper, colorblind, toggleColorblind } = useTheme();
   const { locale } = useLocale();
 
   return (
@@ -46,6 +46,16 @@ export function DesktopContextMenu({ children }: { children: ReactNode }) {
             }}
           >
             Toggle day / night
+          </ContextMenu.Item>
+          <ContextMenu.Item
+            className="os-menu-item"
+            onSelect={() => {
+              toggleColorblind();
+              toast(colorblind ? "👓 Colorblind-safe off" : "👓 Colorblind-safe on");
+            }}
+          >
+            <span>Colorblind-safe</span>
+            <small>{colorblind ? "On" : "Off"}</small>
           </ContextMenu.Item>
         </ContextMenu.Content>
       </ContextMenu.Portal>

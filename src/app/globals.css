@@ -155,7 +155,7 @@
   .os-sky--day {
     background:
       radial-gradient(120% 90% at 78% -10%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 42%),
-      radial-gradient(120% 80% at 20% 110%, rgba(126, 217, 87, var(--wp-grass, 0.55)), rgba(126, 217, 87, 0) 55%),
+      radial-gradient(120% 80% at 20% 110%, rgba(var(--grass-rgb), var(--wp-grass, 0.55)), rgba(var(--grass-rgb), 0) 55%),
       linear-gradient(180deg,
         var(--wp-top, var(--color-sky-top)) 0%,
         var(--wp-mid, var(--color-sky-mid)) 46%,
@@ -438,6 +438,29 @@
   .os-light--min { background: radial-gradient(circle at 50% 120%, #ffd98b, #ffb52e); }
   .os-light--max { background: radial-gradient(circle at 50% 120%, #9bf08b, #3fcc4d); }
 
+  /* Colorblind-safe traffic lights: shift to distinguishable hues (vermillion /
+     orange / blue) and add an always-on shape cue (× − +) so the controls don't
+     depend on color alone. The `::before` symbol sits above the specular dot. */
+  .cb .os-light--close { background: radial-gradient(circle at 50% 120%, #ff8a5c, #d55e00); }
+  .cb .os-light--min { background: radial-gradient(circle at 50% 120%, #ffcb5e, #e69f00); }
+  .cb .os-light--max { background: radial-gradient(circle at 50% 120%, #6bb6ff, #0072b2); }
+  .cb .os-light::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    font-size: 10px;
+    font-weight: 800;
+    line-height: 1;
+    color: rgba(255, 255, 255, 0.95);
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.35);
+  }
+  .cb .os-light--close::before { content: "×"; }
+  .cb .os-light--min::before { content: "−"; }
+  .cb .os-light--max::before { content: "+"; }
+
   /* ---- Boot screen ---- */
   .os-boot {
     position: fixed;
@@ -697,6 +720,15 @@
   .dark .os-pill--live { color: #bfe9a8; }
   .dark .os-pill--build { color: #9fe2ff; }
   .dark .os-pill--lab { color: #d6c7ff; }
+
+  /* Colorblind-safe status hues (Okabe-Ito: bluish-green / blue / orange).
+     The pill text labels already carry the meaning without relying on color. */
+  .cb .os-pill--live { background: rgba(0, 158, 115, 0.22); color: #00674e; }
+  .cb .os-pill--build { background: rgba(0, 114, 178, 0.2); color: #004c78; }
+  .cb .os-pill--lab { background: rgba(230, 159, 0, 0.24); color: #8a5300; }
+  .dark.cb .os-pill--live { color: #67d2b0; }
+  .dark.cb .os-pill--build { color: #8fc7ff; }
+  .dark.cb .os-pill--lab { color: #ffce80; }
 
   /* Tech tags */
   .os-tag {

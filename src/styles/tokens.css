@@ -25,6 +25,10 @@
 }
 
 :root {
+  /* Grass (green hill) as raw RGB channels so the wallpaper hill can take an
+     alpha while still responding to the colorblind-safe palette swap below. */
+  --grass-rgb: 126, 217, 87;
+
   /* Glass surfaces */
   --glass: rgba(255, 255, 255, 0.45);
   --glass-strong: rgba(255, 255, 255, 0.62);
@@ -41,4 +45,13 @@
   --glass-strong: rgba(30, 56, 98, 0.66);
   --glass-line: rgba(140, 190, 255, 0.45);
   --glass-edge: rgba(120, 180, 255, 0.4);
+}
+
+/* Colorblind-safe palette (`.cb`). Layers on top of day or night. Nudges the
+   green accent toward Okabe-Ito's bluish-green so blue/green stay distinct for
+   the most common (red-green) color vision deficiencies. Status pills and the
+   window traffic lights get their own safe hues + non-color cues in globals.css. */
+.cb {
+  --color-grass: #009e73;
+  --grass-rgb: 0, 158, 115;
 }
