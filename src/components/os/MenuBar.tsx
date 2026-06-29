@@ -31,7 +31,7 @@ function useClock() {
 
 /** Live translucent menu bar: logo menu, nav, theme toggle, status popovers, clock. */
 export function MenuBar() {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme, colorblind, toggleColorblind } = useTheme();
   const { locale, cycleLocale } = useLocale();
   const openApp = useWindowStore((s) => s.openApp);
   const time = useClock();
@@ -43,6 +43,11 @@ export function MenuBar() {
     toast(next === "night" ? "🌙 Night mode" : "☀️ Day mode");
   };
 
+  const flipColorblind = () => {
+    toggleColorblind();
+    toast(colorblind ? "👓 Colorblind-safe off" : "👓 Colorblind-safe on");
+  };
+
   const flipLanguage = () => {
     cycleLocale();
     const order = Object.keys(LOCALE_LABELS) as (keyof typeof LOCALE_LABELS)[];
@@ -52,10 +57,10 @@ export function MenuBar() {
   };
 
   return (
-    <header className="os-menubar fixed inset-x-0 top-0 z-[9000] flex h-[34px] items-center gap-1.5 px-3 text-[13px] text-ink">
+    <header className="os-menubar fixed inset-x-0 top-0 z-[9000] flex h-[34px] flex-nowrap items-center gap-1.5 overflow-hidden px-2 text-[13px] text-ink sm:px-3">
       {/* OS logo menu */}
       <Menu.Root>
-        <Menu.Trigger className="font-brand rounded-[9px] px-2.5 py-1 text-[15px] font-bold tracking-tight outline-none transition-colors hover:bg-white/55 data-[state=open]:bg-white/55">
+        <Menu.Trigger className="font-brand shrink-0 whitespace-nowrap rounded-[9px] px-2 py-1 text-[15px] font-bold tracking-tight outline-none transition-colors hover:bg-white/55 data-[state=open]:bg-white/55 sm:px-2.5">
           {branding.name}
           <span className="text-aqua-deep">{branding.suffix}</span>
         </Menu.Trigger>
@@ -72,6 +77,10 @@ export function MenuBar() {
             <Menu.Separator className="os-menu-sep" />
             <Menu.Item className="os-menu-item" onSelect={flipTheme}>
               Toggle day / night
+            </Menu.Item>
+            <Menu.Item className="os-menu-item" onSelect={flipColorblind}>
+              <span>Colorblind-safe</span>
+              <small>{colorblind ? "On" : "Off"}</small>
             </Menu.Item>
             <Menu.Item
               className="os-menu-item"
@@ -91,8 +100,8 @@ export function MenuBar() {
         </Menu.Portal>
       </Menu.Root>
 
-      {/* Section nav (windows arrive in phase 3) */}
-      <nav className="flex items-center gap-1">
+      {/* Section nav — hidden on mobile, where the dock + desktop icons launch apps */}
+      <nav className="hidden items-center gap-1 sm:flex">
         {menuBar.map((item) => (
           <button
             key={item.id}
@@ -105,9 +114,9 @@ export function MenuBar() {
         ))}
       </nav>
 
-      <div className="flex-1" />
+      <div className="min-w-0 flex-1" />
 
-      <div className="flex items-center gap-0.5">
+      <div className="flex shrink-0 items-center gap-0.5">
         {/* Day / night toggle */}
         <button
           type="button"
@@ -117,6 +126,19 @@ export function MenuBar() {
           className="os-glyph"
         >
           {isNight ? "🌙" : "☀️"}
+        </button>
+
+        {/* Colorblind-safe palette toggle */}
+        <button
+          type="button"
+          onClick={flipColorblind}
+          aria-label="Toggle colorblind-safe palette"
+          aria-pressed={colorblind}
+          title={`Colorblind-safe: ${colorblind ? "on" : "off"}`}
+          className="os-glyph"
+          style={{ opacity: colorblind ? 1 : undefined }}
+        >
+          👓
         </button>
 
         {/* Language — cycles EN → ES → FR */}
@@ -130,29 +152,30 @@ export function MenuBar() {
           {LOCALE_LABELS[locale].flag}
         </button>
 
-        {/* Network */}
-        <StatusPopover icon="📶" label="Network" title="Network">
-          <div>
-            Connected to <strong>the open web</strong>
-          </div>
-          <div className="os-meter">
-            <i style={{ width: "96%" }} />
-          </div>
-          <small className="opacity-60">Signal: excellent</small>
-        </StatusPopover>
+        {/* Network + battery — hidden on mobile to keep the bar from overflowing */}
+        <div className="hidden items-center gap-0.5 sm:flex">
+          <StatusPopover icon="📶" label="Network" title="Network">
+            <div>
+              Connected to <strong>the open web</strong>
+            </div>
+            <div className="os-meter">
+              <i style={{ width: "96%" }} />
+            </div>
+            <small className="opacity-60">Signal: excellent</small>
+          </StatusPopover>
 
-        {/* Battery */}
-        <StatusPopover icon="🔋" label="Battery" title="Power">
-          <div>
-            Running on <strong>pure curiosity</strong>
-          </div>
-          <div className="os-meter">
-            <i style={{ width: "100%", background: "var(--color-grass)" }} />
-          </div>
-          <small className="opacity-60">100% — never needs charging</small>
-        </StatusPopover>
+          <StatusPopover icon="🔋" label="Battery" title="Power">
+            <div>
+              Running on <strong>pure curiosity</strong>
+            </div>
+            <div className="os-meter">
+              <i style={{ width: "100%", background: "var(--color-grass)" }} />
+            </div>
+            <small className="opacity-60">100% — never needs charging</small>
+          </StatusPopover>
+        </div>
 
-        <span className="min-w-[64px] text-center font-semibold tabular-nums">{time}</span>
+        <span className="min-w-[58px] shrink-0 whitespace-nowrap text-center font-semibold tabular-nums">{time}</span>
       </div>
     </header>
   );

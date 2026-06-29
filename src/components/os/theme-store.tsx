@@ -19,6 +19,8 @@ import {
  * active wallpaper, and projects them onto the DOM:
  *
  *  - `theme === "night"` toggles the `.dark` class on <html> (shadcn night tokens)
+ *  - `colorblind` toggles the `.cb` class on <html> — a colorblind-safe palette
+ *    that layers on top of either theme (orthogonal to day/night)
  *  - the active wallpaper sets the `--wp-*` custom properties consumed by
  *    `.os-sky--day` in globals.css
  *
@@ -29,9 +31,12 @@ export type Theme = "day" | "night";
 interface ThemeStore {
   theme: Theme;
   wallpaper: WallpaperId;
+  colorblind: boolean;
   setTheme: (theme: Theme) => void;
   toggleTheme: () => void;
   setWallpaper: (wallpaper: WallpaperId) => void;
+  setColorblind: (on: boolean) => void;
+  toggleColorblind: () => void;
 }
 
 const ThemeContext = createContext<ThemeStore | null>(null);
@@ -41,6 +46,7 @@ const STORAGE_KEY = "ricardo-os:appearance";
 interface Persisted {
   theme: Theme;
   wallpaper: WallpaperId;
+  colorblind: boolean;
 }
 
 function readPersisted(): Partial<Persisted> {
@@ -56,6 +62,7 @@ function readPersisted(): Partial<Persisted> {
 export function ThemeProvider({ children }: { children: ReactNode }) {
   const [theme, setThemeState] = useState<Theme>("day");
   const [wallpaper, setWallpaperState] = useState<WallpaperId>(DEFAULT_WALLPAPER);
+  const [colorblind, setColorblindState] = useState(false);
 
   // Hydrate from storage after mount. This is deliberately an effect (not a lazy
   // initializer) so SSR and the first client render agree, avoiding a hydration
@@ -65,6 +72,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     /* eslint-disable react-hooks/set-state-in-effect */
     if (saved.theme === "day" || saved.theme === "night") setThemeState(saved.theme);
     if (saved.wallpaper && saved.wallpaper in wallpapers) setWallpaperState(saved.wallpaper);
+    if (typeof saved.colorblind === "boolean") setColorblindState(saved.colorblind);
     /* eslint-enable react-hooks/set-state-in-effect */
   }, []);
 
@@ -72,6 +80,11 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     document.documentElement.classList.toggle("dark", theme === "night");
   }, [theme]);
+
+  // Project the colorblind-safe palette onto the `.cb` class.
+  useEffect(() => {
+    document.documentElement.classList.toggle("cb", colorblind);
+  }, [colorblind]);
 
   // Project the wallpaper onto the sky custom properties.
   useEffect(() => {
@@ -86,11 +99,14 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
   // Persist.
   useEffect(() => {
     try {
-      window.localStorage.setItem(STORAGE_KEY, JSON.stringify({ theme, wallpaper }));
+      window.localStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({ theme, wallpaper, colorblind }),
+      );
     } catch {
       // ignore (private mode / storage disabled)
     }
-  }, [theme, wallpaper]);
+  }, [theme, wallpaper, colorblind]);
 
   const setTheme = useCallback((next: Theme) => setThemeState(next), []);
   const toggleTheme = useCallback(
@@ -98,9 +114,22 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     [],
   );
   const setWallpaper = useCallback((next: WallpaperId) => setWallpaperState(next), []);
+  const setColorblind = useCallback((on: boolean) => setColorblindState(on), []);
+  const toggleColorblind = useCallback(() => setColorblindState((c) => !c), []);
 
   return (
-    <ThemeContext.Provider value={{ theme, wallpaper, setTheme, toggleTheme, setWallpaper }}>
+    <ThemeContext.Provider
+      value={{
+        theme,
+        wallpaper,
+        colorblind,
+        setTheme,
+        toggleTheme,
+        setWallpaper,
+        setColorblind,
+        toggleColorblind,
+      }}
+    >
       {children}
     </ThemeContext.Provider>
   );
