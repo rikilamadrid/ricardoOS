@@ -119,7 +119,7 @@ export function Window({ win }: { win: WindowState }) {
         pointerEvents: win.minimized ? "none" : "auto",
       }}
       className={cn(
-        "os-glass fixed flex min-w-[280px] flex-col overflow-hidden rounded-os",
+        "os-glass os-window fixed flex min-w-[280px] flex-col overflow-hidden rounded-os",
         animatingRect && "transition-[left,top,width,height] duration-200 ease-out",
       )}
     >
@@ -128,7 +128,7 @@ export function Window({ win }: { win: WindowState }) {
         onPointerMove={onTitlePointerMove}
         onPointerUp={endDrag}
         onDoubleClick={handleMax}
-        className="os-titlebar relative flex h-[42px] flex-none cursor-grab items-center gap-2.5 px-3 active:cursor-grabbing"
+        className="os-titlebar relative flex h-[42px] flex-none cursor-grab touch-none select-none items-center gap-2.5 px-3 active:cursor-grabbing"
       >
         <div className="z-[1] flex gap-2">
           <button
@@ -168,7 +168,7 @@ export function Window({ win }: { win: WindowState }) {
         onPointerDown={onGripPointerDown}
         onPointerMove={onGripPointerMove}
         onPointerUp={endDrag}
-        className="os-resize absolute bottom-0 right-0 h-5 w-5 cursor-nwse-resize touch-none"
+        className="os-resize absolute bottom-0 right-0 h-8 w-8 cursor-nwse-resize touch-none sm:h-5 sm:w-5"
         aria-hidden="true"
       />
     </motion.section>

@@ -1,32 +1,32 @@
 # Current Feature
 
-Phase 3 — Window Manager & Dock. The heart of the OS illusion: open, focus, drag, resize, minimize, maximize, and close windows, plus a functioning dock and desktop icons. Apps render placeholder content for now (real content arrives in phase 4).
+Phase 4 — Content Models & Core Apps. Replaces the placeholder windows with real, data-driven content for the four core apps: About, Projects, Experience, and Contact. Content is strongly typed and lives in `src/content/*`; the app registry becomes the single source of truth for what launches.
 
-Full spec: @context/features/phase-3-window-manager-spec.md
+Full spec: @context/features/phase-4-content-apps-spec.md
 
 ## Status
 
-In Progress
+In Progress — on `feature/phase-4-content-apps`.
+
+**Approach (2026-06-29):** Build the four core apps on top of the existing **localized** `@/data` models (EN/ES/FR), keeping the Phase-2 language switcher intact. New typed content lives in `src/data` for now (`chapters.ts`, `contact.ts`, enriched `projects.ts`). Also fixed two reported bugs alongside: the desktop hint pill sat too low (touched the dock) and stacked app windows were see-through (glass too transparent).
 
 ## Goals
 
-- **Window store** (Zustand) in `src/lib/window-store.ts`: `windows` map, `zTop`, actions `openApp`, `closeApp`, `focus`, `minimize`, `toggleMax`, `setRect`
-- **Window component** with aqua-gel chrome: glossy title bar, jellybean traffic lights (close/min/max), glass body slot
-- **Drag** by the title bar via Pointer Events (mouse + touch)
-- **Resize** from a bottom-right grip via Pointer Events; min 280×200, capped to viewport; must work on mobile (no `!important` size locks)
-- **Focus**: any pointer-down on a window raises its z-index
-- **Single instance**: opening an open app focuses it (un-minimizes if needed)
-- **Animations** (Framer Motion): open (scale + fade up), close (scale down + fade), minimize (shrink toward dock), maximize toggle
-- **WindowManager** renders all open windows from the store
-- **Dock**: launches apps, running-dot indicators, bounce on launch, single-icon hover lift (NO neighbor magnification), scrolls horizontally on overflow at any width
-- **DesktopIcons**: curated subset; click/double-click opens the app
-- **Mobile**: windows open near-fullscreen (~96vw, top ≈46px) in JS, still draggable/resizable; dock scrolls; icons reflow to a wrapping row
+- **Typed content files** in `src/content/` (interfaces from the project overview): `apps.ts` (registry), `projects.ts`, `experiments.ts`, `experience.ts`, `contact.ts`, `meditations.ts`
+- **Data-driven launching**: dock, desktop icons, and window manager all read from `apps.ts`. New app = registry entry + component in `components/apps/`
+- **Reusable UI primitives**: aqua-gel `Button`, glossy `Tile`, project `Card` (port styling from the prototype)
+- **About app**: short human intro (curiosity, building, learning, games) + CTA → opens Projects. No résumé, no essay
+- **Projects app**: responsive grid of product cards from `projects.ts` — gradient thumbnail, status pill (live/building/experiment), tech tags, demo/code buttons, hover lift + shadow bloom
+- **Experience app**: rendered as **chapters** (`when`/`title`/`impact`) — no bullets, no timeline, no skill bars
+- **Contact app**: elegant link buttons (email → copy + toast; external → new tab). No large form
+- **Toasts** for in-app actions (copy email, "demo coming soon", etc.)
+- Seed tasteful, clearly-editable placeholder content for Ricardo across all four apps
 
 ## Notes
 
-New deps required: **Zustand** (window store) and **Framer Motion** (window animations) — neither is installed yet.
+Existing mock data already lives in `src/data/*` (profile, projects, experience, etc.) and the registry in `src/data/os.ts` — reconcile/migrate toward the `src/content/*` models the spec calls for rather than duplicating.
 
-Out of scope (later phases): real app content (phase 4), dedicated project/writing pages (phase 5), easter-egg apps (phase 6).
+Out of scope (later phases): dedicated `/projects/[slug]` + `/writing/[slug]` pages, MDX, deep links (phase 5); Meditations, Playground, Terminal, Aero FM, Recycle Bin (phase 6).
 
 ## History
 
@@ -41,4 +41,6 @@ Out of scope (later phases): real app content (phase 4), dedicated project/writi
 - **2026-06-29** — Added a working language switcher: `locale-store.tsx` (`LocaleProvider`/`useLocale`, EN→ES→FR cycle, persisted + mirrored to `<html lang>`). Restored the menu-bar language glyph (shows the active flag, cycles on click). `MenuBar`, `Dock`, `DesktopIcons`, and the desktop context menu now resolve labels through the live locale instead of `DEFAULT_LOCALE`. Lint + build pass.
 - **2026-06-29** — Merged Phase 2 via PR #2 (`feature/phase-2-living-desktop`), branch deleted. **Completed.**
 - **2026-06-29** — Moved current feature to **Phase 3 (Window Manager & Dock)**: window store, draggable/resizable windows, animations, functioning dock + desktop icons. **Not Started.**
-- **2026-06-29** — Implemented Phase 3: installed `zustand` + `motion`. Added `src/lib/window-store.ts` (windows map, `zTop`, `openApp`/`closeApp`/`focus`/`minimize`/`toggleMax`/`setRect`, single-instance, mobile near-fullscreen placement). Rewrote `Window.tsx` with aqua-gel chrome, Pointer-Event drag (title bar) + resize (corner grip, min 280×200, viewport-capped), focus-on-press, and Framer Motion open/close/minimize/maximize transitions. New `WindowManager.tsx` (AnimatePresence) + `WindowContent.tsx` (phase-4 placeholder bodies). `Dock` now launches apps with running-dot indicators, bounce-on-launch, single-icon hover lift, and overflow scroll; `DesktopIcons` and menu-bar nav open apps. CSS for dock dots/bounce + resize grip added to `globals.css`. `npm run lint` and `npm run build` pass. **In Progress** (pending manual QA).
+- **2026-06-29** — Implemented Phase 3: installed `zustand` + `motion`. Added `src/lib/window-store.ts` (windows map, `zTop`, `openApp`/`closeApp`/`focus`/`minimize`/`toggleMax`/`setRect`, single-instance, mobile near-fullscreen placement). Rewrote `Window.tsx` with aqua-gel chrome, Pointer-Event drag (title bar) + resize (corner grip, min 280×200, viewport-capped), focus-on-press, and Framer Motion open/close/minimize/maximize transitions. New `WindowManager.tsx` (AnimatePresence) + `WindowContent.tsx` (phase-4 placeholder bodies). `Dock` now launches apps with running-dot indicators, bounce-on-launch, single-icon hover lift, and overflow scroll; `DesktopIcons` and menu-bar nav open apps. CSS for dock dots/bounce + resize grip added to `globals.css`. `npm run lint` and `npm run build` pass.
+- **2026-06-29** — Merged Phase 3 via PR #3 (`feature/phase-3-window-manager`), branch deleted. **Completed.**
+- **2026-06-29** — Moved current feature to **Phase 4 (Content Models & Core Apps)**: typed `src/content/*`, data-driven launching, reusable UI primitives, and real About/Projects/Experience/Contact apps. **Not Started.**

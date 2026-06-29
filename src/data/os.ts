@@ -16,7 +16,16 @@ export interface AppDefinition {
   /** Glossy tile gradient palette used in the dock and on the desktop. */
   tile: TilePalette;
   /** Which content module renders inside the window. */
-  kind: "about" | "projects" | "playground" | "terminal" | "music" | "contact" | "resume" | "link";
+  kind:
+    | "about"
+    | "projects"
+    | "playground"
+    | "terminal"
+    | "music"
+    | "contact"
+    | "experience"
+    | "resume"
+    | "link";
   /** Default window placement (% of viewport) + size in px. Tweak per phase. */
   window: { x: number; y: number; width: number; height: number };
   /** Shown on the desktop as a launchable icon. */
@@ -76,12 +85,23 @@ export const apps: AppDefinition[] = [
     href: "/notes",
   },
   {
-    id: "resume",
-    title: { en: "Résumé", es: "Currículum", fr: "CV" },
+    id: "experience",
+    title: { en: "Experience", es: "Experiencia", fr: "Expérience" },
     icon: "📖",
     tile: "teal",
+    kind: "experience",
+    window: { x: 28, y: 14, width: 600, height: 640 },
+    onDesktop: false,
+    inDock: true,
+    openOnBoot: false,
+  },
+  {
+    id: "resume",
+    title: { en: "Résumé", es: "Currículum", fr: "CV" },
+    icon: "📄",
+    tile: "graphite",
     kind: "resume",
-    window: { x: 28, y: 14, width: 720, height: 800 },
+    window: { x: 24, y: 10, width: 720, height: 820 },
     onDesktop: false,
     inDock: true,
     openOnBoot: false,

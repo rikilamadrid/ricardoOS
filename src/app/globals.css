@@ -273,6 +273,15 @@
     box-shadow: var(--os-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 0 0 1px rgba(120, 170, 225, 0.25);
   }
 
+  /* App windows are stacked, so a low-opacity glass lets the window behind
+     bleed through. Use a more opaque surface (still frosted) for windows. */
+  .os-window {
+    background: rgba(244, 250, 255, 0.9);
+  }
+  .dark .os-window {
+    background: rgba(26, 48, 86, 0.92);
+  }
+
   /* ---- Menu bar ---- */
   .os-menubar {
     background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(228, 240, 255, 0.45));
@@ -562,7 +571,7 @@
   .os-hint {
     position: fixed;
     left: 50%;
-    bottom: 78px;
+    bottom: 116px;
     transform: translateX(-50%);
     z-index: 50;
     display: flex;
@@ -581,6 +590,151 @@
     transition: opacity 0.6s ease;
   }
   .os-hint--gone { opacity: 0; }
+
+  /* ---- App content primitives (ported from the prototype) ---- */
+  .os-eyebrow {
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    color: var(--color-aqua-deep, #1c8ce0);
+    margin-bottom: 8px;
+  }
+
+  /* Aqua-gel button */
+  .os-gel {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 18px;
+    border-radius: 999px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #063b63;
+    background: linear-gradient(180deg, #eafaff, #bfeaff 48%, #8fd6f7);
+    box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.95), inset 0 -7px 10px rgba(20, 110, 170, 0.25), 0 4px 12px rgba(20, 90, 150, 0.3);
+    position: relative;
+    overflow: hidden;
+    transition: transform 0.12s, filter 0.15s;
+  }
+  .os-gel::before {
+    content: "";
+    position: absolute;
+    left: 6%;
+    right: 6%;
+    top: 5%;
+    height: 42%;
+    border-radius: 50%;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0));
+  }
+  .os-gel:hover { filter: brightness(1.05); }
+  .os-gel:active { transform: scale(0.96); }
+  .os-gel--primary {
+    color: #fff;
+    background: linear-gradient(180deg, #6fd0ff, #1f8be0 52%, #1573c4);
+  }
+  .os-gel--primary::before {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0));
+  }
+  .os-gel--ghost {
+    background: rgba(255, 255, 255, 0.4);
+    color: var(--color-ink, #0a2540);
+    box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.7), 0 2px 8px rgba(20, 80, 140, 0.18);
+  }
+  .dark .os-gel--ghost {
+    background: rgba(70, 110, 170, 0.32);
+    color: #eaf4ff;
+  }
+
+  /* Project grid + card */
+  .os-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 14px;
+  }
+  .os-card {
+    border-radius: 16px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 8px 20px rgba(20, 70, 130, 0.16);
+    transition: transform 0.18s cubic-bezier(0.2, 1, 0.4, 1), box-shadow 0.18s;
+  }
+  .dark .os-card { background: rgba(40, 68, 116, 0.5); }
+  .os-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 34px rgba(15, 60, 120, 0.28);
+  }
+  .os-thumb {
+    height: 96px;
+    position: relative;
+    display: grid;
+    place-items: center;
+    font-size: 34px;
+    background: linear-gradient(135deg, var(--c1, #7fd4ff), var(--c2, #b69bff));
+  }
+  .os-thumb::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(120% 80% at 20% 0%, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0) 60%);
+  }
+  .os-card-body { padding: 12px 13px 14px; }
+
+  /* Status pills */
+  .os-pill {
+    font-size: 10.5px;
+    font-weight: 700;
+    padding: 3px 9px;
+    border-radius: 999px;
+    letter-spacing: 0.04em;
+    white-space: nowrap;
+    flex: 0 0 auto;
+  }
+  .os-pill--live { background: rgba(126, 217, 87, 0.25); color: #2f7d1f; }
+  .os-pill--build { background: rgba(0, 194, 255, 0.2); color: #0a6b97; }
+  .os-pill--lab { background: rgba(182, 155, 255, 0.28); color: #5b3fb0; }
+  .dark .os-pill--live { color: #bfe9a8; }
+  .dark .os-pill--build { color: #9fe2ff; }
+  .dark .os-pill--lab { color: #d6c7ff; }
+
+  /* Tech tags */
+  .os-tag {
+    font-size: 11px;
+    font-weight: 600;
+    padding: 3px 8px;
+    border-radius: 7px;
+    background: rgba(110, 160, 220, 0.16);
+    color: var(--color-ink-soft, #41607e);
+  }
+
+  /* Chapter / list rows */
+  .os-row {
+    display: flex;
+    gap: 14px;
+    padding: 13px 4px;
+    border-bottom: 1px solid var(--glass-edge);
+    align-items: baseline;
+  }
+  .os-row:last-child { border-bottom: none; }
+  .os-when {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    color: var(--color-aqua-deep, #1c8ce0);
+    font-size: 13px;
+    min-width: 74px;
+    flex: 0 0 auto;
+  }
+
+  /* Contact link grid */
+  .os-contact-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  @media (max-width: 520px) {
+    .os-contact-grid { grid-template-columns: 1fr; }
+  }
 }
 
 /* Honor reduced motion + tab-hidden: disable the ambient loops. The bubbles
