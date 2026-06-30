@@ -22,12 +22,15 @@ export interface WindowState {
 interface WindowStore {
   windows: Record<string, WindowState>;
   zTop: number;
+  /** Meditations "zen mode": a desktop-level overlay, not a window. */
+  zenMode: boolean;
   openApp: (id: string) => void;
   closeApp: (id: string) => void;
   focus: (id: string) => void;
   minimize: (id: string) => void;
   toggleMax: (id: string) => void;
   setRect: (id: string, rect: Partial<Rect>) => void;
+  setZen: (open: boolean) => void;
 }
 
 const MIN_W = 280;
@@ -61,10 +64,16 @@ function maximizedRect(): Rect {
 export const useWindowStore = create<WindowStore>((set, get) => ({
   windows: {},
   zTop: 100,
+  zenMode: false,
 
   openApp: (id) => {
     const app = apps.find((a) => a.id === id);
     if (!app) return;
+    // Meditations is a mode, not a window: entering it dims the whole desktop.
+    if (app.kind === "meditations") {
+      set({ zenMode: true });
+      return;
+    }
     const z = get().zTop + 1;
     const existing = get().windows[id];
     if (existing) {
@@ -139,6 +148,8 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
       merged.height = Math.max(MIN_H, merged.height);
       return { windows: { ...s.windows, [id]: { ...win, rect: merged } } };
     }),
+
+  setZen: (open) => set({ zenMode: open }),
 }));
 
 export { MIN_W, MIN_H };
