@@ -1,9 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { toast } from "sonner";
-import { t, type Project } from "@/data";
+import { t, projectSlug, type Project } from "@/data";
 import { useLocale } from "@/components/os/locale-store";
 import { AquaButton } from "@/components/ui/AquaButton";
+
+/** "Open details" CTA copy per locale. */
+const OPEN_LABEL: Record<"en" | "es" | "fr", string> = {
+  en: "Open",
+  es: "Abrir",
+  fr: "Ouvrir",
+};
 
 /** Status pill copy + palette per lifecycle. */
 const STATUS: Record<Project["status"], { cls: string; label: Record<"en" | "es" | "fr", string> }> = {
@@ -41,19 +49,18 @@ export function ProjectCard({ project }: { project: Project }) {
           </div>
         )}
         <div className="mt-3 flex gap-1.5">
+          <Link
+            href={`/projects/${projectSlug(project)}`}
+            className="os-gel os-gel--primary !px-3 !py-1.5 !text-[12.5px]"
+          >
+            {OPEN_LABEL[locale]} →
+          </Link>
           <AquaButton
-            variant="primary"
+            variant="ghost"
             className="!px-3 !py-1.5 !text-[12.5px]"
             onClick={() => toast("↗ Demo coming soon")}
           >
             {locale === "es" ? "Demo" : locale === "fr" ? "Démo" : "Live demo"}
-          </AquaButton>
-          <AquaButton
-            variant="ghost"
-            className="!px-3 !py-1.5 !text-[12.5px]"
-            onClick={() => toast("↗ Code coming soon")}
-          >
-            {locale === "es" ? "Código" : "Code"}
           </AquaButton>
         </div>
       </div>

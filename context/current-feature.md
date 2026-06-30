@@ -1,14 +1,29 @@
 # Current Feature
 
-Phase 4 — Content Models & Core Apps. Replaces the placeholder windows with real, data-driven content for the four core apps: About, Projects, Experience, and Contact. Content is strongly typed and lives in `src/content/*`; the app registry becomes the single source of truth for what launches.
+Phase 5 — Content Pages, Writing (MDX), Routing & SEO. Adds real, shareable, SEO-friendly pages alongside the desktop: dedicated project detail pages, the Writing app backed by MDX, query-param + path deep links into apps, and smooth transitions between the desktop and detail pages. The desktop at `/` stays the home base.
 
-Full spec: @context/features/phase-4-content-apps-spec.md
+Full spec: @context/features/phase-5-content-pages-spec.md
 
 ## Status
 
-**Completed** — merged to `main` via PR #4.
+**In Progress** — branch `feature/phase-5-content-pages`.
 
-**Approach (2026-06-29):** Built the core apps on top of the existing **localized** `@/data` models (EN/ES/FR), keeping the Phase-2 language switcher intact. New typed content lives in `src/data` (`chapters.ts`, `contact.ts`, enriched `projects.ts`). Mid-phase, added a dedicated **Résumé 📄** app (native on-brand document from typed data + per-language PDF download in `public/resume`, no iframe) split from **Experience 📖** (chapters). Also fixed three reported bugs: the desktop hint pill overlapped the dock, stacked windows were see-through, and mobile window drag/resize worked poorly.
+Building in two coherent slices on one branch:
+
+- **Slice A — Project pages, deep links & SEO (no new deps):** extend the localized `Project` model (slug = id, `year`, `tagline`, long `writeup`, optional `cover`); add `/projects/[slug]` SSR detail pages (`generateStaticParams` + `generateMetadata`) and a crawlable `/projects` index; ProjectCard gains an "expand" → `/projects/[slug]` with a Framer-Motion page transition; `?app=<id>` deep link auto-opens an app on the desktop; `sitemap.ts` + `robots.ts`; richer root metadata (OG/Twitter, `metadataBase`) + a `<noscript>` summary.
+- **Slice B — Writing/MDX + OG:** MDX pipeline for `src/content/posts/*.mdx` with typed `PostMeta` frontmatter; Writing app (replaces the placeholder `blog`→`/notes` link app) listing posts; `/writing` index + `/writing/[slug]` article pages; OG image generation via `next/og`.
+
+**Implementation log:**
+- **Slice A — committed** (`feat: project detail/index pages, deep links & SEO (phase 5a)`). Built as scoped above. Verified live: SSR titles, canonical/OG, writeups, `sitemap.xml`/`robots.txt`.
+- **Slice B — committed.** Installed `gray-matter@4` + `next-mdx-remote@6` (RSC `MDXRemote`). `src/lib/posts.ts` reads `src/content/posts/*.mdx` frontmatter (server-only `node:fs`); 3 seed posts. `/writing` index + `/writing/[slug]` (MDX) pages in the shared `ContentPage` shell. In-window **Writing** app: `page.tsx` reads post metas server-side and passes them through a client `PostsProvider` (`posts-store.tsx`) so `WritingApp` lists posts without bundling `fs` (`import type` only). Registry: `blog`(`kind:"link"`→`/notes`) became `writing`(`kind:"writing"`); `WindowContent` routes it. OG images via `next/og` (`src/lib/og.tsx` Aero card) at root + per-project + per-post `opengraph-image.tsx`. Sitemap extended with `/writing` + posts. `npm run lint` + `npm run build` pass (23 routes).
+
+**Decisions:** Project/post detail pages render in **English** (canonical) for SEO/crawlability even though desktop content is localized EN/ES/FR. `/projects` (and later `/writing`) are standalone crawlable SSR index pages with an "Open in RicardoOS" CTA → `/?app=projects`, rather than auto-redirecting to the desktop (better serves the explicit SEO requirement). Posts are English-only for v1 (`PostMeta` has no locale).
+
+---
+
+## Previous — Phase 4 (Completed, PR #4)
+
+Phase 4 — Content Models & Core Apps. Replaced the placeholder windows with real, data-driven content for About, Projects, Experience, Contact (+ Résumé). Built on the existing **localized** `@/data` models (EN/ES/FR), keeping the Phase-2 language switcher intact.
 
 ## Goals
 

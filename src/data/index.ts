@@ -18,7 +18,7 @@ export { skillGroups } from "./skills";
 export { experiences } from "./experience";
 export { education, languageProficiency } from "./education";
 export { about } from "./about";
-export { projects } from "./projects";
+export { projects, projectList, getProject, projectSlug } from "./projects";
 export { experienceContent } from "./chapters";
 export type { ExperienceChapter, ExperienceContent } from "./chapters";
 export { contact } from "./contact";
