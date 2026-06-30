@@ -1,7 +1,7 @@
 "use client";
 
 import { useRef, useState, type PointerEvent as ReactPointerEvent } from "react";
-import { motion } from "motion/react";
+import { motion, useReducedMotion } from "motion/react";
 import { cn } from "@/lib/utils";
 import { apps, t } from "@/data";
 import { useLocale } from "./locale-store";
@@ -27,6 +27,7 @@ export function Window({ win }: { win: WindowState }) {
   const { locale } = useLocale();
   const { focus, closeApp, minimize, toggleMax, setRect } = useWindowStore();
   const app = apps.find((a) => a.id === win.id);
+  const reduceMotion = useReducedMotion();
   const drag = useRef<DragRef | null>(null);
   const resize = useRef<DragRef | null>(null);
   // Enables a brief CSS transition on left/top/width/height for the max toggle.
@@ -100,15 +101,23 @@ export function Window({ win }: { win: WindowState }) {
 
   return (
     <motion.section
+      role="dialog"
+      aria-label={t(app.title, locale)}
       onPointerDown={() => focus(win.id)}
-      initial={{ opacity: 0, scale: 0.96, y: 14 }}
+      initial={reduceMotion ? false : { opacity: 0, scale: 0.96, y: 14 }}
       animate={
         win.minimized
-          ? { opacity: 0, scale: 0.2, y: 260 }
+          ? reduceMotion
+            ? { opacity: 0 }
+            : { opacity: 0, scale: 0.2, y: 260 }
           : { opacity: 1, scale: 1, y: 0 }
       }
-      exit={{ opacity: 0, scale: 0.95, y: 10 }}
-      transition={{ duration: 0.26, ease: [0.2, 1.2, 0.4, 1] }}
+      exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95, y: 10 }}
+      transition={
+        reduceMotion
+          ? { duration: 0.12 }
+          : { duration: 0.26, ease: [0.2, 1.2, 0.4, 1] }
+      }
       style={{
         left: rect.x,
         top: rect.y,

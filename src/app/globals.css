@@ -131,6 +131,32 @@
 }
 
 /* ============================================================
+   Keyboard focus rings (a11y)
+   Unlayered so they win over Tailwind's layered `outline-none`
+   utilities and any component `outline: none`. Only show on
+   keyboard focus (:focus-visible), never on pointer clicks.
+   ============================================================ */
+:focus-visible {
+  outline: 2px solid var(--color-aqua-deep);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+/* Controls that explicitly clear their outline still get a ring */
+.os-menubar :focus-visible,
+.os-menu-item:focus-visible,
+.os-term-input:focus-visible,
+.os-dock-app:focus-visible,
+.os-light:focus-visible {
+  outline: 2px solid var(--color-aqua-deep);
+  outline-offset: 2px;
+}
+/* The traffic-light orbs are tiny — hug them tightly */
+.os-light:focus-visible {
+  outline-offset: 3px;
+  border-radius: 999px;
+}
+
+/* ============================================================
    RicardoOS — Frutiger Aero surfaces
    Reusable glass / tile / chrome classes built on the tokens
    in src/styles/tokens.css. Complex aqua surfaces (gloss
@@ -1316,6 +1342,7 @@
       rgba(6, 14, 32, 0.95)
     );
     backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
     color: #eaf3ff;
   }
   .os-zen-eyebrow {

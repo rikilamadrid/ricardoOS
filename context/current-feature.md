@@ -1,53 +1,59 @@
 # Current Feature
 
-Phase 6 — Special & Easter-Egg Apps. The personality and delight layer (phase 6 of 7). Adds the reflective **Meditations** space and the easter-egg apps that reward exploration — **Playground**, **Terminal**, **Aero FM**, and the **Recycle Bin**. All register through the app registry and lazy-load via `next/dynamic`. The prototype (`@context/ricardo-os.html`) is the behavior/tone source of truth.
+Phase 7 — Polish (Motion, A11y, Performance, QA). The final phase (7 of 7): no new features, just the pass that turns a working build into something premium and fast. The bar is "every pixel has intention" and "incredibly fast." The prototype (`@context/ricardo-os.html`) remains the feel source of truth.
 
-Full spec: @context/features/phase-6-easter-eggs-spec.md
+Full spec: @context/features/phase-7-polish-spec.md
 
 ## Status
 
-**Completed** — merged via PR #7 (`feature/phase-6-easter-eggs`), branch deleted.
+**In Progress** — branch `feature/phase-7-polish`.
 
-### Scope (5 apps)
+### Scope (5 workstreams, no new features)
 
-- **Meditations Between Quests** 🌙 (new): opening it **dims the desktop** with an overlay and enters a calm "other space" — a 7s breathing orb, a rotating reflective verse from a new `meditations.ts`, and a gentle "return to the desktop" button. New registry entry + `kind: "meditations"`. Honors `prefers-reduced-motion`.
-- **Playground** 🧪 (data exists): grid of experiments from `playground.ts`; clicking one shows a toast (or opens a sandbox link where present). Wire `kind: "playground"` in `WindowContent`.
-- **Terminal** ⌨️ (data exists, needs commands): working command parser with prompt input + scrollback. Commands: `help`, `about`, `projects`, `whoami`, `ls`, `theme [day|night]`, `joke`, `sudo`, `clear`, `contact`, `exit`. Unknown → friendly error. Extend `terminal.ts` (add `whoami`, `ls`, `joke`, `sudo`, `exit`) and route `kind: "terminal"`.
-- **Aero FM** 🎵 (data exists): ambient player UI with an animated equalizer + a soft Web Audio synth pad that starts **only on user click** (default off, low volume, stoppable — never autoplay). Route `kind: "music"`.
-- **Recycle Bin** 🗑️ (new): contains `old-portfolio.html`; "empty bin" → playful toast. New registry entry + `kind: "trash"`.
+- **Motion pass**: unify Framer Motion variants across windows, dock, cards, and page transitions. Remove any animation that exists "just because"; everything intentional and smooth.
+- **Reduced motion**: full `prefers-reduced-motion` audit — disable ambient loops (bubbles, rays, breathing orb, equalizer), keep essential state-change feedback instant.
+- **Accessibility**: full keyboard operability (launch apps, all window controls, links); visible focus rings everywhere; Radix/shadcn primitives for menus/popovers/dialogs (focus trap + ARIA); `Escape` closes the focused window or open menu; proper roles/labels on windows + accessible names on all icon/emoji tiles; AA contrast over glass verified in **both** day and night.
+- **Performance**: confirm lazy-loaded app components (`next/dynamic`); cap simultaneous `backdrop-filter` layers + particle/bubble counts; pause ambient loops when tab hidden; prefer transform/opacity, avoid layout thrash on drag/resize; `next/image` for images, subset fonts via `next/font`; target Lighthouse Performance ≥ 95 on desktop.
+- **Responsive + cross-browser + SEO**: verify desktop and ≤720px (windows, dock scroll, icon reflow, touch drag/resize); verify `backdrop-filter` (with `-webkit-` prefix) and glass in Safari/Chrome/Firefox; confirm sitemap, robots, and per-page metadata are complete.
 
 ### Plan
 
-1. **Data**: add `meditations.ts` (verses) + `trash.ts` (bin contents); extend `terminal.ts` with the missing commands; add `meditations`/`trash` to the `AppDefinition["kind"]` union + two new registry entries in `os.ts` (on desktop + in dock).
-2. **Components** in `src/components/apps/`: `MeditationsApp`, `PlaygroundApp`, `TerminalApp`, `MusicApp`, `TrashApp`. Lazy-load each via `next/dynamic`; route them in `WindowContent`.
-3. **Meditations overlay**: a desktop-level dim overlay (it's a "mode," not just a window) wired through the window store / a small zen state.
-4. **Verify**: `npm run lint` + `npm run build`, then browser QA; honor reduced motion; no autoplay.
+1. **Audit first**: walk the existing OS shell + apps for motion inconsistencies, missing focus rings, ambient loops that ignore reduced-motion/visibility, and a11y gaps (roles, labels, Escape, keyboard launch).
+2. **Motion**: centralize shared Framer Motion variants; reconcile window/dock/card/page transitions; prune purposeless animation.
+3. **A11y**: keyboard operability + focus rings + ARIA roles/labels + Escape handling; verify AA contrast in day & night.
+4. **Performance**: confirm dynamic imports, cap blur/particle layers, pause loops on hidden tab, audit images/fonts; measure Lighthouse.
+5. **QA**: responsive (desktop + ≤720px), cross-browser glass, final SEO check.
+6. **Verify**: `npm run lint` + `npm run build`, then browser QA across breakpoints and themes.
 
-**Out of scope (phase 7):** final motion polish, a11y audit, performance tuning, responsive QA.
+**Out of scope:** new features — this is the closing polish phase.
 
 ---
+
+## Previous — Phase 6 (Completed, PR #7 + polish PR #8)
+
+Phase 6 — Special & Easter-Egg Apps. Added the reflective **Meditations** zen mode and the easter-egg apps — **Playground**, **Terminal**, **Aero FM**, **Recycle Bin** — all data-driven via the registry and lazy-loaded via `next/dynamic`. Followed by a Winamp-style Aero FM rebuild + UI polish pass (PR #8). See History for details.
 
 ## Previous — Phase 5 (Completed, PR #6)
 
 Phase 5 — Content Pages, Writing (MDX), Routing & SEO. Two slices on one branch: **A** — `/projects/[slug]` SSR detail pages + crawlable `/projects` index, ProjectCard expand transition, `?app=<id>` deep links, `sitemap.ts`/`robots.ts`, richer root metadata (`5a232d7`). **B** — MDX pipeline (`gray-matter` + `next-mdx-remote`), `/writing` + `/writing/[slug]`, in-window Writing app via `PostsProvider`, OG images via `next/og` (`3a133b0`). English-canonical detail pages; standalone crawlable index pages with "Open in RicardoOS" CTAs.
 
-## Goals (Phase 4 — retained for reference)
+## Goals (Phase 7)
 
-- **Typed content files** in `src/content/` (interfaces from the project overview): `apps.ts` (registry), `projects.ts`, `experiments.ts`, `experience.ts`, `contact.ts`, `meditations.ts`
-- **Data-driven launching**: dock, desktop icons, and window manager all read from `apps.ts`. New app = registry entry + component in `components/apps/`
-- **Reusable UI primitives**: aqua-gel `Button`, glossy `Tile`, project `Card` (port styling from the prototype)
-- **About app**: short human intro (curiosity, building, learning, games) + CTA → opens Projects. No résumé, no essay
-- **Projects app**: responsive grid of product cards from `projects.ts` — gradient thumbnail, status pill (live/building/experiment), tech tags, demo/code buttons, hover lift + shadow bloom
-- **Experience app**: rendered as **chapters** (`when`/`title`/`impact`) — no bullets, no timeline, no skill bars
-- **Contact app**: elegant link buttons (email → copy + toast; external → new tab). No large form
-- **Toasts** for in-app actions (copy email, "demo coming soon", etc.)
-- Seed tasteful, clearly-editable placeholder content for Ricardo across all four apps
+- **Motion consistency**: shared, centralized Framer Motion variants across windows, dock, cards, and page transitions; nothing animates "just because"
+- **Reduced motion**: every ambient loop (bubbles, rays, breathing orb, equalizer) honors `prefers-reduced-motion`; state-change feedback stays instant
+- **Full keyboard operability**: launch apps, drive all window controls, and reach every link without a mouse; visible focus rings everywhere
+- **ARIA & semantics**: proper roles/labels on windows; accessible names on all icon/emoji tiles; `Escape` closes the focused window or open menu; Radix/shadcn primitives handle focus trap + ARIA for menus/popovers/dialogs
+- **Contrast**: AA for text over glass, verified in **both** day and night themes
+- **Performance**: lazy-loaded apps confirmed; capped `backdrop-filter`/particle layers; ambient loops paused on hidden tab; transform/opacity motion (no layout thrash); `next/image` + subset fonts; Lighthouse Performance ≥ 95 on desktop
+- **Responsive QA**: desktop + ≤720px — windows, dock scroll, icon reflow, touch drag/resize
+- **Cross-browser**: `backdrop-filter` (with `-webkit-` prefix) + glass verified in Safari/Chrome/Firefox
+- **Final SEO**: sitemap, robots, and per-page metadata complete
 
 ## Notes
 
-Existing mock data already lives in `src/data/*` (profile, projects, experience, etc.) and the registry in `src/data/os.ts` — reconcile/migrate toward the `src/content/*` models the spec calls for rather than duplicating.
+The OS is feature-complete after Phase 6 (PR #7) + the Winamp polish pass (PR #8); Phase 7 changes existing behavior only — no new apps, content models, or routes. Touch points already in place to reconcile rather than rebuild: ambient motion via `useAmbientMotion` (reduced-motion + tab visibility), `ZenOverlay`/equalizer reduced-motion fallbacks, lazy `next/dynamic` app loading in `WindowContent`, `sitemap.ts`/`robots.ts`, and per-page `generateMetadata` + OG images. The prototype (`@context/ricardo-os.html`) remains the feel reference.
 
-Out of scope (later phases): dedicated `/projects/[slug]` + `/writing/[slug]` pages, MDX, deep links (phase 5); Meditations, Playground, Terminal, Aero FM, Recycle Bin (phase 6).
+Out of scope: any new feature — Phase 7 is the closing polish pass.
 
 ## History
 
@@ -74,3 +80,6 @@ Out of scope (later phases): dedicated `/projects/[slug]` + `/writing/[slug]` pa
 - **2026-06-29** — Implemented Phase 5 (Content Pages, Writing/MDX, Routing & SEO) on `feature/phase-5-content-pages` in two slices. **Slice A** (`5a232d7`): `/projects/[slug]` SSR detail pages + crawlable `/projects` index (`generateStaticParams`/`generateMetadata`), ProjectCard "expand" with Framer-Motion transition, `?app=<id>` deep links, `sitemap.ts` + `robots.ts`, richer root metadata + `<noscript>`. **Slice B** (`3a133b0`): MDX pipeline (`gray-matter` + `next-mdx-remote` RSC), `src/lib/posts.ts` → typed `PostMeta` from `src/content/posts/*.mdx` (3 seed posts), `/writing` index + `/writing/[slug]` pages, in-window **Writing** app fed by a client `PostsProvider` (no `fs` in client bundle), `blog`→`writing` registry change, OG images via `next/og` (`src/lib/og.tsx`) at root + per project/post, sitemap extended. `npm run build` + `npm run lint` pass. Merged via PR #6, branch deleted. **Completed.**
 - **2026-06-29** — Implemented Phase 6 (Special & Easter-Egg Apps) on `feature/phase-6-easter-eggs` (`1762da3`). **Meditations** 🌙 as a desktop-level zen mode (`zenMode` in `window-store`; `ZenOverlay` dims the desktop with a 7s breathing orb + rotating verses from new `meditations.ts`, Escape/button to return, reduced-motion aware). **Playground** 🧪 card grid (toast on click). **Terminal** ⌨️ working parser + scrollback (`help`/`about`/`projects`/`whoami`/`ls`/`theme [day|night]`/`joke`/`sudo`/`clear`/`contact`/`exit`, friendly error on unknown; `terminal.ts` extended). **Aero FM** 🎵 Web Audio synth pad (drifting chord, lowpass, low gain) — click-to-start only, stoppable, animated equalizer, never autoplay. **Recycle Bin** 🗑️ old-portfolio relics from new `trash.ts` (empty-bin toast). Registry gained `meditations` + `trash` kinds/entries; the four windowed apps lazy-load via `next/dynamic` in `WindowContent`; new CSS for all surfaces (equalizer respects reduced motion). `npm run build` (23 routes) + `npm run lint` pass. Merged via PR #7, branch deleted. **Completed.**
 - **2026-06-29** — Post-phase-6 polish on `feature/winamp-music-polish` (`65e6300`). Rebuilt **Aero FM** 🎵 as a Frutiger Aero / Winamp-style player streaming real MP3s from `public/audio/` (5 vaporwave tracks): glossy LCD readout, **live `AnalyserNode` equalizer** (bars react to the audio; reduced-motion static fallback), seek, volume, prev/next/stop, and auto-advance (`music.ts` → real `src` files; `MusicApp` rewritten around an `<audio>` element). **Center-aligned window titles** (traffic lights stay top-left, title centered via a `pointer-events-none` overlay). **Dock click-to-minimize toggle** (`toggleApp` in `window-store`: open/restore/raise, or minimize when frontmost; no bounce on minimize). Fixed **Playground toast** legibility (sonner injects unlayered styles → moved the override out of `@layer` with `!important`). **Recycle Bin** JavaScript relic → jQuery. Fixed the player volume slider overflowing on resize (wrap + shrinkable inputs). `npm run lint` + `npm run build` pass. Merged via PR #8, branch deleted. **Completed.**
+- **2026-06-29** — Started Phase 7 (Polish — Motion, A11y, Performance, QA) on branch `feature/phase-7-polish`. Final phase; no new features. Updated `current-feature.md` with the phase-7 scope/plan. **In Progress.**
+- **2026-06-29** — Phase 7 a11y + motion first pass. **Audit** surfaced: no `:focus-visible` rings anywhere (several elements set `outline: none`), windows lacked `role`/`aria-label`, Escape didn't close the focused window, and `Window.tsx` ran its open/close/minimize spring regardless of `prefers-reduced-motion`. **Fixes**: (1) unlayered keyboard focus-ring block in `globals.css` (aqua-deep `:focus-visible` ring, beats Tailwind's layered `outline-none`; tight overrides for `.os-light` orbs, dock apps, menu items, terminal input, menubar controls); (2) `Window` gained `role="dialog"` + `aria-label`, and `useReducedMotion` collapses its transitions to a quick fade (no scale/translate) when reduced motion is set; (3) global Escape handler in `WindowManager` closes the frontmost non-minimized window, deferring to zen mode + open Radix poppers. `npm run lint` + `npm run build` pass. Ambient loops (bubbles/rays/boot/eq/zen orb) confirmed already reduced-motion + tab-visibility aware.
+- **2026-06-29** — Phase 7 cross-browser + SEO + contrast pass. **Cross-browser**: found one `backdrop-filter` (`.os-zen`) missing its `-webkit-` prefix → added it; all glass surfaces now carry the Safari prefix. **SEO** verified complete: `sitemap.ts`, `robots.ts`, root `metadata` (metadataBase + OG + Twitter), and per-page `generateMetadata` on projects/writing index + `[slug]`. **Contrast** spot-check — main ink tokens pass AA over their surfaces in both themes (day `--ink-soft` #41607e ≈ 6.5:1 on the opaque window surface; night #a9c4e6 ≈ 7:1 on dark glass). `npm run lint` + `npm run build` pass. Remaining: Lighthouse run (≥95), live ≤720px touch QA, and visual cross-browser check — all require a running browser.
