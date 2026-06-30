@@ -1,33 +1,39 @@
 # Current Feature
 
-Phase 7 — Polish (Motion, A11y, Performance, QA). The final phase (7 of 7): no new features, just the pass that turns a working build into something premium and fast. The bar is "every pixel has intention" and "incredibly fast." The prototype (`@context/ricardo-os.html`) remains the feel source of truth.
+**Deployment track** — taking the finished OS live at `ricardolamadrid.com`, replacing the current site. Host: **Hostinger Single Web Hosting** (hPanel + LiteSpeed, no Node runtime). DNS: **Porkbun**. Strategy: **static export** (no Vercel). Four phases (8–11).
 
-Full spec: @context/features/phase-7-polish-spec.md
+Strategy doc: @context/features/deployment-overview.md
 
 ## Status
 
-**In Progress** — branch `feature/phase-7-polish`.
+**Phase 8 — Static Export Readiness · In Progress** — branch `feature/phase-8-static-export` (stacked on `feature/phase-7-polish`, which is not yet merged to main).
 
-### Scope (5 workstreams, no new features)
+Full spec: @context/features/phase-8-static-export-spec.md
 
-- **Motion pass**: unify Framer Motion variants across windows, dock, cards, and page transitions. Remove any animation that exists "just because"; everything intentional and smooth.
-- **Reduced motion**: full `prefers-reduced-motion` audit — disable ambient loops (bubbles, rays, breathing orb, equalizer), keep essential state-change feedback instant.
-- **Accessibility**: full keyboard operability (launch apps, all window controls, links); visible focus rings everywhere; Radix/shadcn primitives for menus/popovers/dialogs (focus trap + ARIA); `Escape` closes the focused window or open menu; proper roles/labels on windows + accessible names on all icon/emoji tiles; AA contrast over glass verified in **both** day and night.
-- **Performance**: confirm lazy-loaded app components (`next/dynamic`); cap simultaneous `backdrop-filter` layers + particle/bubble counts; pause ambient loops when tab hidden; prefer transform/opacity, avoid layout thrash on drag/resize; `next/image` for images, subset fonts via `next/font`; target Lighthouse Performance ≥ 95 on desktop.
-- **Responsive + cross-browser + SEO**: verify desktop and ≤720px (windows, dock scroll, icon reflow, touch drag/resize); verify `backdrop-filter` (with `-webkit-` prefix) and glass in Safari/Chrome/Firefox; confirm sitemap, robots, and per-page metadata are complete.
+### Deployment phase map
 
-### Plan
+| Phase | Spec | State |
+| --- | --- | --- |
+| 8 — Static Export Readiness | `phase-8-static-export-spec.md` | **In Progress** |
+| 9 — Hostinger Deployment | `phase-9-hostinger-deploy-spec.md` | Not started |
+| 10 — Porkbun DNS & SSL Cutover | `phase-10-porkbun-dns-ssl-spec.md` | Not started |
+| 11 — Go-Live QA & Maintenance | `phase-11-go-live-qa-spec.md` | Not started |
 
-1. **Audit first**: walk the existing OS shell + apps for motion inconsistencies, missing focus rings, ambient loops that ignore reduced-motion/visibility, and a11y gaps (roles, labels, Escape, keyboard launch).
-2. **Motion**: centralize shared Framer Motion variants; reconcile window/dock/card/page transitions; prune purposeless animation.
-3. **A11y**: keyboard operability + focus rings + ARIA roles/labels + Escape handling; verify AA contrast in day & night.
-4. **Performance**: confirm dynamic imports, cap blur/particle layers, pause loops on hidden tab, audit images/fonts; measure Lighthouse.
-5. **QA**: responsive (desktop + ≤720px), cross-browser glass, final SEO check.
-6. **Verify**: `npm run lint` + `npm run build`, then browser QA across breakpoints and themes.
+### Phase 8 progress
 
-**Out of scope:** new features — this is the closing polish phase.
+- ✅ `next.config.ts` → `output: "export"` + `trailingSlash: true` + `images.unoptimized`.
+- ✅ Fixed the Next 16 export blockers: added `export const dynamic = "force-static"` to all three `opengraph-image.tsx` routes + `robots.ts` + `sitemap.ts`.
+- ✅ `npm run build` produces a clean `out/` (23 routes); verified locally via a static server — every route, `sitemap.xml`, `robots.txt`, the 404, and the OG PNGs all resolve.
+- ⚠️ Found: OG images export as **extensionless** files (`opengraph-image`) served as `application/octet-stream` → committed `deploy/.htaccess` with a `ForceType image/png` rule (+ HTTPS/www redirects + caching) for Phase 9.
+- ⏳ Remaining: lint check, confirm `out/` is gitignored, commit, then hand to Phase 9 (upload).
+
+**Out of scope:** uploading to Hostinger (9), DNS/SSL (10), live QA + real content (11).
 
 ---
+
+## Previous — Phase 7 (a11y/motion/cross-browser polish, PR pending)
+
+Phase 7 — Polish. Added keyboard `:focus-visible` rings across the OS (none existed), window `role="dialog"` + `aria-label`, reduced-motion-aware window transitions, global Escape-to-close-frontmost-window, and a missing `-webkit-backdrop-filter` prefix. Verified ambient loops already honor reduced-motion + tab visibility; SEO complete; contrast spot-check passes AA. Committed on `feature/phase-7-polish` (`d35b062`), pushed — **PR not yet opened/merged**. Live-browser QA (Lighthouse/mobile/cross-browser) deferred into deployment Phase 11.
 
 ## Previous — Phase 6 (Completed, PR #7 + polish PR #8)
 
@@ -82,4 +88,6 @@ Out of scope: any new feature — Phase 7 is the closing polish pass.
 - **2026-06-29** — Post-phase-6 polish on `feature/winamp-music-polish` (`65e6300`). Rebuilt **Aero FM** 🎵 as a Frutiger Aero / Winamp-style player streaming real MP3s from `public/audio/` (5 vaporwave tracks): glossy LCD readout, **live `AnalyserNode` equalizer** (bars react to the audio; reduced-motion static fallback), seek, volume, prev/next/stop, and auto-advance (`music.ts` → real `src` files; `MusicApp` rewritten around an `<audio>` element). **Center-aligned window titles** (traffic lights stay top-left, title centered via a `pointer-events-none` overlay). **Dock click-to-minimize toggle** (`toggleApp` in `window-store`: open/restore/raise, or minimize when frontmost; no bounce on minimize). Fixed **Playground toast** legibility (sonner injects unlayered styles → moved the override out of `@layer` with `!important`). **Recycle Bin** JavaScript relic → jQuery. Fixed the player volume slider overflowing on resize (wrap + shrinkable inputs). `npm run lint` + `npm run build` pass. Merged via PR #8, branch deleted. **Completed.**
 - **2026-06-29** — Started Phase 7 (Polish — Motion, A11y, Performance, QA) on branch `feature/phase-7-polish`. Final phase; no new features. Updated `current-feature.md` with the phase-7 scope/plan. **In Progress.**
 - **2026-06-29** — Phase 7 a11y + motion first pass. **Audit** surfaced: no `:focus-visible` rings anywhere (several elements set `outline: none`), windows lacked `role`/`aria-label`, Escape didn't close the focused window, and `Window.tsx` ran its open/close/minimize spring regardless of `prefers-reduced-motion`. **Fixes**: (1) unlayered keyboard focus-ring block in `globals.css` (aqua-deep `:focus-visible` ring, beats Tailwind's layered `outline-none`; tight overrides for `.os-light` orbs, dock apps, menu items, terminal input, menubar controls); (2) `Window` gained `role="dialog"` + `aria-label`, and `useReducedMotion` collapses its transitions to a quick fade (no scale/translate) when reduced motion is set; (3) global Escape handler in `WindowManager` closes the frontmost non-minimized window, deferring to zen mode + open Radix poppers. `npm run lint` + `npm run build` pass. Ambient loops (bubbles/rays/boot/eq/zen orb) confirmed already reduced-motion + tab-visibility aware.
-- **2026-06-29** — Phase 7 cross-browser + SEO + contrast pass. **Cross-browser**: found one `backdrop-filter` (`.os-zen`) missing its `-webkit-` prefix → added it; all glass surfaces now carry the Safari prefix. **SEO** verified complete: `sitemap.ts`, `robots.ts`, root `metadata` (metadataBase + OG + Twitter), and per-page `generateMetadata` on projects/writing index + `[slug]`. **Contrast** spot-check — main ink tokens pass AA over their surfaces in both themes (day `--ink-soft` #41607e ≈ 6.5:1 on the opaque window surface; night #a9c4e6 ≈ 7:1 on dark glass). `npm run lint` + `npm run build` pass. Remaining: Lighthouse run (≥95), live ≤720px touch QA, and visual cross-browser check — all require a running browser.
+- **2026-06-29** — Phase 7 cross-browser + SEO + contrast pass. **Cross-browser**: found one `backdrop-filter` (`.os-zen`) missing its `-webkit-` prefix → added it; all glass surfaces now carry the Safari prefix. **SEO** verified complete: `sitemap.ts`, `robots.ts`, root `metadata` (metadataBase + OG + Twitter), and per-page `generateMetadata` on projects/writing index + `[slug]`. **Contrast** spot-check — main ink tokens pass AA over their surfaces in both themes (day `--ink-soft` #41607e ≈ 6.5:1 on the opaque window surface; night #a9c4e6 ≈ 7:1 on dark glass). `npm run lint` + `npm run build` pass. Committed (`d35b062`) + pushed on `feature/phase-7-polish`; PR not yet opened. Remaining: Lighthouse run (≥95), live ≤720px touch QA, and visual cross-browser check — all require a running browser (folded into deployment Phase 11).
+- **2026-06-30** — Authored the **deployment track**: `deployment-overview.md` (Porkbun vs Hostinger roles, why static export, redeploy workflow) + four phase specs (8 static export, 9 Hostinger upload, 10 Porkbun DNS/SSL, 11 go-live QA). Decision: **static export to Hostinger Single**, DNS kept at **Porkbun**, no Vercel — the whole app is SSG so no server is needed.
+- **2026-06-30** — Started **Phase 8 (Static Export Readiness)** on `feature/phase-8-static-export` (stacked on phase-7-polish). Set `output: "export"` + `trailingSlash` + `images.unoptimized` in `next.config.ts`. Next 16 export rejected the metadata routes until `export const dynamic = "force-static"` was added to all three `opengraph-image.tsx` + `robots.ts` + `sitemap.ts`. `npm run build` now emits a clean `out/` (23 routes); served it locally and confirmed every route, `sitemap.xml`, `robots.txt`, the 404, and the OG PNGs return 200. Caught that OG images export **extensionless** (served as `application/octet-stream`) → added a version-controlled `deploy/.htaccess` (`ForceType image/png` + HTTPS/www redirects + caching) for Phase 9. **In Progress.**
