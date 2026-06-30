@@ -1,7 +1,7 @@
 "use client";
 
-import { t, type AppDefinition } from "@/data";
-import { useLocale } from "./locale-store";
+import dynamic from "next/dynamic";
+import { type AppDefinition } from "@/data";
 import { AboutApp } from "@/components/apps/AboutApp";
 import { ProjectsApp } from "@/components/apps/ProjectsApp";
 import { ExperienceApp } from "@/components/apps/ExperienceApp";
@@ -10,17 +10,29 @@ import { ResumeApp } from "@/components/apps/ResumeApp";
 import { WritingApp } from "@/components/apps/WritingApp";
 
 /**
- * Routes a window to its app component by `kind`. The four core apps (About,
- * Projects, Experience, Contact) are real, data-driven content. The remaining
- * kinds (playground, terminal, music, link) still show a placeholder until
- * their phases land.
+ * Routes a window to its app component by `kind`. Core content apps load
+ * eagerly; the phase-6 easter-egg apps (Playground, Terminal, Aero FM, Recycle
+ * Bin) are lazy-loaded via `next/dynamic` so their code only ships when a user
+ * first opens them. Meditations isn't here — it's a desktop-level zen overlay.
  */
-const PLACEHOLDER: Partial<Record<AppDefinition["kind"], string>> = {
-  playground: "Half-baked experiments with no obligation to become anything.",
-  terminal: "A toy shell. Type 'help' once it's wired up.",
-  music: "Aero FM — soft synth pads on tap.",
-  link: "Opens elsewhere once the pages exist.",
-};
+const loading = () => <div className="os-app-loading">Opening…</div>;
+
+const PlaygroundApp = dynamic(
+  () => import("@/components/apps/PlaygroundApp").then((m) => m.PlaygroundApp),
+  { loading },
+);
+const TerminalApp = dynamic(
+  () => import("@/components/apps/TerminalApp").then((m) => m.TerminalApp),
+  { loading },
+);
+const MusicApp = dynamic(
+  () => import("@/components/apps/MusicApp").then((m) => m.MusicApp),
+  { loading },
+);
+const TrashApp = dynamic(
+  () => import("@/components/apps/TrashApp").then((m) => m.TrashApp),
+  { loading },
+);
 
 export function WindowContent({ app }: { app: AppDefinition }) {
   switch (app.kind) {
@@ -36,21 +48,15 @@ export function WindowContent({ app }: { app: AppDefinition }) {
       return <ContactApp />;
     case "writing":
       return <WritingApp />;
+    case "playground":
+      return <PlaygroundApp />;
+    case "terminal":
+      return <TerminalApp />;
+    case "music":
+      return <MusicApp />;
+    case "trash":
+      return <TrashApp />;
     default:
-      return <Placeholder app={app} />;
+      return null;
   }
-}
-
-function Placeholder({ app }: { app: AppDefinition }) {
-  const { locale } = useLocale();
-  return (
-    <div>
-      <div className="os-eyebrow">{app.kind}</div>
-      <h2 className="font-brand text-2xl tracking-tight">{t(app.title, locale)}</h2>
-      <p className="mt-1.5 text-ink-soft">{PLACEHOLDER[app.kind] ?? "Coming soon."}</p>
-      <p className="mt-4 inline-flex items-center gap-2 rounded-full bg-white/45 px-3 py-1.5 text-[13px] font-semibold text-ink-soft">
-        ✨ Content arrives in a later phase
-      </p>
-    </div>
-  );
 }

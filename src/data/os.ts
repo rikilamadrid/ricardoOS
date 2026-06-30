@@ -26,6 +26,8 @@ export interface AppDefinition {
     | "contact"
     | "experience"
     | "resume"
+    | "meditations"
+    | "trash"
     | "link";
   /** Default window placement (% of viewport) + size in px. Tweak per phase. */
   window: { x: number; y: number; width: number; height: number };
@@ -138,6 +140,30 @@ export const apps: AppDefinition[] = [
     onDesktop: false,
     inDock: true,
     openOnBoot: true,
+  },
+  {
+    id: "meditations",
+    title: { en: "Meditations", es: "Meditaciones", fr: "Méditations" },
+    icon: "🌙",
+    tile: "violet",
+    kind: "meditations",
+    // Meditations is a desktop-level "zen mode" overlay, not a normal window;
+    // these dims are unused but keep the registry shape consistent.
+    window: { x: 0, y: 0, width: 640, height: 640 },
+    onDesktop: true,
+    inDock: true,
+    openOnBoot: false,
+  },
+  {
+    id: "trash",
+    title: { en: "Recycle Bin", es: "Papelera", fr: "Corbeille" },
+    icon: "🗑️",
+    tile: "graphite",
+    kind: "trash",
+    window: { x: 40, y: 26, width: 460, height: 520 },
+    onDesktop: true,
+    inDock: true,
+    openOnBoot: false,
   },
 ];
 

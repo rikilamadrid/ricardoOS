@@ -9,6 +9,7 @@ import { DesktopIcons } from "./DesktopIcons";
 import { Dock } from "./Dock";
 import { DesktopContextMenu } from "./DesktopContextMenu";
 import { WindowManager } from "./WindowManager";
+import { ZenOverlay } from "./ZenOverlay";
 import { DeepLinkOpener } from "./DeepLinkOpener";
 import { Hint } from "./Hint";
 import { Toaster } from "@/components/ui/sonner";
@@ -32,6 +33,7 @@ export function Desktop({ posts = [] }: { posts?: PostMeta[] }) {
             <DeepLinkOpener />
             <Dock />
             <Hint />
+            <ZenOverlay />
           </main>
         </DesktopContextMenu>
         </PostsProvider>
