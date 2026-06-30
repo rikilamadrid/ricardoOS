@@ -56,6 +56,12 @@ jobs:
           # This FTP account is jailed to the web root, so the FTP root IS
           # public_html. Deploy straight to ./ (verified against the live site).
           server-dir: ./
+          # Rotated state file. A failed run never writes state back, so the old
+          # default state could drift from the server (e.g. trying to delete an
+          # already-gone _next/<hash> folder -> fatal 550). Bump the version to
+          # reset: the action then re-uploads everything, deletes nothing, and
+          # writes fresh accurate state on success.
+          state-name: .ricardo-os-deploy-state-v2.json
           # Never let the sync wipe SSL/domain-verification files.
           exclude: |
             **/.git*
@@ -79,6 +85,7 @@ jobs:
           timeout: 60000
           local-dir: ./out/
           server-dir: ./
+          state-name: .ricardo-os-deploy-state-v2.json
           exclude: |
             **/.git*
             **/.git*/**
@@ -99,6 +106,7 @@ jobs:
           timeout: 60000
           local-dir: ./out/
           server-dir: ./
+          state-name: .ricardo-os-deploy-state-v2.json
           exclude: |
             **/.git*
             **/.git*/**
