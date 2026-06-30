@@ -1,0 +1,53 @@
+name: Deploy to Hostinger
+
+# Build the static export and push it to Hostinger over FTP on every push to
+# main. Also runnable manually from the Actions tab.
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+# Prevent overlapping deploys from racing each other.
+concurrency:
+  group: deploy-hostinger
+  cancel-in-progress: true
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build static export
+        run: npm run build
+
+      - name: Add server config (.htaccess)
+        run: cp deploy/.htaccess out/.htaccess
+
+      - name: Deploy to Hostinger via FTP
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          # Local build output (trailing slash = contents of the folder).
+          local-dir: ./out/
+          # Remote web root. Adjust if your FTP account is jailed to public_html
+          # (then use ./).
+          server-dir: ${{ secrets.FTP_SERVER_DIR || 'public_html/' }}
+          # Never let the sync wipe SSL/domain-verification files.
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.well-known/**

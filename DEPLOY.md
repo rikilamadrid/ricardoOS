@@ -16,7 +16,27 @@ Live: <https://ricardolamadrid.com>
 | SSL | Let's Encrypt (auto-renew) |
 | Redirects | http→https, www→root (via `deploy/.htaccess`) |
 
-## Redeploy (every update)
+## Automated deploy (CI/CD) — preferred
+
+Pushing to **`main`** triggers `.github/workflows/deploy.yml`, which builds the
+static export and uploads it to Hostinger over FTPS. No manual steps.
+
+**One-time setup** — add these in GitHub → repo **Settings → Secrets and
+variables → Actions → New repository secret**:
+
+| Secret | Value | Where to find it |
+| --- | --- | --- |
+| `FTP_SERVER` | FTP hostname or IP (e.g. `ftp.ricardolamadrid.com` or `191.101.79.132`) | hPanel → Files → FTP Accounts |
+| `FTP_USERNAME` | FTP username (e.g. `u123456789.ricardolamadrid`) | hPanel → Files → FTP Accounts |
+| `FTP_PASSWORD` | that account's password | set/reset it in hPanel |
+| `FTP_SERVER_DIR` | *(optional)* remote dir; defaults to `public_html/`. Set to `./` if the FTP account is jailed to public_html | — |
+
+After secrets are set, every `git push` to `main` (or a manual run from the
+**Actions** tab) deploys. The action delta-syncs (only changed files) and keeps
+a `.ftp-deploy-sync-state.json` on the server to track state. SSL/`.well-known`
+files are excluded so renewals never break.
+
+## Manual redeploy (fallback)
 
 1. Make changes via the normal feature → branch → build → merge flow.
 2. Build the static export:
