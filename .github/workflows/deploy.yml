@@ -39,19 +39,66 @@ jobs:
       - name: Add server config (.htaccess)
         run: cp deploy/.htaccess out/.htaccess
 
-      - name: Deploy to Hostinger via FTP
+      # Hostinger sporadically drops some GitHub-runner IPs on port 21
+      # (intermittent ETIMEDOUT), so we attempt the FTP deploy up to 3 times.
+      # The action resumes from its server-side sync state, so retries are cheap.
+      - name: Deploy to Hostinger via FTP (attempt 1)
+        id: ftp1
+        continue-on-error: true
         uses: SamKirkland/FTP-Deploy-Action@v4.3.5
         with:
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
           protocol: ftps
-          # Local build output (trailing slash = contents of the folder).
+          timeout: 60000
           local-dir: ./out/
           # This FTP account is jailed to the web root, so the FTP root IS
           # public_html. Deploy straight to ./ (verified against the live site).
           server-dir: ./
           # Never let the sync wipe SSL/domain-verification files.
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.well-known/**
+
+      - name: Wait before retry 2
+        if: steps.ftp1.outcome == 'failure'
+        run: sleep 20
+
+      - name: Deploy to Hostinger via FTP (attempt 2)
+        id: ftp2
+        if: steps.ftp1.outcome == 'failure'
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          timeout: 60000
+          local-dir: ./out/
+          server-dir: ./
+          exclude: |
+            **/.git*
+            **/.git*/**
+            **/.well-known/**
+
+      - name: Wait before retry 3
+        if: steps.ftp1.outcome == 'failure' && steps.ftp2.outcome == 'failure'
+        run: sleep 30
+
+      - name: Deploy to Hostinger via FTP (attempt 3)
+        if: steps.ftp1.outcome == 'failure' && steps.ftp2.outcome == 'failure'
+        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
+        with:
+          server: ${{ secrets.FTP_SERVER }}
+          username: ${{ secrets.FTP_USERNAME }}
+          password: ${{ secrets.FTP_PASSWORD }}
+          protocol: ftps
+          timeout: 60000
+          local-dir: ./out/
+          server-dir: ./
           exclude: |
             **/.git*
             **/.git*/**
