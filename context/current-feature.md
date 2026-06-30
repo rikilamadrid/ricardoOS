@@ -6,28 +6,31 @@ Strategy doc: @context/features/deployment-overview.md
 
 ## Status
 
-**Phase 8 — Static Export Readiness · In Progress** — branch `feature/phase-8-static-export` (stacked on `feature/phase-7-polish`, which is not yet merged to main).
+**🟢 LIVE at <https://ricardolamadrid.com>** — the new RicardoOS has replaced the old site. Phases 8–10 done; **Phase 11 (go-live QA + real content) remaining**.
 
-Full spec: @context/features/phase-8-static-export-spec.md
+### Hosting facts (reference)
+
+- **Host:** Hostinger Single Web Hosting · **Server IP:** `191.101.79.132` · docroot `public_html`.
+- **Registrar:** Porkbun · **Nameservers:** `ns1/ns2.dns-parking.com` (**Hostinger's** — so DNS is actually managed at Hostinger, *not* Porkbun as first assumed). No DNS cutover was needed; the domain already pointed at this account.
+- **SSL:** Let's Encrypt, valid, auto-renew. **Redirects:** http→https + www→root, via `deploy/.htaccess`.
+- **Redeploy:** `npm run build` → zip `out/` (with `.htaccess`) → hPanel File Manager: empty `public_html`, upload, extract. See `DEPLOY.md`.
 
 ### Deployment phase map
 
 | Phase | Spec | State |
 | --- | --- | --- |
-| 8 — Static Export Readiness | `phase-8-static-export-spec.md` | **In Progress** |
-| 9 — Hostinger Deployment | `phase-9-hostinger-deploy-spec.md` | Not started |
-| 10 — Porkbun DNS & SSL Cutover | `phase-10-porkbun-dns-ssl-spec.md` | Not started |
-| 11 — Go-Live QA & Maintenance | `phase-11-go-live-qa-spec.md` | Not started |
+| 8 — Static Export Readiness | `phase-8-static-export-spec.md` | ✅ Done (committed `13530ae`) |
+| 9 — Hostinger Deployment | `phase-9-hostinger-deploy-spec.md` | ✅ Done (uploaded to `public_html`; verified live) |
+| 10 — Porkbun DNS & SSL Cutover | `phase-10-porkbun-dns-ssl-spec.md` | ✅ N/A — DNS already at Hostinger, SSL already valid |
+| 11 — Go-Live QA & Maintenance | `phase-11-go-live-qa-spec.md` | **Remaining** (Lighthouse, mobile, OG validators, Search Console, real content) |
 
-### Phase 8 progress
+### Phase 11 remaining (go-live QA + maintenance)
 
-- ✅ `next.config.ts` → `output: "export"` + `trailingSlash: true` + `images.unoptimized`.
-- ✅ Fixed the Next 16 export blockers: added `export const dynamic = "force-static"` to all three `opengraph-image.tsx` routes + `robots.ts` + `sitemap.ts`.
-- ✅ `npm run build` produces a clean `out/` (23 routes); verified locally via a static server — every route, `sitemap.xml`, `robots.txt`, the 404, and the OG PNGs all resolve.
-- ⚠️ Found: OG images export as **extensionless** files (`opengraph-image`) served as `application/octet-stream` → committed `deploy/.htaccess` with a `ForceType image/png` rule (+ HTTPS/www redirects + caching) for Phase 9.
-- ⏳ Remaining: lint check, confirm `out/` is gitignored, commit, then hand to Phase 9 (upload).
-
-**Out of scope:** uploading to Hostinger (9), DNS/SSL (10), live QA + real content (11).
+- Live **Lighthouse** (desktop, target ≥95) + the deferred Phase-7 live QA: ≤720px touch, cross-browser glass.
+- **OG/social** card validators on home + a project + a post (now that images serve as `image/png`).
+- **Google Search Console**: verify ownership + submit `sitemap.xml`.
+- **Real content**: swap seed data in `src/data/*` + `src/content/posts/*` (projects/links, writing, About/Experience/Contact copy, résumé PDFs). Each change = rebuild + reupload.
+- Optional: lightweight analytics, Porkbun email forwarding.
 
 ---
 
@@ -90,4 +93,5 @@ Out of scope: any new feature — Phase 7 is the closing polish pass.
 - **2026-06-29** — Phase 7 a11y + motion first pass. **Audit** surfaced: no `:focus-visible` rings anywhere (several elements set `outline: none`), windows lacked `role`/`aria-label`, Escape didn't close the focused window, and `Window.tsx` ran its open/close/minimize spring regardless of `prefers-reduced-motion`. **Fixes**: (1) unlayered keyboard focus-ring block in `globals.css` (aqua-deep `:focus-visible` ring, beats Tailwind's layered `outline-none`; tight overrides for `.os-light` orbs, dock apps, menu items, terminal input, menubar controls); (2) `Window` gained `role="dialog"` + `aria-label`, and `useReducedMotion` collapses its transitions to a quick fade (no scale/translate) when reduced motion is set; (3) global Escape handler in `WindowManager` closes the frontmost non-minimized window, deferring to zen mode + open Radix poppers. `npm run lint` + `npm run build` pass. Ambient loops (bubbles/rays/boot/eq/zen orb) confirmed already reduced-motion + tab-visibility aware.
 - **2026-06-29** — Phase 7 cross-browser + SEO + contrast pass. **Cross-browser**: found one `backdrop-filter` (`.os-zen`) missing its `-webkit-` prefix → added it; all glass surfaces now carry the Safari prefix. **SEO** verified complete: `sitemap.ts`, `robots.ts`, root `metadata` (metadataBase + OG + Twitter), and per-page `generateMetadata` on projects/writing index + `[slug]`. **Contrast** spot-check — main ink tokens pass AA over their surfaces in both themes (day `--ink-soft` #41607e ≈ 6.5:1 on the opaque window surface; night #a9c4e6 ≈ 7:1 on dark glass). `npm run lint` + `npm run build` pass. Committed (`d35b062`) + pushed on `feature/phase-7-polish`; PR not yet opened. Remaining: Lighthouse run (≥95), live ≤720px touch QA, and visual cross-browser check — all require a running browser (folded into deployment Phase 11).
 - **2026-06-30** — Authored the **deployment track**: `deployment-overview.md` (Porkbun vs Hostinger roles, why static export, redeploy workflow) + four phase specs (8 static export, 9 Hostinger upload, 10 Porkbun DNS/SSL, 11 go-live QA). Decision: **static export to Hostinger Single**, DNS kept at **Porkbun**, no Vercel — the whole app is SSG so no server is needed.
-- **2026-06-30** — Started **Phase 8 (Static Export Readiness)** on `feature/phase-8-static-export` (stacked on phase-7-polish). Set `output: "export"` + `trailingSlash` + `images.unoptimized` in `next.config.ts`. Next 16 export rejected the metadata routes until `export const dynamic = "force-static"` was added to all three `opengraph-image.tsx` + `robots.ts` + `sitemap.ts`. `npm run build` now emits a clean `out/` (23 routes); served it locally and confirmed every route, `sitemap.xml`, `robots.txt`, the 404, and the OG PNGs return 200. Caught that OG images export **extensionless** (served as `application/octet-stream`) → added a version-controlled `deploy/.htaccess` (`ForceType image/png` + HTTPS/www redirects + caching) for Phase 9. **In Progress.**
+- **2026-06-30** — Implemented **Phase 8 (Static Export Readiness)** on `feature/phase-8-static-export` (stacked on phase-7-polish). Set `output: "export"` + `trailingSlash` + `images.unoptimized` in `next.config.ts`. Next 16 export rejected the metadata routes until `export const dynamic = "force-static"` was added to all three `opengraph-image.tsx` + `robots.ts` + `sitemap.ts`. `npm run build` emits a clean `out/` (23 routes); served it locally and confirmed every route, `sitemap.xml`, `robots.txt`, the 404, and the OG PNGs return 200. Caught that OG images export **extensionless** (served as `application/octet-stream`) → added version-controlled `deploy/.htaccess` (`ForceType image/png` + HTTPS/www redirects + caching). Committed + pushed (`13530ae`). **Done.**
+- **2026-06-30** — **Phases 9 + 10 — DEPLOYED LIVE.** Packaged `ricardo-os-deploy.zip` (`out/` + `.htaccess`); Ricardo uploaded + extracted it into `public_html` via hPanel File Manager (backup taken first). Verified from the CLI against server IP `191.101.79.132` and the live domain: `https://ricardolamadrid.com/` serves the new site, http→https + www→root 301s work, all routes 200, `sitemap.xml`/`robots.txt` correct MIME, OG image serves `image/png` (ForceType works live), 404 works. **Discovery:** nameservers are `ns1/ns2.dns-parking.com` (Hostinger's), so DNS was already at Hostinger and SSL (Let's Encrypt) already valid — no DNS cutover needed; Phase 10 was effectively a no-op. The new RicardoOS has **replaced the old ricardolamadrid.com**. Remaining: Phase 11 (live Lighthouse/mobile/OG QA, Search Console, real content).
