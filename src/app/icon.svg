@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" width="64" height="64">
+  <defs>
+    <linearGradient id="tile" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#46D6FF"/>
+      <stop offset="0.55" stop-color="#00BFFF"/>
+      <stop offset="1" stop-color="#1784DB"/>
+    </linearGradient>
+    <linearGradient id="gloss" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.92"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+    <radialGradient id="bubble" cx="0.36" cy="0.30" r="0.8">
+      <stop offset="0" stop-color="#ffffff" stop-opacity="0.98"/>
+      <stop offset="0.45" stop-color="#eafaff" stop-opacity="0.7"/>
+      <stop offset="1" stop-color="#bfeaff" stop-opacity="0.22"/>
+    </radialGradient>
+  </defs>
+
+  <!-- glossy aqua app tile -->
+  <rect x="3" y="3" width="58" height="58" rx="16" fill="url(#tile)"/>
+  <!-- glass edge -->
+  <rect x="3.9" y="3.9" width="56.2" height="56.2" rx="15.1" fill="none"
+        stroke="#ffffff" stroke-opacity="0.6" stroke-width="1.6"/>
+  <!-- top gloss sweep -->
+  <path d="M6 22 Q6 6 22 6 H42 Q58 6 58 22 V27 Q34 17 6 30 Z" fill="url(#gloss)"/>
+
+  <!-- glass bubble (echoes the wallpaper bubbles + boot orb) -->
+  <circle cx="32" cy="37" r="15" fill="url(#bubble)"/>
+  <circle cx="32" cy="37" r="15" fill="none" stroke="#ffffff" stroke-opacity="0.5" stroke-width="1.2"/>
+  <!-- specular highlight -->
+  <circle cx="26" cy="31" r="4" fill="#ffffff" fill-opacity="0.95"/>
+</svg>
