@@ -1,31 +1,37 @@
 # Current Feature
 
-Phase 5 — Content Pages, Writing (MDX), Routing & SEO. Adds real, shareable, SEO-friendly pages alongside the desktop: dedicated project detail pages, the Writing app backed by MDX, query-param + path deep links into apps, and smooth transitions between the desktop and detail pages. The desktop at `/` stays the home base.
+Phase 6 — Special & Easter-Egg Apps. The personality and delight layer (phase 6 of 7). Adds the reflective **Meditations** space and the easter-egg apps that reward exploration — **Playground**, **Terminal**, **Aero FM**, and the **Recycle Bin**. All register through the app registry and lazy-load via `next/dynamic`. The prototype (`@context/ricardo-os.html`) is the behavior/tone source of truth.
 
-Full spec: @context/features/phase-5-content-pages-spec.md
+Full spec: @context/features/phase-6-easter-eggs-spec.md
 
 ## Status
 
-**Completed** — merged via PR #6 (`feature/phase-5-content-pages`), branch deleted.
+**In Progress** — branch `feature/phase-6-easter-eggs`.
 
-Building in two coherent slices on one branch:
+### Scope (5 apps)
 
-- **Slice A — Project pages, deep links & SEO (no new deps):** extend the localized `Project` model (slug = id, `year`, `tagline`, long `writeup`, optional `cover`); add `/projects/[slug]` SSR detail pages (`generateStaticParams` + `generateMetadata`) and a crawlable `/projects` index; ProjectCard gains an "expand" → `/projects/[slug]` with a Framer-Motion page transition; `?app=<id>` deep link auto-opens an app on the desktop; `sitemap.ts` + `robots.ts`; richer root metadata (OG/Twitter, `metadataBase`) + a `<noscript>` summary.
-- **Slice B — Writing/MDX + OG:** MDX pipeline for `src/content/posts/*.mdx` with typed `PostMeta` frontmatter; Writing app (replaces the placeholder `blog`→`/notes` link app) listing posts; `/writing` index + `/writing/[slug]` article pages; OG image generation via `next/og`.
+- **Meditations Between Quests** 🌙 (new): opening it **dims the desktop** with an overlay and enters a calm "other space" — a 7s breathing orb, a rotating reflective verse from a new `meditations.ts`, and a gentle "return to the desktop" button. New registry entry + `kind: "meditations"`. Honors `prefers-reduced-motion`.
+- **Playground** 🧪 (data exists): grid of experiments from `playground.ts`; clicking one shows a toast (or opens a sandbox link where present). Wire `kind: "playground"` in `WindowContent`.
+- **Terminal** ⌨️ (data exists, needs commands): working command parser with prompt input + scrollback. Commands: `help`, `about`, `projects`, `whoami`, `ls`, `theme [day|night]`, `joke`, `sudo`, `clear`, `contact`, `exit`. Unknown → friendly error. Extend `terminal.ts` (add `whoami`, `ls`, `joke`, `sudo`, `exit`) and route `kind: "terminal"`.
+- **Aero FM** 🎵 (data exists): ambient player UI with an animated equalizer + a soft Web Audio synth pad that starts **only on user click** (default off, low volume, stoppable — never autoplay). Route `kind: "music"`.
+- **Recycle Bin** 🗑️ (new): contains `old-portfolio.html`; "empty bin" → playful toast. New registry entry + `kind: "trash"`.
 
-**Implementation log:**
-- **Slice A — committed** (`feat: project detail/index pages, deep links & SEO (phase 5a)`). Built as scoped above. Verified live: SSR titles, canonical/OG, writeups, `sitemap.xml`/`robots.txt`.
-- **Slice B — committed.** Installed `gray-matter@4` + `next-mdx-remote@6` (RSC `MDXRemote`). `src/lib/posts.ts` reads `src/content/posts/*.mdx` frontmatter (server-only `node:fs`); 3 seed posts. `/writing` index + `/writing/[slug]` (MDX) pages in the shared `ContentPage` shell. In-window **Writing** app: `page.tsx` reads post metas server-side and passes them through a client `PostsProvider` (`posts-store.tsx`) so `WritingApp` lists posts without bundling `fs` (`import type` only). Registry: `blog`(`kind:"link"`→`/notes`) became `writing`(`kind:"writing"`); `WindowContent` routes it. OG images via `next/og` (`src/lib/og.tsx` Aero card) at root + per-project + per-post `opengraph-image.tsx`. Sitemap extended with `/writing` + posts. `npm run lint` + `npm run build` pass (23 routes).
+### Plan
 
-**Decisions:** Project/post detail pages render in **English** (canonical) for SEO/crawlability even though desktop content is localized EN/ES/FR. `/projects` (and later `/writing`) are standalone crawlable SSR index pages with an "Open in RicardoOS" CTA → `/?app=projects`, rather than auto-redirecting to the desktop (better serves the explicit SEO requirement). Posts are English-only for v1 (`PostMeta` has no locale).
+1. **Data**: add `meditations.ts` (verses) + `trash.ts` (bin contents); extend `terminal.ts` with the missing commands; add `meditations`/`trash` to the `AppDefinition["kind"]` union + two new registry entries in `os.ts` (on desktop + in dock).
+2. **Components** in `src/components/apps/`: `MeditationsApp`, `PlaygroundApp`, `TerminalApp`, `MusicApp`, `TrashApp`. Lazy-load each via `next/dynamic`; route them in `WindowContent`.
+3. **Meditations overlay**: a desktop-level dim overlay (it's a "mode," not just a window) wired through the window store / a small zen state.
+4. **Verify**: `npm run lint` + `npm run build`, then browser QA; honor reduced motion; no autoplay.
+
+**Out of scope (phase 7):** final motion polish, a11y audit, performance tuning, responsive QA.
 
 ---
 
-## Previous — Phase 4 (Completed, PR #4)
+## Previous — Phase 5 (Completed, PR #6)
 
-Phase 4 — Content Models & Core Apps. Replaced the placeholder windows with real, data-driven content for About, Projects, Experience, Contact (+ Résumé). Built on the existing **localized** `@/data` models (EN/ES/FR), keeping the Phase-2 language switcher intact.
+Phase 5 — Content Pages, Writing (MDX), Routing & SEO. Two slices on one branch: **A** — `/projects/[slug]` SSR detail pages + crawlable `/projects` index, ProjectCard expand transition, `?app=<id>` deep links, `sitemap.ts`/`robots.ts`, richer root metadata (`5a232d7`). **B** — MDX pipeline (`gray-matter` + `next-mdx-remote`), `/writing` + `/writing/[slug]`, in-window Writing app via `PostsProvider`, OG images via `next/og` (`3a133b0`). English-canonical detail pages; standalone crawlable index pages with "Open in RicardoOS" CTAs.
 
-## Goals
+## Goals (Phase 4 — retained for reference)
 
 - **Typed content files** in `src/content/` (interfaces from the project overview): `apps.ts` (registry), `projects.ts`, `experiments.ts`, `experience.ts`, `contact.ts`, `meditations.ts`
 - **Data-driven launching**: dock, desktop icons, and window manager all read from `apps.ts`. New app = registry entry + component in `components/apps/`
