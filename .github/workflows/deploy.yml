@@ -43,9 +43,9 @@ jobs:
           protocol: ftps
           # Local build output (trailing slash = contents of the folder).
           local-dir: ./out/
-          # Remote web root. Adjust if your FTP account is jailed to public_html
-          # (then use ./).
-          server-dir: ${{ secrets.FTP_SERVER_DIR || 'public_html/' }}
+          # This FTP account is jailed to the web root, so the FTP root IS
+          # public_html. Deploy straight to ./ (verified against the live site).
+          server-dir: ./
           # Never let the sync wipe SSL/domain-verification files.
           exclude: |
             **/.git*
