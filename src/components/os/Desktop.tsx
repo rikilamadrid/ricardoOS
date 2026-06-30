@@ -1,5 +1,7 @@
+import type { PostMeta } from "@/lib/posts";
 import { ThemeProvider } from "./theme-store";
 import { LocaleProvider } from "./locale-store";
+import { PostsProvider } from "./posts-store";
 import { BootScreen } from "./BootScreen";
 import { Wallpaper } from "./Wallpaper";
 import { MenuBar } from "./MenuBar";
@@ -16,10 +18,11 @@ import { Toaster } from "@/components/ui/sonner";
  * animated wallpaper, live menu bar, day/night + wallpaper theming, and the
  * desktop right-click menu. Window management + app content land in phases 3–4.
  */
-export function Desktop() {
+export function Desktop({ posts = [] }: { posts?: PostMeta[] }) {
   return (
     <ThemeProvider>
       <LocaleProvider>
+        <PostsProvider posts={posts}>
         <DesktopContextMenu>
           <main className="relative h-full w-full overflow-hidden">
             <Wallpaper />
@@ -31,6 +34,7 @@ export function Desktop() {
             <Hint />
           </main>
         </DesktopContextMenu>
+        </PostsProvider>
       </LocaleProvider>
       <BootScreen />
       <Toaster position="bottom-center" offset={96} />

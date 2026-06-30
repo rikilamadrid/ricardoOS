@@ -1,0 +1,35 @@
+---
+title: Notes on building a window manager in React
+summary: Drag, resize, focus, and z-order without fighting the browser — a few things that made it click.
+date: 2026-06-26
+tags: ["react", "engineering"]
+draft: false
+---
+
+A window manager is deceptively deep. Here are the decisions that kept it simple.
+
+## One store, plain objects
+
+Windows aren't routes — they're managed UI objects. A single Zustand store owns
+the map of windows, the top z-index, and the theme. Every control (open, close,
+focus, minimize, maximize) is one small action against that store.
+
+## Pointer Events, not mouse events
+
+Drag and resize both use **Pointer Events**, so the same code path works for
+mouse and touch. The title bar gets `touch-action: none` so a drag doesn't also
+scroll the page on mobile.
+
+## Focus is just z-order
+
+There's no real "focus" state to track. Any pointer-down raises the window's
+z-index above the current top. The window that was touched last is, by
+definition, on top.
+
+## Transforms over layout
+
+Dragging mutates `left`/`top` through a rAF-friendly setter, and the open/close
+springs animate `scale` + `opacity`. Keeping motion on the compositor is what
+makes it feel instant.
+
+The lesson, as usual: model the state honestly and the interactions fall out.

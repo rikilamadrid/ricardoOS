@@ -20,6 +20,7 @@ export interface AppDefinition {
     | "about"
     | "projects"
     | "playground"
+    | "writing"
     | "terminal"
     | "music"
     | "contact"
@@ -73,16 +74,15 @@ export const apps: AppDefinition[] = [
     openOnBoot: true,
   },
   {
-    id: "blog",
-    title: { en: "Notes", es: "Notas", fr: "Notes" },
+    id: "writing",
+    title: { en: "Writing", es: "Escritos", fr: "Écrits" },
     icon: "✍️",
     tile: "violet",
-    kind: "link",
+    kind: "writing",
     window: { x: 30, y: 20, width: 600, height: 640 },
     onDesktop: false,
     inDock: true,
     openOnBoot: false,
-    href: "/notes",
   },
   {
     id: "experience",

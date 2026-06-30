@@ -7,6 +7,7 @@ import { ProjectsApp } from "@/components/apps/ProjectsApp";
 import { ExperienceApp } from "@/components/apps/ExperienceApp";
 import { ContactApp } from "@/components/apps/ContactApp";
 import { ResumeApp } from "@/components/apps/ResumeApp";
+import { WritingApp } from "@/components/apps/WritingApp";
 
 /**
  * Routes a window to its app component by `kind`. The four core apps (About,
@@ -33,6 +34,8 @@ export function WindowContent({ app }: { app: AppDefinition }) {
       return <ResumeApp />;
     case "contact":
       return <ContactApp />;
+    case "writing":
+      return <WritingApp />;
     default:
       return <Placeholder app={app} />;
   }

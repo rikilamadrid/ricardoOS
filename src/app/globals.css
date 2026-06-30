@@ -905,6 +905,58 @@
     color: var(--color-aqua-deep);
     font-weight: 700;
   }
+
+  /* MDX article body (rendered post content) */
+  .content-mdx h2 {
+    font-family: var(--font-brand), sans-serif;
+    font-weight: 700;
+    font-size: 21px;
+    margin-top: 12px;
+  }
+  .content-mdx h3 {
+    font-weight: 700;
+    font-size: 17px;
+    margin-top: 6px;
+  }
+  .content-mdx ul {
+    list-style: disc;
+    padding-left: 22px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  .content-mdx a {
+    color: var(--color-aqua-deep);
+    text-decoration: underline;
+    text-underline-offset: 2px;
+  }
+  .dark .content-mdx a { color: var(--color-aqua); }
+  .content-mdx strong { font-weight: 700; }
+  .content-mdx code {
+    font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+    font-size: 0.9em;
+    padding: 1px 5px;
+    border-radius: 6px;
+    background: rgba(110, 160, 220, 0.16);
+  }
+
+  /* In-window Writing app post rows */
+  .os-post-row {
+    display: block;
+    padding: 12px 14px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.5);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    transition: transform 0.16s cubic-bezier(0.2, 1, 0.4, 1), box-shadow 0.16s;
+  }
+  .dark .os-post-row {
+    background: rgba(40, 68, 116, 0.5);
+    border-color: rgba(120, 170, 225, 0.25);
+  }
+  .os-post-row:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 24px rgba(15, 60, 120, 0.18);
+  }
 }
 
 /* Honor reduced motion + tab-hidden: disable the ambient loops. The bubbles
