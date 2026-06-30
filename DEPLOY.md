@@ -19,17 +19,27 @@ Live: <https://ricardolamadrid.com>
 ## Automated deploy (CI/CD) — preferred
 
 Pushing to **`main`** triggers `.github/workflows/deploy.yml`, which builds the
-static export and uploads it to Hostinger over FTPS. No manual steps.
+static export and uploads it to Hostinger over FTPS. No manual steps. (Docs-only
+changes — `**.md`, `context/**` — are skipped.)
 
-**One-time setup** — add these in GitHub → repo **Settings → Secrets and
-variables → Actions → New repository secret**:
+> ⚠️ **Do NOT delete the `public_html` entry at the FTP root.** This FTP account
+> is jailed to the web root, so `server-dir` is `./`, and the `public_html` you
+> see there is a **self-referential symlink** back to the web root. Recursively
+> deleting it wipes the live site (it bit us once; restored via a redeploy).
+> Leave it alone — it's harmless.
 
-| Secret | Value | Where to find it |
+**Secrets (already configured)** — in GitHub → repo **Settings → Secrets and
+variables → Actions**:
+
+| Secret | Value | Notes |
 | --- | --- | --- |
-| `FTP_SERVER` | FTP hostname or IP (e.g. `ftp.ricardolamadrid.com` or `191.101.79.132`) | hPanel → Files → FTP Accounts |
-| `FTP_USERNAME` | FTP username (e.g. `u123456789.ricardolamadrid`) | hPanel → Files → FTP Accounts |
-| `FTP_PASSWORD` | that account's password | set/reset it in hPanel |
-| `FTP_SERVER_DIR` | *(optional)* remote dir; defaults to `public_html/`. Set to `./` if the FTP account is jailed to public_html | — |
+| `FTP_SERVER` | `ricardolamadrid.com` | FTP host |
+| `FTP_USERNAME` | `u781032603` | from hPanel → Files → FTP Accounts |
+| `FTP_PASSWORD` | *(set)* | the FTP account password (reset in hPanel if needed) |
+
+> `server-dir` is hardcoded to `./` in the workflow (this account is jailed to
+> the web root). The FTP server's TLS cert doesn't match the domain, but the
+> deploy action doesn't verify it, so FTPS still works.
 
 After secrets are set, every `git push` to `main` (or a manual run from the
 **Actions** tab) deploys. The action delta-syncs (only changed files) and keeps

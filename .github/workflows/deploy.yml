@@ -5,6 +5,11 @@ name: Deploy to Hostinger
 on:
   push:
     branches: [main]
+    # Don't redeploy for docs-only changes (no effect on the built site).
+    paths-ignore:
+      - "**.md"
+      - "context/**"
+      - "DEPLOY.md"
   workflow_dispatch:
 
 # Prevent overlapping deploys from racing each other.
