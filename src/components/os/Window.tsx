@@ -150,14 +150,16 @@ export function Window({ win }: { win: WindowState }) {
             className="os-light os-light--max"
           />
         </div>
-        <Tile
-          icon={app.icon}
-          palette={app.tile}
-          className="z-[1] h-[22px] w-[22px] rounded-[7px] text-[13px]"
-        />
-        <h3 className="z-[1] font-brand text-sm font-bold tracking-tight">
-          {t(app.title, locale)}
-        </h3>
+        <div className="pointer-events-none absolute inset-x-0 z-0 flex items-center justify-center gap-2 px-12">
+          <Tile
+            icon={app.icon}
+            palette={app.tile}
+            className="h-[22px] w-[22px] rounded-[7px] text-[13px]"
+          />
+          <h3 className="truncate font-brand text-sm font-bold tracking-tight">
+            {t(app.title, locale)}
+          </h3>
+        </div>
       </div>
 
       <div className="flex-1 overflow-auto p-[22px] text-[15px] leading-relaxed text-ink">

@@ -1035,51 +1035,251 @@
     caret-color: #7ed957;
   }
 
-  /* ── Aero FM ────────────────────────────────────────────────── */
-  .os-fm {
+  /* ── Aero FM (Winamp-style player) ──────────────────────────── */
+  .os-amp {
     display: flex;
     flex-direction: column;
-    align-items: center;
-    text-align: center;
-    gap: 14px;
-    padding-top: 6px;
+    gap: 12px;
   }
-  .os-fm-cover {
+
+  /* LCD display — dark glossy blue with glowing readout */
+  .os-amp-lcd {
+    position: relative;
+    border-radius: 18px;
+    padding: 14px 16px 12px;
+    background: linear-gradient(180deg, #163a6b 0%, #0c2348 55%, #0a1c3c 100%);
+    border: 1px solid rgba(120, 170, 225, 0.55);
+    box-shadow:
+      inset 0 2px 10px rgba(0, 0, 0, 0.55),
+      inset 0 1px 0 rgba(150, 200, 255, 0.35),
+      0 14px 30px -16px rgba(10, 30, 70, 0.7);
+    overflow: hidden;
+  }
+  .os-amp-lcd::before {
+    content: "";
+    position: absolute;
+    inset: 1px 1px 50%;
+    border-radius: 17px 17px 40% 40%;
+    background: linear-gradient(180deg, rgba(170, 210, 255, 0.28), rgba(170, 210, 255, 0));
+    pointer-events: none;
+  }
+  .os-amp-lcd-top {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .os-amp-cover {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 124px;
-    height: 124px;
-    border-radius: 26px;
-    font-size: 60px;
-    background: linear-gradient(160deg, #ffd2ec, #b98cff);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-    box-shadow: 0 18px 40px -14px rgba(120, 60, 160, 0.6);
+    width: 46px;
+    height: 46px;
+    border-radius: 12px;
+    font-size: 26px;
+    background: linear-gradient(160deg, rgba(255, 255, 255, 0.22), rgba(120, 170, 225, 0.12));
+    border: 1px solid rgba(150, 200, 255, 0.35);
+    flex-shrink: 0;
   }
-  .os-fm-meta { display: flex; flex-direction: column; gap: 2px; }
+  .os-amp-marquee {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .os-amp-title {
+    font-family: var(--font-brand, inherit);
+    font-weight: 700;
+    font-size: 16px;
+    letter-spacing: 0.01em;
+    color: #8ff0c8;
+    text-shadow: 0 0 10px rgba(120, 240, 190, 0.55);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .os-amp-artist {
+    font-size: 12px;
+    letter-spacing: 0.06em;
+    color: rgba(150, 205, 255, 0.85);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .os-amp-lcd-bottom {
+    position: relative;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 12px;
+  }
+  .os-amp-time,
+  .os-amp-total {
+    font-variant-numeric: tabular-nums;
+    font-weight: 700;
+    font-size: 13px;
+    color: #8ff0c8;
+    text-shadow: 0 0 8px rgba(120, 240, 190, 0.5);
+  }
+  .os-amp-total { color: rgba(150, 205, 255, 0.8); text-shadow: none; }
+
+  /* Equalizer (lives inside the LCD now) */
   .os-eq {
     display: flex;
     align-items: flex-end;
-    gap: 4px;
-    height: 40px;
+    gap: 3px;
+    height: 30px;
+    flex-shrink: 0;
   }
   .os-eq > span {
-    width: 5px;
-    height: 8px;
-    border-radius: 3px;
-    background: var(--color-aqua-deep);
+    width: 4px;
+    height: 6px;
+    border-radius: 2px;
+    background: #6fe6b8;
+    box-shadow: 0 0 6px rgba(120, 240, 190, 0.6);
     opacity: 0.5;
+    /* Heights are set live from the AnalyserNode (see MusicApp). */
+    transition: height 0.08s linear;
   }
-  .os-eq--on > span {
-    animation: os-eq-bounce 0.9s ease-in-out infinite;
-    opacity: 1;
+  .os-eq--on > span { opacity: 1; }
+
+  /* Range sliders (seek + volume) — slim aqua track + glossy thumb */
+  .os-amp-seek,
+  .os-amp-vol input {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 6px;
+    border-radius: 999px;
+    background: linear-gradient(180deg, rgba(10, 20, 40, 0.6), rgba(40, 80, 140, 0.5));
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
   }
-  @keyframes os-eq-bounce {
-    0%, 100% { height: 8px; }
-    50% { height: 34px; }
+  .os-amp-seek { flex: 1; min-width: 0; }
+  .os-amp-seek::-webkit-slider-thumb,
+  .os-amp-vol input::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 999px;
+    background: radial-gradient(circle at 35% 30%, #ffffff, #9fe0ff 55%, #2e9bdc);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: 0 1px 4px rgba(10, 40, 80, 0.6);
   }
-  .os-fm-toggle { width: 100%; max-width: 220px; }
-  .os-fm-note { font-size: 13px; color: var(--color-ink-soft); }
+  .os-amp-seek::-moz-range-thumb,
+  .os-amp-vol input::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    border-radius: 999px;
+    background: radial-gradient(circle at 35% 30%, #ffffff, #9fe0ff 55%, #2e9bdc);
+    box-shadow: 0 1px 4px rgba(10, 40, 80, 0.6);
+  }
+
+  /* Transport bar — glossy aqua panel */
+  .os-amp-bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 12px 14px;
+    padding: 10px 14px;
+    border-radius: 16px;
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(210, 235, 255, 0.45));
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 6px 16px -10px rgba(13, 52, 99, 0.5);
+  }
+  .dark .os-amp-bar {
+    background: linear-gradient(180deg, rgba(60, 92, 150, 0.5), rgba(30, 54, 100, 0.4));
+    border-color: rgba(120, 170, 225, 0.3);
+  }
+  .os-amp-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
+  .os-amp-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 38px;
+    height: 38px;
+    font-size: 15px;
+    border-radius: 999px;
+    color: var(--color-ink);
+    background: radial-gradient(circle at 50% 28%, #ffffff, #dbeeff 60%, #b6dcf6);
+    border: 1px solid rgba(255, 255, 255, 0.85);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 3px 8px -3px rgba(13, 52, 99, 0.5);
+    transition: transform 0.12s ease, box-shadow 0.12s ease;
+  }
+  .os-amp-btn:hover { transform: translateY(-1px); }
+  .os-amp-btn:active { transform: translateY(0) scale(0.96); }
+  .os-amp-btn--play {
+    width: 48px;
+    height: 48px;
+    font-size: 18px;
+    color: #0a3a22;
+    background: radial-gradient(circle at 50% 26%, #d6ffe9, #8be8b6 55%, #43c486);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 4px 12px -3px rgba(40, 150, 90, 0.6);
+  }
+  .os-amp-vol {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    font-size: 14px;
+    flex: 1 1 130px;
+    min-width: 0;
+  }
+  .os-amp-vol input { flex: 1; min-width: 60px; max-width: 130px; }
+
+  /* Playlist */
+  .os-amp-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    list-style: none;
+    margin: 0;
+    padding: 6px;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.4);
+    border: 1px solid rgba(255, 255, 255, 0.6);
+  }
+  .dark .os-amp-list {
+    background: rgba(30, 54, 100, 0.4);
+    border-color: rgba(120, 170, 225, 0.22);
+  }
+  .os-amp-row {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: baseline;
+    gap: 4px 10px;
+    width: 100%;
+    text-align: left;
+    padding: 7px 10px;
+    border-radius: 9px;
+    color: var(--color-ink);
+    transition: background 0.14s ease;
+  }
+  .os-amp-row:hover { background: rgba(120, 180, 240, 0.16); }
+  .os-amp-row--active {
+    background: linear-gradient(180deg, rgba(120, 200, 255, 0.32), rgba(120, 200, 255, 0.18));
+    box-shadow: inset 0 0 0 1px rgba(120, 190, 255, 0.5);
+  }
+  .os-amp-row-num {
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    color: var(--color-ink-soft);
+  }
+  .os-amp-row-title { font-weight: 600; font-size: 14px; }
+  .os-amp-row-len {
+    font-variant-numeric: tabular-nums;
+    font-size: 12px;
+    color: var(--color-ink-soft);
+  }
+  .os-amp-row-cap {
+    grid-column: 2 / 3;
+    font-size: 12px;
+    color: var(--color-ink-soft);
+  }
+  .os-amp-note { font-size: 12px; color: var(--color-ink-soft); text-align: center; }
 
   /* ── Recycle Bin ────────────────────────────────────────────── */
   .os-trash-list { display: flex; flex-direction: column; gap: 10px; }
@@ -1152,6 +1352,24 @@
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-1px);
   }
+}
+
+/* Toasts (sonner) — keep title + description legible. Declared *unlayered* and
+   with !important because sonner injects its own unlayered styles, which would
+   otherwise outrank anything inside @layer components regardless of specificity. */
+[data-sonner-toast] [data-title] {
+  color: var(--color-ink) !important;
+  font-weight: 600;
+}
+[data-sonner-toast] [data-description] {
+  color: var(--color-ink-soft) !important;
+  opacity: 1 !important;
+}
+.dark [data-sonner-toast] [data-title] {
+  color: #eaf3ff !important;
+}
+.dark [data-sonner-toast] [data-description] {
+  color: rgba(206, 224, 255, 0.9) !important;
 }
 
 /* Honor reduced motion + tab-hidden: disable the ambient loops. The bubbles
