@@ -10,16 +10,22 @@ import { useWindowStore } from "@/lib/window-store";
 /** Centered glass dock: launches apps, shows running dots, and bounces on launch. */
 export function Dock() {
   const { locale } = useLocale();
-  const openApp = useWindowStore((s) => s.openApp);
+  const toggleApp = useWindowStore((s) => s.toggleApp);
   const windows = useWindowStore((s) => s.windows);
+  const zTop = useWindowStore((s) => s.zTop);
   const [bouncing, setBouncing] = useState<string | null>(null);
 
   const dockApps = apps.filter((app) => app.inDock);
 
   const launch = (id: string) => {
-    openApp(id);
-    setBouncing(id);
-    window.setTimeout(() => setBouncing((cur) => (cur === id ? null : cur)), 520);
+    // Clicking a frontmost app minimizes it — don't bounce in that case.
+    const win = windows[id];
+    const willMinimize = win && !win.minimized && win.z === zTop;
+    toggleApp(id);
+    if (!willMinimize) {
+      setBouncing(id);
+      window.setTimeout(() => setBouncing((cur) => (cur === id ? null : cur)), 520);
+    }
   };
 
   return (

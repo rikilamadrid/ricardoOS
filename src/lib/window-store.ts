@@ -25,6 +25,8 @@ interface WindowStore {
   /** Meditations "zen mode": a desktop-level overlay, not a window. */
   zenMode: boolean;
   openApp: (id: string) => void;
+  /** Dock click: open/restore/raise, or minimize if already frontmost. */
+  toggleApp: (id: string) => void;
   closeApp: (id: string) => void;
   focus: (id: string) => void;
   minimize: (id: string) => void;
@@ -91,6 +93,24 @@ export const useWindowStore = create<WindowStore>((set, get) => ({
         [id]: { id, rect: initialRect(app), z, minimized: false, maximized: false },
       },
     }));
+  },
+
+  toggleApp: (id) => {
+    const app = apps.find((a) => a.id === id);
+    if (!app) return;
+    if (app.kind === "meditations") {
+      set((s) => ({ zenMode: !s.zenMode }));
+      return;
+    }
+    const win = get().windows[id];
+    // Open if closed, or restore + focus if minimized.
+    if (!win || win.minimized) {
+      get().openApp(id);
+      return;
+    }
+    // Frontmost → minimize; otherwise raise it to the front.
+    if (win.z === get().zTop) get().minimize(id);
+    else get().focus(id);
   },
 
   closeApp: (id) =>

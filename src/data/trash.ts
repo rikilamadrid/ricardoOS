@@ -46,9 +46,9 @@ export const trash: TrashContent = {
       name: "skill-bars.css",
       icon: "📊",
       note: {
-        en: '"JavaScript ▓▓▓▓▓▓▓░░ 87%" — we know better now.',
-        es: '"JavaScript ▓▓▓▓▓▓▓░░ 87%" — ahora sabemos mejor.',
-        fr: '"JavaScript ▓▓▓▓▓▓▓░░ 87%" — on sait mieux maintenant.',
+        en: '"jQuery ▓▓▓▓▓▓▓░░ 87%" — we know better now.',
+        es: '"jQuery ▓▓▓▓▓▓▓░░ 87%" — ahora sabemos mejor.',
+        fr: '"jQuery ▓▓▓▓▓▓▓░░ 87%" — on sait mieux maintenant.',
       },
     },
     {

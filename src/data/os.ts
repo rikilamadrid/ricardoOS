@@ -125,7 +125,7 @@ export const apps: AppDefinition[] = [
     icon: "🎵",
     tile: "pink",
     kind: "music",
-    window: { x: 70, y: 12, width: 380, height: 560 },
+    window: { x: 70, y: 12, width: 420, height: 580 },
     onDesktop: false,
     inDock: true,
     openOnBoot: true,
