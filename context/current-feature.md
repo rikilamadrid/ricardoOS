@@ -11,7 +11,37 @@ overview: @context/features/iteration-2-overview.md
 
 ## Status
 
-**⚪ Not started.** Next up per the Iteration-2 order.
+**🟡 In Progress** on `feature/phase-14-draggable-desktop-icons`.
+
+### Plan
+
+- **Store:** new `src/lib/desktop-icons-store.ts` (Zustand + `persist` middleware),
+  `positions: Record<appId, {x, y}>`, `setPosition`, `cleanUp` (clears all →
+  auto-layout). Persisted to `localStorage` — the justified exception to the
+  "no browser storage in v1" rule (the feature *is* "remember where I put things").
+- **DesktopIcons:** desktop (>720px, post-mount) renders icons absolutely
+  positioned; un-moved icons fall back to a tidy default column; dragged icons use
+  their saved `{x, y}`. Pointer-Events drag (mirrors `Window.tsx`): >4px threshold
+  distinguishes drag from click, transform-based movement during drag, commit on
+  pointerup, subtle snap-to-grid. Bounds clamp icons below the menu bar / above the
+  dock / on-screen. A drag swallows the ensuing click; a plain click still
+  `openApp`s; keyboard launch + focus rings intact.
+- **Mobile:** drag is **enabled at every size** (Ricardo's call — the OS desktop
+  doesn't scroll, and `touch-action: none` on icons prevents scroll-fighting).
+  Icons render as an absolute left column by default. A one-shot mount flag gates
+  reading *saved* positions so SSR (which has none) matches the first client render
+  — no hydration mismatch.
+- **Reset:** "Clean Up Icons" item in `DesktopContextMenu.tsx` → `cleanUp()` + toast.
+- **Motion:** honor `prefers-reduced-motion` (no drop drift; instant commit).
+
+### Acceptance
+
+- Drag any desktop icon → reload → still there.
+- Plain click still opens the app (threshold prevents accidental launches).
+- Icons can't be dropped under the menu bar / dock or off-screen.
+- "Clean Up Icons" restores the default layout.
+- Mouse + keyboard launch intact; mobile keeps tidy reflow.
+- `npm run build` + `npm run lint` pass.
 
 ---
 
