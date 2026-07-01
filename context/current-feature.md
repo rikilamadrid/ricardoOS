@@ -1,30 +1,17 @@
 # Current Feature
 
-**Phase 13 — Desktop app set + desktop/dock separation.** Curate what lives on the
-desktop vs. the dock: remove **Recycle Bin** from the desktop, add **Contact**, and
-make the two surfaces **disjoint** (no app appears in both). Almost entirely a data
-change in `src/data/os.ts` (the registry already drives both surfaces via
-`onDesktop` / `inDock`).
+**Phase 14 — Draggable / rearrangeable desktop icons (persisted).** Make the
+desktop feel like a real OS: icons can be **dragged around** and **stay where you
+put them** (persisted), with a "Clean Up" reset. The only Iteration-2 feature with
+real interaction logic — 13 landed first so dragging targets the final desktop app
+set (About, Projects, Résumé, Contact, Meditations).
 
-Spec: @context/features/phase-13-desktop-app-layout-spec.md · Iteration overview:
-@context/features/iteration-2-overview.md
+Spec: @context/features/phase-14-draggable-desktop-icons-spec.md · Iteration
+overview: @context/features/iteration-2-overview.md
 
 ## Status
 
-**🟡 In Progress** — split confirmed, implementing on `feature/phase-13-desktop-app-layout`.
-
-### Confirmed desktop/dock split (invariant: `onDesktop` ⇒ not `inDock`)
-
-- **Desktop** (`onDesktop: true`, `inDock: false`): About, Projects, Résumé, Contact, Meditations.
-- **Dock only** (`inDock: true`, `onDesktop: false`): Playground, Writing, Experience, Aero FM, Terminal, Recycle Bin.
-
-### Acceptance
-
-- Desktop shows exactly: About, Projects, Résumé, Contact, Meditations.
-- Recycle Bin no longer on the desktop (still reachable from the dock).
-- No app in both surfaces; every app launchable from at least one (desktop, dock, or menu-bar nav).
-- Verify Playground still launches from menu-bar nav now that it's dock-only.
-- `npm run build` + `npm run lint` pass.
+**⚪ Not started.** Next up per the Iteration-2 order.
 
 ---
 
@@ -36,11 +23,8 @@ each its own spec + branch. Overview: @context/features/iteration-2-overview.md
 | Phase | Feature | Spec | State |
 | --- | --- | --- | --- |
 | 12 | Home-screen / installable icons (PWA manifest) | `phase-12-home-screen-icons-spec.md` | ✅ **Merged** (`dab63f4`), live |
-| 13 | Desktop app set + desktop/dock separation (remove Bin, add Contact; desktop ≠ dock) | `phase-13-desktop-app-layout-spec.md` | 🟡 **In Progress** |
-| 14 | Draggable / rearrangeable desktop icons (persisted) | `phase-14-draggable-desktop-icons-spec.md` | Not started |
-
-Next after 13: **Phase 14** (draggable desktop icons) — the only one with real
-interaction logic; 13 lands first so dragging targets the final desktop app set.
+| 13 | Desktop app set + desktop/dock separation (remove Bin, add Contact; desktop ≠ dock) | `phase-13-desktop-app-layout-spec.md` | ✅ **Merged** (`7c7ab06`), live |
+| 14 | Draggable / rearrangeable desktop icons (persisted) | `phase-14-draggable-desktop-icons-spec.md` | ⚪ **Next up** |
 
 ---
 
@@ -118,3 +102,4 @@ Phase 5 — Content Pages, Writing (MDX), Routing & SEO. Two slices on one branc
 - **2026-06-30** — Merged `feature/desktop-icon-and-favicon` (`cf582a9`, commit `8dd2e52`): swapped the **Playground** desktop icon for the **Résumé** desktop icon (Résumé now surfaced on the desktop) and finalized the **bubble-R favicon**. Auto-deployed live via CI. **Completed.**
 - **2026-06-30** — Merged **Phase 12 (PWA manifest / installable home-screen icons)** via `feature/phase-12-pwa-manifest` (merge `dab63f4`, commit `978ba4d`) — the "Awaiting commit" work from the prior entry is now committed, merged to `main`, and auto-deployed live. **Completed.** (iOS/Android real-device Add-to-Home-Screen check remains the one manual QA.)
 - **2026-06-30** — CI stabilization: rotated the `FTP-Deploy-Action` sync-state marker twice (`9afe501` v?→v2, `436a3f4` v2→v3) to recover from stale-folder `550` errors where the action's cached remote state pointed at folders that no longer existed on the host. Deploys green again.
+- **2026-06-30** — Implemented **Phase 13 (Desktop app set + desktop/dock separation)** on `feature/phase-13-desktop-app-layout`. Pure data change in `src/data/os.ts`: flipped `onDesktop`/`inDock` booleans to make the two surfaces **disjoint** and documented the invariant (`onDesktop` ⇒ not `inDock`) in a comment above the `apps` array. **Desktop:** About, Projects, Résumé, Contact, Meditations. **Dock:** Playground, Writing, Experience, Aero FM, Terminal, Recycle Bin (removed Bin from the desktop, added Contact). Playground is now dock-only but still launches via menu-bar nav (`openApp`). Also cleaned up `current-feature.md` (headlined Phase 13, dropped the finished deployment track to a reference section, removed stale Phase-7 Goals/Notes). `npm run build` + `npm run lint` pass. Merged to `main` (merge `7c7ab06`, commit `10795c1`), branch deleted, auto-deployed live. **Completed.**
