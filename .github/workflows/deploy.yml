@@ -61,7 +61,7 @@ jobs:
           # already-gone _next/<hash> folder -> fatal 550). Bump the version to
           # reset: the action then re-uploads everything, deletes nothing, and
           # writes fresh accurate state on success.
-          state-name: .ricardo-os-deploy-state-v2.json
+          state-name: .ricardo-os-deploy-state-v3.json
           # Never let the sync wipe SSL/domain-verification files.
           exclude: |
             **/.git*
@@ -85,7 +85,7 @@ jobs:
           timeout: 60000
           local-dir: ./out/
           server-dir: ./
-          state-name: .ricardo-os-deploy-state-v2.json
+          state-name: .ricardo-os-deploy-state-v3.json
           exclude: |
             **/.git*
             **/.git*/**
@@ -106,7 +106,7 @@ jobs:
           timeout: 60000
           local-dir: ./out/
           server-dir: ./
-          state-name: .ricardo-os-deploy-state-v2.json
+          state-name: .ricardo-os-deploy-state-v3.json
           exclude: |
             **/.git*
             **/.git*/**
