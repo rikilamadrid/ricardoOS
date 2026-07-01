@@ -41,6 +41,13 @@ export interface AppDefinition {
   href?: string;
 }
 
+/**
+ * INVARIANT: an app lives on the desktop OR in the dock, never both.
+ * `onDesktop` and `inDock` are mutually exclusive. The desktop holds the
+ * "front door" primary apps; the dock holds secondary content + easter-eggs.
+ *   Desktop: about, projects, resume, contact, meditations
+ *   Dock:    playground, writing, experience, music, terminal, trash
+ */
 export const apps: AppDefinition[] = [
   {
     id: "about",
@@ -50,7 +57,7 @@ export const apps: AppDefinition[] = [
     kind: "about",
     window: { x: 36, y: 16, width: 660, height: 720 },
     onDesktop: true,
-    inDock: true,
+    inDock: false,
     openOnBoot: true,
   },
   {
@@ -61,7 +68,7 @@ export const apps: AppDefinition[] = [
     kind: "projects",
     window: { x: 19, y: 24, width: 620, height: 640 },
     onDesktop: true,
-    inDock: true,
+    inDock: false,
     openOnBoot: true,
   },
   {
@@ -105,7 +112,7 @@ export const apps: AppDefinition[] = [
     kind: "resume",
     window: { x: 24, y: 10, width: 720, height: 820 },
     onDesktop: true,
-    inDock: true,
+    inDock: false,
     openOnBoot: false,
   },
   {
@@ -115,8 +122,8 @@ export const apps: AppDefinition[] = [
     tile: "blue",
     kind: "contact",
     window: { x: 34, y: 22, width: 520, height: 520 },
-    onDesktop: false,
-    inDock: true,
+    onDesktop: true,
+    inDock: false,
     openOnBoot: false,
   },
   {
@@ -151,7 +158,7 @@ export const apps: AppDefinition[] = [
     // these dims are unused but keep the registry shape consistent.
     window: { x: 0, y: 0, width: 640, height: 640 },
     onDesktop: true,
-    inDock: true,
+    inDock: false,
     openOnBoot: false,
   },
   {
@@ -161,7 +168,7 @@ export const apps: AppDefinition[] = [
     tile: "graphite",
     kind: "trash",
     window: { x: 40, y: 26, width: 460, height: 520 },
-    onDesktop: true,
+    onDesktop: false,
     inDock: true,
     openOnBoot: false,
   },

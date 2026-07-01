@@ -1,59 +1,77 @@
 # Current Feature
 
-**Deployment track** — taking the finished OS live at `ricardolamadrid.com`, replacing the current site. Host: **Hostinger Single Web Hosting** (hPanel + LiteSpeed, no Node runtime). DNS: **Porkbun**. Strategy: **static export** (no Vercel). Four phases (8–11).
+**Phase 13 — Desktop app set + desktop/dock separation.** Curate what lives on the
+desktop vs. the dock: remove **Recycle Bin** from the desktop, add **Contact**, and
+make the two surfaces **disjoint** (no app appears in both). Almost entirely a data
+change in `src/data/os.ts` (the registry already drives both surfaces via
+`onDesktop` / `inDock`).
 
-Strategy doc: @context/features/deployment-overview.md
+Spec: @context/features/phase-13-desktop-app-layout-spec.md · Iteration overview:
+@context/features/iteration-2-overview.md
 
 ## Status
 
-**🟢 LIVE at <https://ricardolamadrid.com>** — the new RicardoOS has replaced the old site. Phases 8–10 done; **CI/CD live** (push to `main` → auto-deploy). **Phase 11 (go-live QA + real content) remaining**.
+**🟡 In Progress** — split confirmed, implementing on `feature/phase-13-desktop-app-layout`.
 
-### Hosting facts (reference)
+### Confirmed desktop/dock split (invariant: `onDesktop` ⇒ not `inDock`)
 
-- **Host:** Hostinger Single Web Hosting · **Server IP:** `191.101.79.132` · docroot `public_html`.
-- **Registrar:** Porkbun · **Nameservers:** `ns1/ns2.dns-parking.com` (**Hostinger's** — so DNS is actually managed at Hostinger, *not* Porkbun as first assumed). No DNS cutover was needed; the domain already pointed at this account.
-- **SSL:** Let's Encrypt, valid, auto-renew. **Redirects:** http→https + www→root, via `deploy/.htaccess`.
-- **Redeploy:** `npm run build` → zip `out/` (with `.htaccess`) → hPanel File Manager: empty `public_html`, upload, extract. See `DEPLOY.md`.
+- **Desktop** (`onDesktop: true`, `inDock: false`): About, Projects, Résumé, Contact, Meditations.
+- **Dock only** (`inDock: true`, `onDesktop: false`): Playground, Writing, Experience, Aero FM, Terminal, Recycle Bin.
 
-### Deployment phase map
+### Acceptance
 
-| Phase | Spec | State |
-| --- | --- | --- |
-| 8 — Static Export Readiness | `phase-8-static-export-spec.md` | ✅ Done (committed `13530ae`) |
-| 9 — Hostinger Deployment | `phase-9-hostinger-deploy-spec.md` | ✅ Done (uploaded to `public_html`; verified live) |
-| 10 — Porkbun DNS & SSL Cutover | `phase-10-porkbun-dns-ssl-spec.md` | ✅ N/A — DNS already at Hostinger, SSL already valid |
-| 11 — Go-Live QA & Maintenance | `phase-11-go-live-qa-spec.md` | **Remaining** (Lighthouse, mobile, OG validators, Search Console, real content) |
-
-### Phase 11 remaining (go-live QA + maintenance)
-
-- Live **Lighthouse** (desktop, target ≥95) + the deferred Phase-7 live QA: ≤720px touch, cross-browser glass.
-- **OG/social** card validators on home + a project + a post (now that images serve as `image/png`).
-- **Google Search Console**: verify ownership + submit `sitemap.xml`.
-- **Real content**: swap seed data in `src/data/*` + `src/content/posts/*` (projects/links, writing, About/Experience/Contact copy, résumé PDFs). Each change = rebuild + reupload.
-- Optional: lightweight analytics, Porkbun email forwarding.
+- Desktop shows exactly: About, Projects, Résumé, Contact, Meditations.
+- Recycle Bin no longer on the desktop (still reachable from the dock).
+- No app in both surfaces; every app launchable from at least one (desktop, dock, or menu-bar nav).
+- Verify Playground still launches from menu-bar nav now that it's dock-only.
+- `npm run build` + `npm run lint` pass.
 
 ---
 
-## Up Next — Iteration 2 (post-launch enhancements)
+## Iteration 2 — post-launch enhancements
 
 A small enhancement track on top of the live site. Three independent features,
 each its own spec + branch. Overview: @context/features/iteration-2-overview.md
 
 | Phase | Feature | Spec | State |
 | --- | --- | --- | --- |
-| 12 | Home-screen / installable icons (PWA manifest) | `phase-12-home-screen-icons-spec.md` | ✅ Implemented (branch `feature/phase-12-pwa-manifest`) |
-| 13 | Desktop app set + desktop/dock separation (remove Bin, add Contact; desktop ≠ dock) | `phase-13-desktop-app-layout-spec.md` | Not started |
+| 12 | Home-screen / installable icons (PWA manifest) | `phase-12-home-screen-icons-spec.md` | ✅ **Merged** (`dab63f4`), live |
+| 13 | Desktop app set + desktop/dock separation (remove Bin, add Contact; desktop ≠ dock) | `phase-13-desktop-app-layout-spec.md` | 🟡 **In Progress** |
 | 14 | Draggable / rearrangeable desktop icons (persisted) | `phase-14-draggable-desktop-icons-spec.md` | Not started |
 
-Suggested order: 12 + 13 first (quick, data/asset changes), then 14 (interaction
-logic) — and 13 before 14 so dragging targets the final desktop app set. Open
-decision for phase 13: confirm the desktop/dock split proposed in its spec.
+Next after 13: **Phase 14** (draggable desktop icons) — the only one with real
+interaction logic; 13 lands first so dragging targets the final desktop app set.
 
 ---
 
-## Previous — Phase 7 (a11y/motion/cross-browser polish, PR pending)
+## Reference — Deployment track (Phases 8–11, 🟢 LIVE)
 
-Phase 7 — Polish. Added keyboard `:focus-visible` rings across the OS (none existed), window `role="dialog"` + `aria-label`, reduced-motion-aware window transitions, global Escape-to-close-frontmost-window, and a missing `-webkit-backdrop-filter` prefix. Verified ambient loops already honor reduced-motion + tab visibility; SEO complete; contrast spot-check passes AA. Committed on `feature/phase-7-polish` (`d35b062`), pushed — **PR not yet opened/merged**. Live-browser QA (Lighthouse/mobile/cross-browser) deferred into deployment Phase 11.
+**🟢 LIVE at <https://ricardolamadrid.com>** — RicardoOS replaced the old site.
+Phases 8–10 done; **CI/CD live** (push to `main` → auto-deploy). **Phase 11
+(go-live QA + real content) still open** and can be picked up any time.
+
+Strategy doc: @context/features/deployment-overview.md
+
+### Hosting facts
+
+- **Host:** Hostinger Single Web Hosting · **Server IP:** `191.101.79.132` · docroot `public_html`.
+- **Registrar:** Porkbun · **Nameservers:** `ns1/ns2.dns-parking.com` (**Hostinger's** — DNS is managed at Hostinger, not Porkbun). No DNS cutover was needed.
+- **SSL:** Let's Encrypt, valid, auto-renew. **Redirects:** http→https + www→root, via `deploy/.htaccess`.
+- **Redeploy:** push to `main` auto-deploys via CI (FTPS). Manual fallback: `npm run build` → zip `out/` (with `.htaccess`) → hPanel File Manager. See `DEPLOY.md`.
+
+### Phase 11 remaining (go-live QA + maintenance)
+
+- Live **Lighthouse** (desktop, target ≥95) + deferred Phase-7 live QA: ≤720px touch, cross-browser glass.
+- **OG/social** card validators on home + a project + a post.
+- **Google Search Console**: verify ownership + submit `sitemap.xml`.
+- **Real content**: swap seed data in `src/data/*` + `src/content/posts/*` (projects/links, writing, About/Experience/Contact copy, résumé PDFs).
+- Optional: lightweight analytics, Porkbun email forwarding.
+
+---
+
+## Previous — Phase 7 (a11y/motion/cross-browser polish, ✅ Merged)
+
+Phase 7 — Polish. Added keyboard `:focus-visible` rings across the OS (none existed), window `role="dialog"` + `aria-label`, reduced-motion-aware window transitions, global Escape-to-close-frontmost-window, and a missing `-webkit-backdrop-filter` prefix. Verified ambient loops already honor reduced-motion + tab visibility; SEO complete; contrast spot-check passes AA. Committed on `feature/phase-7-polish` (`d35b062`); **merged to `main` as part of the phase 7 + 8 + favicon + CI stack** (no standalone PR). Live-browser QA (Lighthouse/mobile/cross-browser) deferred into deployment Phase 11.
 
 ## Previous — Phase 6 (Completed, PR #7 + polish PR #8)
 
@@ -62,24 +80,6 @@ Phase 6 — Special & Easter-Egg Apps. Added the reflective **Meditations** zen 
 ## Previous — Phase 5 (Completed, PR #6)
 
 Phase 5 — Content Pages, Writing (MDX), Routing & SEO. Two slices on one branch: **A** — `/projects/[slug]` SSR detail pages + crawlable `/projects` index, ProjectCard expand transition, `?app=<id>` deep links, `sitemap.ts`/`robots.ts`, richer root metadata (`5a232d7`). **B** — MDX pipeline (`gray-matter` + `next-mdx-remote`), `/writing` + `/writing/[slug]`, in-window Writing app via `PostsProvider`, OG images via `next/og` (`3a133b0`). English-canonical detail pages; standalone crawlable index pages with "Open in RicardoOS" CTAs.
-
-## Goals (Phase 7)
-
-- **Motion consistency**: shared, centralized Framer Motion variants across windows, dock, cards, and page transitions; nothing animates "just because"
-- **Reduced motion**: every ambient loop (bubbles, rays, breathing orb, equalizer) honors `prefers-reduced-motion`; state-change feedback stays instant
-- **Full keyboard operability**: launch apps, drive all window controls, and reach every link without a mouse; visible focus rings everywhere
-- **ARIA & semantics**: proper roles/labels on windows; accessible names on all icon/emoji tiles; `Escape` closes the focused window or open menu; Radix/shadcn primitives handle focus trap + ARIA for menus/popovers/dialogs
-- **Contrast**: AA for text over glass, verified in **both** day and night themes
-- **Performance**: lazy-loaded apps confirmed; capped `backdrop-filter`/particle layers; ambient loops paused on hidden tab; transform/opacity motion (no layout thrash); `next/image` + subset fonts; Lighthouse Performance ≥ 95 on desktop
-- **Responsive QA**: desktop + ≤720px — windows, dock scroll, icon reflow, touch drag/resize
-- **Cross-browser**: `backdrop-filter` (with `-webkit-` prefix) + glass verified in Safari/Chrome/Firefox
-- **Final SEO**: sitemap, robots, and per-page metadata complete
-
-## Notes
-
-The OS is feature-complete after Phase 6 (PR #7) + the Winamp polish pass (PR #8); Phase 7 changes existing behavior only — no new apps, content models, or routes. Touch points already in place to reconcile rather than rebuild: ambient motion via `useAmbientMotion` (reduced-motion + tab visibility), `ZenOverlay`/equalizer reduced-motion fallbacks, lazy `next/dynamic` app loading in `WindowContent`, `sitemap.ts`/`robots.ts`, and per-page `generateMetadata` + OG images. The prototype (`@context/ricardo-os.html`) remains the feel reference.
-
-Out of scope: any new feature — Phase 7 is the closing polish pass.
 
 ## History
 
@@ -115,3 +115,6 @@ Out of scope: any new feature — Phase 7 is the closing polish pass.
 - **2026-06-30** — **Phases 9 + 10 — DEPLOYED LIVE.** Packaged `ricardo-os-deploy.zip` (`out/` + `.htaccess`); Ricardo uploaded + extracted it into `public_html` via hPanel File Manager (backup taken first). Verified from the CLI against server IP `191.101.79.132` and the live domain: `https://ricardolamadrid.com/` serves the new site, http→https + www→root 301s work, all routes 200, `sitemap.xml`/`robots.txt` correct MIME, OG image serves `image/png` (ForceType works live), 404 works. **Discovery:** nameservers are `ns1/ns2.dns-parking.com` (Hostinger's), so DNS was already at Hostinger and SSL (Let's Encrypt) already valid — no DNS cutover needed; Phase 10 was effectively a no-op. The new RicardoOS has **replaced the old ricardolamadrid.com**. Remaining: Phase 11 (live Lighthouse/mobile/OG QA, Search Console, real content).
 - **2026-06-30** — Started **Iteration 2**. Implemented **Phase 12 (Home-Screen / Installable Icons — PWA manifest)** on `feature/phase-12-pwa-manifest`. Generated `public/icon-192.png`, `icon-512.png`, and `icon-maskable-512.png` from the bubble-R `src/app/icon.svg` via a committed `scripts/generate-pwa-icons.mjs` (sharp); the maskable variant (`scripts/icon-maskable.svg`) is a full-bleed brand-gradient background with the tile scaled into the central 80% safe zone so Android's circular mask never clips it. Added `src/app/manifest.ts` (`MetadataRoute.Manifest`, `export const dynamic = "force-static"` for the static export — same phase-8 gotcha) with name/short_name "RicardoOS", standalone display, `background_color #bfe3ff` + `theme_color #1e6fd9` from the Aero tokens, and the three icons (192/512 `any` + maskable 512). Added `appleWebApp` (capable, title, `black-translucent` status bar) to root `metadata`; Next still emits the `apple-touch-icon` from `apple-icon.png`. Added an `AddType application/manifest+json .webmanifest` rule to `deploy/.htaccess`. Hit (and fixed) a corrupted `node_modules` — a missing `next/dist/shared/lib/head.js` failed the build until `npm ci`. `npm run build` emits `out/manifest.webmanifest` + the three PNGs; `npm run lint` clean. **Awaiting commit.** (iOS/Android real-device Add-to-Home-Screen check is the one remaining manual QA.)
 - **2026-06-30** — **CI/CD set up & working.** Added `.github/workflows/deploy.yml` (push to `main` → `npm ci` + `npm run build` + FTPS upload to Hostinger via `SamKirkland/FTP-Deploy-Action`). Merged the whole stack (phase 7 + 8 + favicon + CI) to `main`. Debug saga, all fixed: (1) `npm ci` E401 — the global `~/.npmrc` pointed at a private Azure feed and the lockfile was pinned there; fixed with a project `.npmrc` (public registry) + regenerated `package-lock.json`. (2) one transient `ETIMEDOUT` on FTP (single bad runner IP; retry connected). (3) `530 Login incorrect` — wrong FTP password secret; corrected. (4) `server-dir` was `public_html/` but the FTP account is **jailed to the web root**, so fixed to `./`. (5) **Self-inflicted outage:** recursively deleting the `public_html` entry (a self-referential symlink to the web root) wiped the live site → **restored immediately** by re-running the deploy. Added `paths-ignore` (docs don't trigger deploys) + documented the symlink landmine in `DEPLOY.md`. Net: every push to `main` now auto-publishes; site verified healthy with new favicon + old boilerplate gone.
+- **2026-06-30** — Merged `feature/desktop-icon-and-favicon` (`cf582a9`, commit `8dd2e52`): swapped the **Playground** desktop icon for the **Résumé** desktop icon (Résumé now surfaced on the desktop) and finalized the **bubble-R favicon**. Auto-deployed live via CI. **Completed.**
+- **2026-06-30** — Merged **Phase 12 (PWA manifest / installable home-screen icons)** via `feature/phase-12-pwa-manifest` (merge `dab63f4`, commit `978ba4d`) — the "Awaiting commit" work from the prior entry is now committed, merged to `main`, and auto-deployed live. **Completed.** (iOS/Android real-device Add-to-Home-Screen check remains the one manual QA.)
+- **2026-06-30** — CI stabilization: rotated the `FTP-Deploy-Action` sync-state marker twice (`9afe501` v?→v2, `436a3f4` v2→v3) to recover from stale-folder `550` errors where the action's cached remote state pointed at folders that no longer existed on the host. Deploys green again.
