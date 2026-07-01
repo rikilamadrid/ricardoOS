@@ -7,6 +7,7 @@ import { t } from "@/data";
 import { wallpaperList } from "@/content/wallpapers";
 import { useTheme } from "./theme-store";
 import { useLocale } from "./locale-store";
+import { useDesktopIconsStore } from "@/lib/desktop-icons-store";
 
 /**
  * Right-click anywhere on the desktop for the aqua context menu: pick a
@@ -15,6 +16,7 @@ import { useLocale } from "./locale-store";
 export function DesktopContextMenu({ children }: { children: ReactNode }) {
   const { theme, setTheme, setWallpaper, colorblind, toggleColorblind } = useTheme();
   const { locale } = useLocale();
+  const cleanUpIcons = useDesktopIconsStore((s) => s.cleanUp);
 
   return (
     <ContextMenu.Root>
@@ -56,6 +58,16 @@ export function DesktopContextMenu({ children }: { children: ReactNode }) {
           >
             <span>Colorblind-safe</span>
             <small>{colorblind ? "On" : "Off"}</small>
+          </ContextMenu.Item>
+          <ContextMenu.Separator className="os-menu-sep" />
+          <ContextMenu.Item
+            className="os-menu-item"
+            onSelect={() => {
+              cleanUpIcons();
+              toast("🧹 Icons cleaned up");
+            }}
+          >
+            Clean Up Icons
           </ContextMenu.Item>
         </ContextMenu.Content>
       </ContextMenu.Portal>
