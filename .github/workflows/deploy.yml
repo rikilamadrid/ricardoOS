@@ -56,12 +56,16 @@ jobs:
           # This FTP account is jailed to the web root, so the FTP root IS
           # public_html. Deploy straight to ./ (verified against the live site).
           server-dir: ./
-          # Rotated state file. A failed run never writes state back, so the old
-          # default state could drift from the server (e.g. trying to delete an
-          # already-gone _next/<hash> folder -> fatal 550). Bump the version to
-          # reset: the action then re-uploads everything, deletes nothing, and
-          # writes fresh accurate state on success.
-          state-name: .ricardo-os-deploy-state-v3.json
+          # Per-commit state file (keyed by the git SHA). Incremental sync state
+          # drifts on this host: after a build, Next's build id changes, and the
+          # action tries to delete an already-gone _next/<hash> folder -> fatal
+          # 550. We used to fix this by hand-bumping a version suffix after every
+          # red deploy (a treadmill). A SHA-scoped state name means every deploy
+          # finds NO prior state -> full re-upload, deletes nothing, always green.
+          # The three retry attempts share this same SHA, so they resume cleanly.
+          # (Trade-off: old _next/<hash> chunks orphan on the server; harmless
+          # dead weight. Run a manual dangerous-clean-slate deploy to prune.)
+          state-name: .ricardo-os-deploy-state-${{ github.sha }}.json
           # Never let the sync wipe SSL/domain-verification files.
           exclude: |
             **/.git*
@@ -85,7 +89,7 @@ jobs:
           timeout: 60000
           local-dir: ./out/
           server-dir: ./
-          state-name: .ricardo-os-deploy-state-v3.json
+          state-name: .ricardo-os-deploy-state-${{ github.sha }}.json
           exclude: |
             **/.git*
             **/.git*/**
@@ -106,7 +110,7 @@ jobs:
           timeout: 60000
           local-dir: ./out/
           server-dir: ./
-          state-name: .ricardo-os-deploy-state-v3.json
+          state-name: .ricardo-os-deploy-state-${{ github.sha }}.json
           exclude: |
             **/.git*
             **/.git*/**
