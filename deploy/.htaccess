@@ -12,6 +12,12 @@ ErrorDocument 404 /404.html
   ForceType image/png
 </FilesMatch>
 
+# PWA manifest: not all hosts map .webmanifest by default. Serve the correct
+# type so Chrome/Android accept "Add to Home Screen".
+<IfModule mod_mime.c>
+  AddType application/manifest+json .webmanifest
+</IfModule>
+
 # Force HTTPS
 RewriteEngine On
 RewriteCond %{HTTPS} off

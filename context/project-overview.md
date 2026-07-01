@@ -101,9 +101,11 @@ The entire site is a **desktop operating system metaphor** called **RicardoOS**.
 ```
 src/
 ├── app/
-│   ├── layout.tsx                 # Root layout, fonts, theme provider
+│   ├── layout.tsx                 # Root layout, fonts, theme provider, PWA/appleWebApp metadata
 │   ├── page.tsx                   # The desktop shell (boot → desktop)
 │   ├── globals.css                # Tailwind + token imports
+│   ├── manifest.ts                # Web app manifest (installable home-screen icons)
+│   ├── icon.svg                   # Bubble-R favicon (source for PWA PNG icons)
 │   ├── projects/
 │   │   ├── page.tsx               # Deep-link fallback → opens Projects app
 │   │   └── [slug]/page.tsx        # Dedicated SSR project page

@@ -25,6 +25,13 @@ export const metadata: Metadata = {
   },
   description: SITE_DESCRIPTION,
   applicationName: SITE_NAME,
+  // iOS "Add to Home Screen": keep the bubble-R touch icon (apple-icon.png),
+  // launch standalone with a polished translucent status bar.
+  appleWebApp: {
+    capable: true,
+    title: SITE_NAME,
+    statusBarStyle: "black-translucent",
+  },
   alternates: { canonical: "/" },
   openGraph: {
     type: "website",
