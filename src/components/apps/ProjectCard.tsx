@@ -24,6 +24,9 @@ const STATUS: Record<Project["status"], { cls: string; label: Record<"en" | "es"
 export function ProjectCard({ project }: { project: Project }) {
   const { locale } = useLocale();
   const status = STATUS[project.status];
+  /** First link (if any) is the primary live/demo target, opened in a new tab. */
+  const liveLink = project.links[0];
+  const demoLabel = locale === "es" ? "Demo" : locale === "fr" ? "Démo" : "Live demo";
 
   return (
     <article className="os-card">
@@ -55,13 +58,25 @@ export function ProjectCard({ project }: { project: Project }) {
           >
             {OPEN_LABEL[locale]} →
           </Link>
-          <AquaButton
-            variant="ghost"
-            className="!px-3 !py-1.5 !text-[12.5px]"
-            onClick={() => toast("↗ Demo coming soon")}
-          >
-            {locale === "es" ? "Demo" : locale === "fr" ? "Démo" : "Live demo"}
-          </AquaButton>
+          {liveLink ? (
+            <AquaButton
+              variant="ghost"
+              href={liveLink.href}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="!px-3 !py-1.5 !text-[12.5px]"
+            >
+              {demoLabel} ↗
+            </AquaButton>
+          ) : (
+            <AquaButton
+              variant="ghost"
+              className="!px-3 !py-1.5 !text-[12.5px]"
+              onClick={() => toast("↗ Demo coming soon")}
+            >
+              {demoLabel}
+            </AquaButton>
+          )}
         </div>
       </div>
     </article>

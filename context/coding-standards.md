@@ -16,18 +16,16 @@
 
 ## Next.js
 
-- Server components by default
-- Only use `'use client'` when needed (interactivity, hooks, browser APIs)
-- Use Server Actions for form submissions and simple mutations
-- Use API routes when you need:
-  - Webhooks (Stripe, GitHub, etc.)
-  - File uploads with progress tracking
-  - Long-running operations
-  - Specific HTTP status codes or headers
-  - Endpoints for future mobile/CLI clients
-  - Third-party integrations
-- Otherwise, fetch data directly in server components
-- Dynamic routes for item/collection pages
+- **This app is a static export** (`output: "export"`) — no server at runtime,
+  **no database, no Server Actions, no API routes.** Everything is SSG.
+- Server components by default; only use `'use client'` when needed
+  (interactivity, hooks, browser APIs — the whole OS shell is client-side).
+- Content comes from typed TS in `src/data/*` (localized) and MDX in
+  `src/content/posts/*`. Import data from the `@/data` barrel.
+- Dynamic routes (`/projects/[slug]`, `/writing/[slug]`) use
+  `generateStaticParams` + `generateMetadata`.
+- Metadata routes (`sitemap.ts`, `robots.ts`, `manifest.ts`,
+  `opengraph-image.tsx`) must export `const dynamic = "force-static"`.
 
 ## Tailwind CSS v4
 
@@ -50,11 +48,13 @@ Example v4 configuration:
 
 ## File Organization
 
-- Components: `src/components/[feature]/ComponentName.tsx`
-- Pages: `src/app/[route]/page.tsx`
-- Server Actions: `src/actions/[feature].ts`
-- Types: `src/types/[feature].ts`
-- Lib/Utils: `src/lib/[utility].ts`
+- OS shell components: `src/components/os/ComponentName.tsx`
+- App components (one per app): `src/components/apps/AppNameApp.tsx`
+- shadcn/ui + shared primitives: `src/components/ui/`
+- Pages / routes: `src/app/[route]/page.tsx`
+- Content data (typed, localized): `src/data/*.ts` (barrel: `@/data`)
+- Stores / helpers: `src/lib/[utility].ts`
+- Design tokens: `src/styles/tokens.css`
 
 ## Naming
 
@@ -71,24 +71,22 @@ Example v4 configuration:
 - No inline styles
 - Dark mode first, light mode as option
 
-## Database
+## Data
 
-- Use Prisma ORM for all database operations
-- Always use `prisma migrate dev` for schema changes (not `db push`)
-- Run `prisma migrate status` before committing to verify migrations are in sync
-- Production deployments must run `prisma migrate deploy` before the app starts
-
-## Data Fetching
-
-- Server components fetch directly with Prisma
-- Client components use Server Actions
-- Validate all inputs with Zod
+- **No database.** All content is version-controlled typed TS in `src/data/*`
+  (localized `Localized<T>`, resolved with `t(value, locale)`) plus MDX posts in
+  `src/content/posts/*`.
+- Sections/apps are data-driven from `src/data/*` — never hardcode lists inside
+  components. Adding an app = a `src/data/os.ts` registry entry + an
+  `apps/*.tsx` component.
+- Client state lives in Zustand stores (`src/lib/*-store.ts`) and React context
+  providers (`src/components/os/*-store.tsx`); persist to `localStorage` only when
+  a feature genuinely needs it (e.g. desktop icon positions).
 
 ## Error Handling
 
-- Use try/catch in Server Actions
-- Return `{ success, data, error }` pattern from actions
-- Display user-friendly error messages via toast
+- Wrap fallible browser/audio APIs in try/catch; surface user-facing errors via
+  sonner toasts.
 
 ## Code Quality
 

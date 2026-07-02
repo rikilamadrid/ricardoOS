@@ -52,6 +52,35 @@ export const projects: ProjectsContent = {
   },
   items: [
     {
+      id: "pokepal",
+      title: { en: "PokéPal", es: "PokéPal", fr: "PokéPal" },
+      blurb: {
+        en: "A mobile-first, iOS-style Pokémon card companion for kids. Scan a card, tag it, and build a collection — local-first and installable.",
+        es: "Un compañero de cartas Pokémon al estilo iOS, pensado para niños y móvil primero. Escanea una carta, etiquétala y arma tu colección — local e instalable.",
+        fr: "Un compagnon de cartes Pokémon façon iOS, pensé mobile d'abord pour les enfants. Scannez une carte, étiquetez-la et bâtissez une collection — local et installable.",
+      },
+      status: "shipped",
+      tags: ["Next.js", "Supabase", "Capacitor"],
+      icon: "🃏",
+      from: "#ffd36e",
+      to: "#ff7a8a",
+      links: [
+        { label: { en: "Live demo", es: "Demo en vivo", fr: "Démo en ligne" }, href: "https://pokepal-three.vercel.app" },
+        { label: { en: "GitHub", es: "GitHub", fr: "GitHub" }, href: "https://github.com/rikilamadrid/pokepal" },
+      ],
+      year: 2026,
+      tagline: {
+        en: "An iOS-style Pokémon card companion for young collectors.",
+        es: "Un compañero de cartas Pokémon estilo iOS para jóvenes coleccionistas.",
+        fr: "Un compagnon de cartes Pokémon façon iOS pour jeunes collectionneurs.",
+      },
+      writeup: {
+        en: "PokéPal is a mobile-first companion app for kids building a Pokémon card collection. Scan a card, tag it with name, type, rarity, and Pokédex number, and watch the collection grow.\n\nIt's local-first — the collection lives on the device so it stays fast and works offline — and installable as a PWA. It ships to iOS through Capacitor, wrapping the same Next.js app in a native shell so the camera and scan flow feel at home on a phone.\n\nBuilt on Next.js, React, and Tailwind with Supabase handling Postgres, auth, and storage. The whole thing is shaped like a phone: full-viewport, thumb-friendly, and unmistakably playful.",
+        es: "PokéPal es una app compañera, pensada para móvil primero, para que los niños armen su colección de cartas Pokémon. Escanea una carta, etiquétala con nombre, tipo, rareza y número de Pokédex, y ve crecer la colección.\n\nEs local primero — la colección vive en el dispositivo, así que es rápida y funciona sin conexión — e instalable como PWA. Llega a iOS mediante Capacitor, envolviendo la misma app de Next.js en una carcasa nativa para que la cámara y el escaneo se sientan como en casa en un teléfono.\n\nConstruida sobre Next.js, React y Tailwind, con Supabase gestionando Postgres, autenticación y almacenamiento. Todo tiene forma de teléfono: pantalla completa, cómoda para el pulgar e inconfundiblemente juguetona.",
+        fr: "PokéPal est une application compagne, pensée mobile d'abord, pour aider les enfants à constituer leur collection de cartes Pokémon. Scannez une carte, étiquetez-la avec le nom, le type, la rareté et le numéro de Pokédex, et regardez la collection grandir.\n\nElle est local d'abord — la collection vit sur l'appareil, donc elle reste rapide et fonctionne hors ligne — et installable en PWA. Elle arrive sur iOS via Capacitor, enveloppant la même application Next.js dans une coque native pour que l'appareil photo et le scan soient à leur place sur un téléphone.\n\nBâtie sur Next.js, React et Tailwind, avec Supabase pour Postgres, l'authentification et le stockage. Le tout a la forme d'un téléphone : plein écran, adapté au pouce et résolument ludique.",
+      },
+    },
+    {
       id: "ricardo-os",
       title: { en: "Ricardo OS", es: "Ricardo OS", fr: "Ricardo OS" },
       blurb: {

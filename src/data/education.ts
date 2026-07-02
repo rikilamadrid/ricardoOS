@@ -33,12 +33,12 @@ export const languageProficiency: LanguageProficiency[] = [
     id: "english",
     name: { en: "English", es: "Inglés", fr: "Anglais" },
     level: 5,
-    note: { en: "Fluent", es: "Fluido", fr: "Courant" },
+    note: { en: "Native", es: "Nativo", fr: "Langue maternelle" },
   },
   {
     id: "french",
     name: { en: "French", es: "Francés", fr: "Français" },
-    level: 4,
-    note: { en: "Professional working", es: "Profesional", fr: "Professionnel" },
+    level: 5,
+    note: { en: "Fluent", es: "Fluido", fr: "Courant" },
   },
 ];
