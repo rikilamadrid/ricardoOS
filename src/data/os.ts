@@ -84,7 +84,7 @@ export const apps: AppDefinition[] = [
   },
   {
     id: "writing",
-    title: { en: "Writing", es: "Escritos", fr: "Écrits" },
+    title: { en: "Field Notes", es: "Notas de Campo", fr: "Notes de Terrain" },
     icon: "✍️",
     tile: "violet",
     kind: "writing",
@@ -178,6 +178,7 @@ export const apps: AppDefinition[] = [
 export const menuBar: { id: string; label: Localized<string>; target: string }[] = [
   { id: "nav-about", label: { en: "About", es: "Sobre Mí", fr: "À Propos" }, target: "about" },
   { id: "nav-projects", label: { en: "Projects", es: "Proyectos", fr: "Projets" }, target: "projects" },
+  { id: "nav-writing", label: { en: "Field Notes", es: "Notas de Campo", fr: "Notes de Terrain" }, target: "writing" },
 ];
 
 /**

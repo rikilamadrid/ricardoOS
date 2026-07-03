@@ -18,7 +18,7 @@ export function WritingApp() {
   return (
     <div>
       <div className="os-eyebrow">WORDS BETWEEN BUILDS</div>
-      <h2 className="font-brand text-2xl tracking-tight">Writing</h2>
+      <h2 className="font-brand text-2xl tracking-tight">Field Notes</h2>
       <p className="mt-1.5 text-ink-soft">
         Notes on craft, engineering, and building calm software.
       </p>

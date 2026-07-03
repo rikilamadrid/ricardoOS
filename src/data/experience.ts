@@ -21,41 +21,41 @@ export const experiences: Experience[] = [
       {
         kind: "feature",
         text: {
-          en: "Architected and shipped a Progressive Web App (PWA) for warehouse scanning using React, Redux, and Node.js services, used daily across distribution operations.",
-          es: "Diseñó y lanzó una Progressive Web App (PWA) para escáner de almacén con React, Redux y servicios en Node.js, usada diariamente en operaciones de distribución.",
-          fr: "A conçu et livré une Progressive Web App (PWA) pour le scan en entrepôt avec React, Redux et des services Node.js, utilisée quotidiennement dans les opérations de distribution.",
+          en: "I built and shipped a warehouse-scanning PWA (React, Redux, Node services) that distribution teams now lean on every single day.",
+          es: "Construí y lancé una PWA de escaneo de almacén (React, Redux, servicios en Node) que los equipos de distribución usan cada día.",
+          fr: "J'ai construit et livré une PWA de scan en entrepôt (React, Redux, services Node) que les équipes de distribution utilisent chaque jour.",
         },
       },
       {
         kind: "feature",
         text: {
-          en: "Built and scaled a web component catalog with Storybook, leading the shift to component-driven development and a shared design system.",
-          es: "Construyó y escaló un catálogo de componentes web con Storybook, liderando la transición hacia desarrollo basado en componentes y un sistema de diseño compartido.",
-          fr: "A construit et fait évoluer un catalogue de composants web avec Storybook, menant la transition vers un développement orienté composants et un design system partagé.",
+          en: "I grew a Storybook component catalog from scratch and moved the team toward component-driven development and one shared design system.",
+          es: "Levanté un catálogo de componentes en Storybook desde cero y llevé al equipo hacia el desarrollo basado en componentes y un único sistema de diseño compartido.",
+          fr: "J'ai bâti un catalogue de composants Storybook à partir de zéro et fait basculer l'équipe vers le développement orienté composants et un seul design system partagé.",
         },
       },
       {
         kind: "feature",
         text: {
-          en: "Implemented a micro-frontend architecture via Webpack Module Federation, enabling independent team deployments without sacrificing a unified app shell.",
-          es: "Implementó una arquitectura de micro-frontends mediante Webpack Module Federation, permitiendo despliegues independientes sin perder un app shell unificado.",
-          fr: "A mis en place une architecture micro-frontend via Webpack Module Federation, permettant des déploiements d'équipes indépendants sans sacrifier un app shell unifié.",
+          en: "I split the front end into micro-frontends with Webpack Module Federation, so each team could ship on its own schedule without the app feeling stitched together.",
+          es: "Dividí el front en micro-frontends con Webpack Module Federation, para que cada equipo desplegara a su ritmo sin que la app pareciera un collage.",
+          fr: "J'ai découpé le front en micro-frontends avec Webpack Module Federation, pour que chaque équipe déploie à son rythme sans que l'app paraisse rapiécée.",
         },
       },
       {
         kind: "ai",
         text: {
-          en: "Introduced AI-assisted development into the team workflow (Claude Code, MCP servers, and context engineering for scaffolding, refactoring, and faster reviews), under a strict human-review gate for every AI-generated change.",
-          es: "Introdujo el desarrollo asistido por IA en el flujo del equipo (Claude Code, servidores MCP e ingeniería de contexto para scaffolding, refactorización y revisiones más rápidas), bajo un estricto control de revisión humana para cada cambio generado por IA.",
-          fr: "A introduit le développement assisté par l'IA dans le flux de l'équipe (Claude Code, serveurs MCP et ingénierie de contexte pour le scaffolding, le refactoring et des revues plus rapides), sous un contrôle humain strict pour chaque changement généré par l'IA.",
+          en: "I brought AI into how the team actually works (Claude Code, MCP servers, real context engineering for scaffolding, refactors, and faster reviews) with one hard rule: a human reviews every AI-written change before it merges.",
+          es: "Metí la IA en el trabajo real del equipo (Claude Code, servidores MCP e ingeniería de contexto de verdad para scaffolding, refactors y revisiones más rápidas) con una regla firme: una persona revisa cada cambio escrito por IA antes de que entre.",
+          fr: "J'ai intégré l'IA dans le travail réel de l'équipe (Claude Code, serveurs MCP, vraie ingénierie de contexte pour le scaffolding, les refactors et des revues plus rapides) avec une règle stricte : un humain relit chaque changement écrit par l'IA avant qu'il ne soit fusionné.",
         },
       },
       {
         kind: "outcome",
         text: {
-          en: "Mentored engineers on pairing AI-assisted velocity with SOLID design, helping the team adopt AI tooling deliberately rather than reflexively.",
-          es: "Mentorizó a otros ingenieros sobre cómo equilibrar la velocidad asistida por IA con el diseño SOLID, fomentando una adopción deliberada de la IA.",
-          fr: "A accompagné d'autres ingénieurs pour conjuguer la vélocité assistée par l'IA avec une conception SOLID, favorisant une adoption réfléchie plutôt que réflexe des outils d'IA.",
+          en: "I coach the team on pairing that AI speed with solid design, so we reach for the tools on purpose instead of on reflex.",
+          es: "Acompaño al equipo para combinar esa velocidad con un buen diseño, para que usemos las herramientas a propósito y no por reflejo.",
+          fr: "J'accompagne l'équipe pour marier cette vitesse avec une conception solide, afin qu'on utilise ces outils volontairement et non par réflexe.",
         },
       },
     ],
@@ -76,17 +76,17 @@ export const experiences: Experience[] = [
       {
         kind: "feature",
         text: {
-          en: "Contributed to a comprehensive web component catalog with an integrated component generator and design system, used across multiple banking clients.",
-          es: "Contribuyó a un catálogo de componentes web con un generador de componentes integrado y un sistema de diseño, usado por varios clientes bancarios.",
-          fr: "A contribué à un catalogue complet de composants web doté d'un générateur de composants intégré et d'un design system, utilisé par plusieurs clients bancaires.",
+          en: "I helped build a web component catalog, with a built-in generator and design system, that several banking clients shipped their products on.",
+          es: "Ayudé a construir un catálogo de componentes web, con un generador integrado y un sistema de diseño, sobre el que varios clientes bancarios lanzaron sus productos.",
+          fr: "J'ai aidé à construire un catalogue de composants web, avec générateur intégré et design system, sur lequel plusieurs clients bancaires ont livré leurs produits.",
         },
       },
       {
         kind: "outcome",
         text: {
-          en: "Enabled client teams to consistently achieve brand-specific look and feel while reusing a shared underlying architecture.",
-          es: "Permitió que los equipos de los clientes lograran consistentemente la identidad visual de su marca reutilizando una arquitectura compartida.",
-          fr: "A permis aux équipes clientes d'obtenir de façon cohérente l'identité visuelle de leur marque tout en réutilisant une architecture commune.",
+          en: "Each client kept its own brand look while reusing the same architecture underneath, so nobody had to rebuild the wheel.",
+          es: "Cada cliente mantuvo su propia identidad de marca reutilizando la misma arquitectura por debajo, así nadie tuvo que reinventar la rueda.",
+          fr: "Chaque client gardait son identité de marque tout en réutilisant la même architecture en dessous, sans que personne ait à réinventer la roue.",
         },
       },
     ],
@@ -107,17 +107,17 @@ export const experiences: Experience[] = [
       {
         kind: "feature",
         text: {
-          en: "Designed and developed features for an internal banking application used to originate accounts and credit cards.",
-          es: "Diseñó y desarrolló funcionalidades para una aplicación bancaria interna usada para originar cuentas y tarjetas de crédito.",
-          fr: "A conçu et développé des fonctionnalités pour une application bancaire interne servant à ouvrir des comptes et des cartes de crédit.",
+          en: "I designed and built features for an internal banking app that opened new accounts and credit cards.",
+          es: "Diseñé y construí funcionalidades para una app bancaria interna que abría cuentas y tarjetas de crédito.",
+          fr: "J'ai conçu et construit des fonctionnalités pour une app bancaire interne qui ouvrait des comptes et des cartes de crédit.",
         },
       },
       {
         kind: "feature",
         text: {
-          en: "Built features for the Balance Transfer and ACH product, handling sensitive financial data and realtime transactions while improving speed and security.",
-          es: "Construyó funcionalidades para el producto de Balance Transfer y ACH, manejando datos financieros sensibles y transacciones en tiempo real, mejorando la velocidad y seguridad de la aplicación.",
-          fr: "A développé des fonctionnalités pour le produit Balance Transfer et ACH, traitant des données financières sensibles et des transactions en temps réel tout en améliorant la vitesse et la sécurité.",
+          en: "I worked on the Balance Transfer and ACH product, handling real money and live transactions while making it faster and safer.",
+          es: "Trabajé en el producto de Balance Transfer y ACH, manejando dinero real y transacciones en vivo mientras lo hacía más rápido y seguro.",
+          fr: "J'ai travaillé sur le produit Balance Transfer et ACH, en gérant de l'argent réel et des transactions en direct tout en le rendant plus rapide et plus sûr.",
         },
       },
     ],
