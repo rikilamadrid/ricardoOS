@@ -1,3 +1,4 @@
+import { t } from "@/data";
 import { getAllPosts, getPost } from "@/lib/posts";
 import { OG_SIZE, OG_CONTENT_TYPE, renderOgImage } from "@/lib/og";
 
@@ -16,7 +17,7 @@ export default async function Image({ params }: { params: Promise<{ slug: string
   const post = getPost(slug);
   return renderOgImage({
     badge: "Field Notes",
-    title: post?.meta.title ?? "Field Notes",
-    subtitle: post?.meta.summary,
+    title: post ? t(post.meta.title, "en") : "Field Notes",
+    subtitle: post ? t(post.meta.summary, "en") : undefined,
   });
 }

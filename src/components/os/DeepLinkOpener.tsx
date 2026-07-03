@@ -1,8 +1,13 @@
 "use client";
 
 import { useEffect } from "react";
-import { apps } from "@/data";
+import { apps, LOCALES, type Locale } from "@/data";
+import { useLocale } from "./locale-store";
 import { useWindowStore } from "@/lib/window-store";
+
+function isLocale(value: string | null): value is Locale {
+  return value !== null && (LOCALES as readonly string[]).includes(value);
+}
 
 /**
  * Honors the `?app=<id>` deep link: on load (and on client navigations back to
@@ -12,11 +17,15 @@ import { useWindowStore } from "@/lib/window-store";
  */
 export function DeepLinkOpener() {
   const openApp = useWindowStore((s) => s.openApp);
+  const { setLocale } = useLocale();
 
   useEffect(() => {
-    const id = new URLSearchParams(window.location.search).get("app");
+    const params = new URLSearchParams(window.location.search);
+    const id = params.get("app");
+    const locale = params.get("locale");
+    if (isLocale(locale)) setLocale(locale);
     if (id && apps.some((a) => a.id === id)) openApp(id);
-  }, [openApp]);
+  }, [openApp, setLocale]);
 
   return null;
 }
