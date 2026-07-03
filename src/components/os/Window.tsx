@@ -8,6 +8,7 @@ import { useLocale } from "./locale-store";
 import { useWindowStore, type WindowState, MIN_W, MIN_H } from "@/lib/window-store";
 import { Tile } from "./Tile";
 import { WindowContent } from "./WindowContent";
+import { FooterCredit } from "./FooterCredit";
 
 interface DragRef {
   pointerX: number;
@@ -173,6 +174,10 @@ export function Window({ win }: { win: WindowState }) {
 
       <div className="flex-1 overflow-auto p-[22px] text-[15px] leading-relaxed text-ink">
         <WindowContent app={app} />
+      </div>
+
+      <div className="pointer-events-none flex-none px-3 pb-1.5 pr-9 text-right sm:pr-7">
+        <FooterCredit />
       </div>
 
       <div

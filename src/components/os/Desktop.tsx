@@ -7,6 +7,7 @@ import { Wallpaper } from "./Wallpaper";
 import { MenuBar } from "./MenuBar";
 import { DesktopIcons } from "./DesktopIcons";
 import { Dock } from "./Dock";
+import { FooterCredit } from "./FooterCredit";
 import { DesktopContextMenu } from "./DesktopContextMenu";
 import { WindowManager } from "./WindowManager";
 import { ZenOverlay } from "./ZenOverlay";
@@ -32,6 +33,7 @@ export function Desktop({ posts = [] }: { posts?: PostMeta[] }) {
             <WindowManager />
             <DeepLinkOpener />
             <Dock />
+            <FooterCredit className="fixed bottom-[92px] left-1/2 z-[7000] -translate-x-1/2 sm:bottom-4 sm:left-auto sm:right-4 sm:translate-x-0" />
             <Hint />
             <ZenOverlay />
           </main>
