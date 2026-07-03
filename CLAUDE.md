@@ -51,6 +51,10 @@ draggable windows). Live at <https://ricardolamadrid.com>.
   [Unreleased]` in `CHANGELOG.md`; bump via `npm run version:patch|minor|major`
   on release (fix→patch, feature→minor, breaking/URL change→major). Details in
   ai-interaction.md → Versioning.
+- **Commit messages:** no AI attribution. Write them as the repository
+  maintainer would. Never add `Co-authored-by: Claude`, `Generated with Claude
+  Code`, `AI-assisted-by`, or any similar co-author trailer or generated-by
+  footer.
 
 ## Commands
 

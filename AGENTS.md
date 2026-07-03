@@ -12,3 +12,7 @@ Quick pointers:
 - Tailwind **v4** (CSS-only config, no `tailwind.config.*`).
 - Dev server runs on **port 3001**; `npm run build` must pass and **ask before
   committing**.
+- **Commit messages carry no AI attribution** — write them as the repository
+  maintainer would. Never include `Co-authored-by: Claude`, `Generated with
+  Claude Code`, `AI-assisted-by`, or any similar co-author trailer or
+  generated-by footer.

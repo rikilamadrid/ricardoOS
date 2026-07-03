@@ -1,91 +1,46 @@
 # Current Feature
 
-**Field Notes content localization fix.** The Field Notes app chrome already
-switches languages, but the post titles/summaries are still plain English MDX
-metadata and the article bodies are English-only. Make post metadata and MDX
-body content localized, then resolve the active language from the Field Notes
-app through static article routes.
+**Maintenance mode — feature roadmap complete.** RicardoOS and the post-launch
+enhancements are shipped. The active track is now live QA, real-content polish,
+and any small follow-up fixes discovered on the deployed site.
 
-Branch: `fix/localize-field-notes-content`.
-
-## Status
-
-**In progress** — build green (`npm run build`); static export now generates
-localized article pages for all three posts in EN/ES/FR. Localized post pages now
-return to the Field Notes index with `?locale=es|fr`, and the index renders that
-language instead of falling back to English.
-
----
-
-**Humanize the copy.** Rewrite the user-facing strings across `src/data/*` so
-they stop reading like AI output. Concrete goals: (1) kill the em-dash tic — the
-biggest "ChatGPT wrote this" tell — by rewriting sentences, not find-replacing;
-(2) first person everywhere (project writeups and Experience chapters were third
-person / impersonal gerunds); (3) a human, curious, lightly-sarcastic-but-
-professional voice — no infantile tone. All three languages (EN/ES/FR).
-
-Branch: `feature/humanize-copy`.
+Branch: `main` until a concrete fix/content slice is scoped, then branch per
+feature as usual.
 
 ## Status
 
-**In progress.**
+**Feature roadmap complete.** No planned product feature is currently open.
+Only maintenance, verification, and content cleanup remain.
 
-### Scope
+### Active maintenance track
 
-Files with user-facing copy: `about.ts`, `projects.ts`, `chapters.ts`
-(Experience chapters), `experience.ts` (résumé bullets), `contact.ts`,
-`playground.ts`, `trash.ts`, `terminal.ts`, `profile.ts`, `meditations.ts`.
-Doc-comment em-dashes are left alone (not user-facing).
+- Run the remaining live-site QA from
+  `context/features/phase-11-go-live-qa-spec.md`.
+- Replace any remaining seed/demo copy in `src/data/*` and
+  `src/content/posts/*` with final portfolio content.
+- Verify the live experience across desktop and mobile, especially touch
+  behavior, glass rendering, and localized content flows.
+- Keep `CHANGELOG.md`, `context/history.md`, and this file aligned whenever a
+  follow-up slice lands.
 
----
+### What remains
 
-**Colorblind-safe palette + Projects header cleanup.** Make the accessibility
-toggle visibly change the OS palette, and remove the Playground shortcut from
-the top header so Projects remains the primary nav action.
-
-Branch: `feature/colorblind-header-projects`.
-
-## Status
-
-**In progress** — build green (`npm run build`).
-
-### Changes
-
-- **`src/components/os/theme-store.tsx` / `src/styles/tokens.css` /
-  `src/app/globals.css`** — colorblind mode now projects safe wallpaper tokens
-  and swaps desktop sky hues, night-sky hues, wallpaper primitives, glass
-  accents, dock chrome, app tiles, title bars, project thumbs, status pills, and
-  the pressed state of the glasses toggle.
-- **`src/data/os.ts`** — menu-bar nav now shows About + Projects, with Playground
-  still available from the dock.
+- **Live QA:** Lighthouse on the deployed site, mobile/touch pass, cross-browser
+  visual verification, OG/social preview checks, Search Console + sitemap.
+- **Content pass:** projects, writing, About, Experience, Contact, résumé files,
+  and any remaining placeholder/demo assets.
+- **Small follow-ups as needed:** ship isolated fixes on feature branches, then
+  reconcile docs/history after merge.
 
 ---
 
-**Add PokéPal project.** Add a real shipped project — **PokéPal**, a mobile-first,
-iOS-style Pokémon card companion for kids (scan a card, tag it, build a
-local-first, installable collection) — to the Projects app and its
-`/projects/pokepal` detail page.
+## Recently landed
 
-Branch: `feature/add-pokepal-project`.
-
-## Status
-
-**In progress** — build green (`npm run build` generates `/projects/pokepal`).
-
-### Changes
-
-- **`src/data/projects.ts`** — new `pokepal` entry (status `shipped`, `🃏` tile,
-  trilingual tagline/blurb/writeup, live-demo + GitHub links, year 2026).
-- **`src/components/apps/ProjectCard.tsx`** — the "Live demo" button now opens the
-  project's first link (`links[0]`) in a new tab when present, falling back to the
-  old "Demo coming soon" toast when a project has no links.
-- **Riding along:** `education.ts` (English → "Native", French → level 5
-  "Fluent"), `package.json` (`dev` pinned to port 3001, `png-to-ico` devDep +
-  generated PWA icon assets), docs churn.
+**Semantic versioning + changelog workflow.** Added `CHANGELOG.md`, version bump
+scripts in `package.json`, and repo guidance so releases follow SemVer and Keep a
+Changelog conventions.
 
 ---
-
-## Previously landed
 
 **AI Strategy Table project + project chrome refresh.** ✅ Merged to `main`
 (`5ca41fe`; feature commits `2d94b8b`, `82ecc73`). Adds
@@ -94,15 +49,21 @@ pages, and the red PokéPal title accent.
 
 ---
 
-**Phase 14 — Draggable / rearrangeable desktop icons (persisted).** ✅ Merged to
-`main` (merge `33ce629`, commit `07bd67c`), auto-deployed live.
+**Lamadrid Labs footer credit.** ✅ Merged to `main` (`d88532b`; feature commit
+`c39b763`). Added the footer credit to both the desktop shell and window views.
+
+---
+
+**Field Notes localization.** ✅ Merged to `main` (`3656421` and `29fa9db`;
+feature commits `f2c88c4`, `a56b125`). Localized the Field Notes app chrome,
+post metadata, article bodies, and locale-preserving article/index navigation.
 
 ---
 
 ## Iteration 2 — post-launch enhancements
 
-A small enhancement track on top of the live site. Three independent features,
-each its own spec + branch. Overview: @context/features/iteration-2-overview.md
+A small enhancement track on top of the live site. Overview:
+@context/features/iteration-2-overview.md
 
 | Phase | Feature | Spec | State |
 | --- | --- | --- | --- |
@@ -114,10 +75,7 @@ each its own spec + branch. Overview: @context/features/iteration-2-overview.md
 
 ## History & deployment
 
-Completed-work log and the live deployment/hosting facts moved to
-@context/history.md (kept out of this file so it stays about what's *next*).
-When a phase lands, summarize it there.
+Completed-work log and live deployment facts live in @context/history.md.
 
 **Live:** <https://ricardolamadrid.com> (Hostinger static export, CI auto-deploy
-on push to `main`). **Still open:** Phase 11 go-live QA + real content — see
-@context/history.md.
+on push to `main`).
