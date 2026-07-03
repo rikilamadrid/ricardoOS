@@ -47,6 +47,10 @@ draggable windows). Live at <https://ricardolamadrid.com>.
 - `'use client'` only when needed; keep the OS illusion intact; honor `prefers-reduced-motion`.
 - **Workflow:** branch per feature, document in `current-feature.md`, build must
   pass, **ask before committing** (see ai-interaction.md).
+- **Versioning:** SemVer + Keep a Changelog. Log every change under `##
+  [Unreleased]` in `CHANGELOG.md`; bump via `npm run version:patch|minor|major`
+  on release (fix→patch, feature→minor, breaking/URL change→major). Details in
+  ai-interaction.md → Versioning.
 
 ## Commands
 
@@ -55,4 +59,8 @@ npm run dev      # dev server → http://localhost:3001  (note: 3001, not 3000)
 npm run build    # production build (must pass before commit)
 npm run start    # serve production build
 npm run lint     # ESLint
+
+npm run version:patch   # bump PATCH + tag (backward-compatible fix)
+npm run version:minor   # bump MINOR + tag (backward-compatible feature)
+npm run version:major   # bump MAJOR + tag (breaking change / removed URL)
 ```
