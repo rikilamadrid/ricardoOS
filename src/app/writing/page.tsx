@@ -7,10 +7,10 @@ const INTRO =
   "Notes on craft, engineering, and building calm software — not strictly technical, never a content treadmill.";
 
 export const metadata: Metadata = {
-  title: "Writing · RicardoOS",
+  title: "Field Notes · RicardoOS",
   description: INTRO,
   alternates: { canonical: "/writing" },
-  openGraph: { title: "Writing · RicardoOS", description: INTRO, url: "/writing" },
+  openGraph: { title: "Field Notes · RicardoOS", description: INTRO, url: "/writing" },
 };
 
 function formatDate(iso: string): string {
@@ -28,7 +28,7 @@ export default function WritingIndexPage() {
   return (
     <ContentPage>
       <p className="os-eyebrow">WORDS BETWEEN BUILDS</p>
-      <h1 className="content-title">Writing</h1>
+      <h1 className="content-title">Field Notes</h1>
       <p className="content-lede">{INTRO}</p>
 
       {posts.length === 0 ? (
