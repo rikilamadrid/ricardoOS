@@ -29,16 +29,25 @@ export function ProjectCard({ project }: { project: Project }) {
   const demoLabel = locale === "es" ? "Demo" : locale === "fr" ? "Démo" : "Live demo";
 
   return (
-    <article className="os-card">
+    <article className="os-card" data-motif={project.motif || undefined}>
       <div
         className="os-thumb"
-        style={{ ["--c1" as string]: project.from, ["--c2" as string]: project.to }}
+        data-motif={project.motif || undefined}
+        data-shot={project.screenshot ? "" : undefined}
+        style={{
+          ["--c1" as string]: project.from,
+          ["--c2" as string]: project.to,
+          ...(project.screenshot ? { ["--shot" as string]: `url(${project.screenshot})` } : {}),
+        }}
       >
-        <span aria-hidden="true">{project.icon}</span>
+        {project.screenshot && <span className="os-thumb-shot" aria-hidden="true" />}
+        <span className="os-thumb-emoji" aria-hidden="true">
+          {project.icon}
+        </span>
       </div>
       <div className="os-card-body">
-        <h4 className="flex items-center justify-between gap-2 font-brand text-base">
-          {t(project.title, locale)}
+        <h4 className="os-card-title flex items-center justify-between gap-2 font-brand text-base">
+          <span className="os-card-name">{t(project.title, locale)}</span>
           <span className={`os-pill ${status.cls}`}>{status.label[locale]}</span>
         </h4>
         <p className="mt-1.5 text-[13px] text-ink-soft">{t(project.blurb, locale)}</p>

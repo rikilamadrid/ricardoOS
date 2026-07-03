@@ -824,12 +824,151 @@
   .cb .os-thumb {
     background: linear-gradient(135deg, var(--c1, #56b4e9), var(--c2, #e69f00));
   }
+  /* Aero gloss — always on top of any peek layer. */
   .os-thumb::after {
     content: "";
     position: absolute;
     inset: 0;
+    z-index: 3;
     background: radial-gradient(120% 80% at 20% 0%, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0) 60%);
   }
+  /* Emoji sits above every layer. */
+  .os-thumb-emoji {
+    position: relative;
+    z-index: 4;
+    line-height: 1;
+  }
+
+  /* ── Per-project "peek": a motif texture painted on the thumb / detail hero
+     (z-index 1), framed by the Aero glass so it reflects the app without
+     touching the OS chrome. Shared by the card thumb and the detail hero. */
+  .os-thumb[data-motif]::before,
+  .content-hero[data-motif]::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+  }
+  /* War-room neon grid + a pink glow rising from the base. */
+  .os-thumb[data-motif="neon-grid"]::before,
+  .content-hero[data-motif="neon-grid"]::before {
+    background:
+      linear-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px) 0 0 / 100% 15px,
+      linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px) 0 0 / 15px 100%,
+      radial-gradient(90% 70% at 50% 125%, rgba(255, 45, 120, 0.5), transparent 70%);
+  }
+  /* Holographic card shimmer — soft diagonal sheen. */
+  .os-thumb[data-motif="holo"]::before,
+  .content-hero[data-motif="holo"]::before {
+    background: repeating-linear-gradient(
+      115deg,
+      rgba(255, 255, 255, 0.22) 0 6px,
+      rgba(255, 255, 255, 0) 6px 17px
+    );
+    opacity: 0.75;
+  }
+  /* Aero wallpaper bubbles. */
+  .os-thumb[data-motif="bubbles"]::before,
+  .content-hero[data-motif="bubbles"]::before {
+    background:
+      radial-gradient(circle at 20% 72%, rgba(255, 255, 255, 0.5) 0 4px, transparent 5px),
+      radial-gradient(circle at 63% 28%, rgba(255, 255, 255, 0.42) 0 6px, transparent 7px),
+      radial-gradient(circle at 84% 60%, rgba(255, 255, 255, 0.45) 0 3px, transparent 4px),
+      radial-gradient(circle at 42% 44%, rgba(255, 255, 255, 0.32) 0 5px, transparent 6px);
+  }
+
+  /* ── Optional screenshot layer (z-index 2), over the motif ──────────────
+     Framed as an inset "peek" (not a full bleed): the app gradient + motif
+     stays visible as a mat around it, echoing the gold-framed, glowing chrome
+     both apps actually use. A missing image degrades to the motif + gradient. */
+  .os-thumb-shot {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background-image: var(--shot);
+    background-size: cover;
+    background-position: top center;
+    background-repeat: no-repeat;
+  }
+  /* With a screenshot, the emoji becomes a small glass badge on the mat. */
+  .os-thumb[data-shot] {
+    place-items: start start;
+    padding: 7px;
+  }
+  .os-thumb[data-shot] .os-thumb-emoji {
+    display: grid;
+    place-items: center;
+    width: 30px;
+    height: 30px;
+    font-size: 18px;
+    border-radius: 9px;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 6px rgba(15, 60, 120, 0.28), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  }
+
+  /* Gentle life on hover — disabled under reduced motion. */
+  @media (prefers-reduced-motion: no-preference) {
+    .os-thumb[data-motif="holo"]::before {
+      transition: background-position 0.6s ease;
+    }
+    .os-card:hover .os-thumb[data-motif="holo"]::before {
+      background-position: 34px 0;
+    }
+  }
+
+  /* ── Per-project card accents: a stronger nod to each app's own chrome,
+     driven by the same `motif` as the thumb peek. The Aero card stays intact;
+     only the frame + title colour lean toward the project. Colorblind mode
+     (below) neutralises these back to the safe palette. */
+
+  /* AI Strategy Table — a hint of the war-room's neon-pink edge + brass title. */
+  .os-card[data-motif="neon-grid"] {
+    border-color: rgba(255, 45, 120, 0.5);
+    box-shadow:
+      0 8px 20px rgba(20, 70, 130, 0.16),
+      0 0 0 1px rgba(255, 45, 120, 0.28),
+      0 0 16px -3px rgba(255, 45, 120, 0.5);
+  }
+  .os-card[data-motif="neon-grid"]:hover {
+    box-shadow:
+      0 18px 34px rgba(15, 60, 120, 0.28),
+      0 0 0 1px rgba(255, 45, 120, 0.6),
+      0 0 26px -1px rgba(255, 45, 120, 0.68);
+  }
+  .os-card[data-motif="neon-grid"] .os-card-name {
+    background: linear-gradient(180deg, #f6d488, #d99a3f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  /* PokéPal — the card's stark, chunky gold frame + gold title. */
+  .os-card[data-motif="holo"] {
+    border: 3px solid #edb63f;
+    box-shadow:
+      0 8px 18px rgba(120, 82, 10, 0.22),
+      0 2px 0 0 rgba(140, 96, 12, 0.28);
+  }
+  .os-card[data-motif="holo"]:hover {
+    box-shadow:
+      0 18px 30px rgba(120, 82, 10, 0.3),
+      0 2px 0 0 rgba(140, 96, 12, 0.28);
+  }
+  .os-card[data-motif="holo"] .os-card-name { color: #c07f12; }
+  .dark .os-card[data-motif="holo"] .os-card-name { color: #f5b942; }
+
+  /* Colorblind mode wins: restore the Okabe-Ito-safe frame + default title. */
+  .cb .os-card[data-motif] {
+    border: 1px solid rgba(0, 114, 178, 0.34);
+    box-shadow: 0 8px 20px rgba(0, 70, 115, 0.18);
+  }
+  .cb .os-card[data-motif] .os-card-name {
+    background: none;
+    color: inherit;
+    -webkit-text-fill-color: currentColor;
+  }
+
   .os-card-body { padding: 12px 13px 14px; }
 
   /* Status pills */
@@ -943,11 +1082,45 @@
     background: linear-gradient(135deg, var(--c1, #7fd4ff), var(--c2, #b69bff));
     box-shadow: var(--os-shadow);
   }
+  /* Aero gloss — kept above the motif / screenshot peek. */
   .content-hero::after {
     content: "";
     position: absolute;
     inset: 0;
+    z-index: 3;
     background: radial-gradient(120% 80% at 20% 0%, rgba(255, 255, 255, 0.6), rgba(255, 255, 255, 0) 60%);
+  }
+  /* The emoji rides above every peek layer. */
+  .content-hero > span:not(.content-hero-shot) {
+    position: relative;
+    z-index: 4;
+  }
+  /* Detail-hero screenshot: a larger framed peek, matted by the app gradient
+     + motif (mirrors the card thumb at hero scale). */
+  .content-hero-shot {
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    background-image: var(--shot);
+    background-size: cover;
+    background-position: top center;
+    background-repeat: no-repeat;
+  }
+  /* With a screenshot, shrink the hero emoji into a glass badge, top-left. */
+  .content-hero[data-shot] {
+    place-items: start start;
+    padding: 12px;
+    font-size: 30px;
+  }
+  .content-hero[data-shot] > span:not(.content-hero-shot) {
+    display: grid;
+    place-items: center;
+    width: 46px;
+    height: 46px;
+    border-radius: 13px;
+    background: rgba(255, 255, 255, 0.55);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 3px 10px rgba(6, 20, 40, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.85);
   }
   .content-title {
     font-family: var(--font-brand), sans-serif;
@@ -961,6 +1134,28 @@
     font-size: 17px;
     color: var(--color-ink-soft);
   }
+
+  /* ── Detail page carries the same per-project motif as the card ─────────── */
+  /* AI Strategy Table — neon-pink war-room glow on the hero + brass title. */
+  .content-article[data-motif="neon-grid"] .content-hero {
+    box-shadow:
+      var(--os-shadow),
+      0 0 0 1px rgba(255, 45, 120, 0.45),
+      0 0 34px -6px rgba(255, 45, 120, 0.55);
+  }
+  .content-article[data-motif="neon-grid"] .content-title {
+    background: linear-gradient(180deg, #f6d488, #d99a3f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    width: fit-content;
+  }
+  /* PokéPal — the stark, chunky gold frame on the hero + gold title. */
+  .content-article[data-motif="holo"] .content-hero {
+    border: 4px solid #edb63f;
+  }
+  .content-article[data-motif="holo"] .content-title { color: #c07f12; }
+  .dark .content-article[data-motif="holo"] .content-title { color: #f5b942; }
   .content-prose {
     margin-top: 22px;
     display: flex;
