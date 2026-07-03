@@ -1,35 +1,38 @@
 ---
 title: Notes on building a window manager in React
-summary: Drag, resize, focus, and z-order without fighting the browser — a few things that made it click.
-date: 2026-06-26
+summary: Drag, resize, focus, and z-order without fighting the browser. A few things that made it click.
+date: 2025-05-07
 tags: ["react", "engineering"]
 draft: false
 ---
 
-A window manager is deceptively deep. Here are the decisions that kept it simple.
+A window manager is deceptively deep. Here are the decisions that kept mine
+simple.
 
 ## One store, plain objects
 
-Windows aren't routes — they're managed UI objects. A single Zustand store owns
+Windows aren't routes, they're managed UI objects. A single Zustand store owns
 the map of windows, the top z-index, and the theme. Every control (open, close,
-focus, minimize, maximize) is one small action against that store.
+focus, minimize, maximize) is one small action against that store, and nothing
+else needs to know how it works.
 
 ## Pointer Events, not mouse events
 
-Drag and resize both use **Pointer Events**, so the same code path works for
-mouse and touch. The title bar gets `touch-action: none` so a drag doesn't also
-scroll the page on mobile.
+Drag and resize both run on **Pointer Events**, so the exact same code path
+handles mouse and touch. The title bar gets `touch-action: none` so dragging a
+window doesn't also scroll the page out from under you on mobile.
 
 ## Focus is just z-order
 
-There's no real "focus" state to track. Any pointer-down raises the window's
-z-index above the current top. The window that was touched last is, by
-definition, on top.
+There's no real "focus" state worth tracking. Any pointer-down raises the
+window's z-index above the current top, and that's the whole trick. The window
+you touched last is, by definition, the one on top.
 
 ## Transforms over layout
 
-Dragging mutates `left`/`top` through a rAF-friendly setter, and the open/close
-springs animate `scale` + `opacity`. Keeping motion on the compositor is what
-makes it feel instant.
+Dragging mutates `left`/`top` through a rAF-friendly setter, and the open and
+close springs animate `scale` and `opacity`. Keeping the motion on the
+compositor is the whole reason it feels instant instead of soupy.
 
-The lesson, as usual: model the state honestly and the interactions fall out.
+The lesson, like always: model the state honestly and the interactions mostly
+fall out for free.

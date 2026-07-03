@@ -26,9 +26,9 @@ export const trash: TrashContent = {
   eyebrow: { en: "DON'T LOOK TOO CLOSELY", es: "NO MIRES MUY DE CERCA", fr: "NE REGARDE PAS DE TROP PRÈS" },
   heading: { en: "Recycle Bin", es: "Papelera", fr: "Corbeille" },
   intro: {
-    en: "Where the old portfolio rests. We don't talk about it — but we keep it, fondly.",
-    es: "Donde descansa el portafolio viejo. No hablamos de él — pero lo guardamos, con cariño.",
-    fr: "Où repose l'ancien portfolio. On n'en parle pas — mais on le garde, tendrement.",
+    en: "Where the old portfolio rests. We don't talk about it, but we keep it around. Fondly.",
+    es: "Donde descansa el portafolio viejo. No hablamos de él, pero lo guardamos. Con cariño.",
+    fr: "Où repose l'ancien portfolio. On n'en parle pas, mais on le garde. Tendrement.",
   },
   items: [
     {
@@ -46,9 +46,9 @@ export const trash: TrashContent = {
       name: "skill-bars.css",
       icon: "📊",
       note: {
-        en: '"jQuery ▓▓▓▓▓▓▓░░ 87%" — we know better now.',
-        es: '"jQuery ▓▓▓▓▓▓▓░░ 87%" — ahora sabemos mejor.',
-        fr: '"jQuery ▓▓▓▓▓▓▓░░ 87%" — on sait mieux maintenant.',
+        en: '"jQuery ▓▓▓▓▓▓▓░░ 87%". We know better now.',
+        es: '"jQuery ▓▓▓▓▓▓▓░░ 87%". Ahora sabemos mejor.',
+        fr: '"jQuery ▓▓▓▓▓▓▓░░ 87%". On sait mieux maintenant.',
       },
     },
     {

@@ -18,14 +18,14 @@ export const contact: ContactContent = {
   eyebrow: { en: "SAY HELLO", es: "SALUDA", fr: "DITES BONJOUR" },
   heading: { en: "Let's talk", es: "Hablemos", fr: "Discutons" },
   intro: {
-    en: "No forms. Pick whichever feels right — I read everything.",
-    es: "Sin formularios. Elige el que prefieras — leo todo.",
-    fr: "Pas de formulaires. Choisissez ce qui vous va — je lis tout.",
+    en: "No forms. Pick whatever feels right. I read all of it.",
+    es: "Sin formularios. Elige lo que prefieras. Lo leo todo.",
+    fr: "Pas de formulaires. Choisissez ce qui vous convient. Je lis tout.",
   },
   footnote: {
-    en: "Based wherever the wifi is good. Open to interesting conversations and good problems.",
-    es: "Donde haya buen wifi. Abierto a conversaciones interesantes y buenos problemas.",
-    fr: "Là où le wifi est bon. Ouvert aux conversations intéressantes et aux bons problèmes.",
+    en: "Based wherever the wifi is good. Always up for interesting conversations and good problems to chew on.",
+    es: "Ubicado donde haya buen wifi. Siempre dispuesto a conversaciones interesantes y buenos problemas que masticar.",
+    fr: "Basé là où le wifi est bon. Toujours partant pour de bonnes conversations et de bons problèmes à ronger.",
   },
   links: profile.contact,
 };

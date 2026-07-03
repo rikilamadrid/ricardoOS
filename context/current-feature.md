@@ -1,5 +1,27 @@
 # Current Feature
 
+**Humanize the copy.** Rewrite the user-facing strings across `src/data/*` so
+they stop reading like AI output. Concrete goals: (1) kill the em-dash tic — the
+biggest "ChatGPT wrote this" tell — by rewriting sentences, not find-replacing;
+(2) first person everywhere (project writeups and Experience chapters were third
+person / impersonal gerunds); (3) a human, curious, lightly-sarcastic-but-
+professional voice — no infantile tone. All three languages (EN/ES/FR).
+
+Branch: `feature/humanize-copy`.
+
+## Status
+
+**In progress.**
+
+### Scope
+
+Files with user-facing copy: `about.ts`, `projects.ts`, `chapters.ts`
+(Experience chapters), `experience.ts` (résumé bullets), `contact.ts`,
+`playground.ts`, `trash.ts`, `terminal.ts`, `profile.ts`, `meditations.ts`.
+Doc-comment em-dashes are left alone (not user-facing).
+
+---
+
 **Colorblind-safe palette + Projects header cleanup.** Make the accessibility
 toggle visibly change the OS palette, and remove the Playground shortcut from
 the top header so Projects remains the primary nav action.
