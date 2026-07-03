@@ -20,12 +20,22 @@ export interface PostMeta {
 
 const POSTS_DIR = path.join(process.cwd(), "src/content/posts");
 
+/**
+ * YAML parses an unquoted `date: 2024-11-19` into a `Date`, not a string, so we
+ * coerce both forms to an ISO date string (`YYYY-MM-DD`) here.
+ */
+function normalizeDate(value: unknown): string {
+  if (value instanceof Date) return value.toISOString().slice(0, 10);
+  if (typeof value === "string") return value;
+  return "1970-01-01";
+}
+
 function normalizeMeta(slug: string, data: Record<string, unknown>): PostMeta {
   return {
     slug,
     title: typeof data.title === "string" ? data.title : slug,
     summary: typeof data.summary === "string" ? data.summary : "",
-    date: typeof data.date === "string" ? data.date : "1970-01-01",
+    date: normalizeDate(data.date),
     tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
     draft: data.draft === true,
   };
