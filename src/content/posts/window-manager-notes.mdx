@@ -1,10 +1,18 @@
 ---
-title: Notes on building a window manager in React
-summary: Drag, resize, focus, and z-order without fighting the browser. A few things that made it click.
+title:
+  en: Notes on building a window manager in React
+  es: Notas sobre crear un gestor de ventanas en React
+  fr: Notes sur la création d'un gestionnaire de fenêtres en React
+summary:
+  en: Drag, resize, focus, and z-order without fighting the browser. A few things that made it click.
+  es: Arrastrar, redimensionar, foco y z-order sin pelearme con el navegador. Unas cuantas cosas que lo hicieron encajar.
+  fr: Glisser, redimensionner, gérer le focus et le z-order sans lutter contre le navigateur. Quelques choix qui ont tout débloqué.
 date: "2025-05-07"
 tags: ["react", "engineering"]
 draft: false
 ---
+
+<!-- locale:en -->
 
 A window manager is deceptively deep. Here are the decisions that kept mine
 simple.
@@ -36,3 +44,75 @@ compositor is the whole reason it feels instant instead of soupy.
 
 The lesson, like always: model the state honestly and the interactions mostly
 fall out for free.
+
+<!-- locale:es -->
+
+Un gestor de ventanas parece simple hasta que te metes dentro. Estas son las
+decisiones que mantuvieron el mío manejable.
+
+## Un solo store, objetos simples
+
+Las ventanas no son rutas, son objetos de interfaz gestionados. Un solo store de
+Zustand controla el mapa de ventanas, el z-index más alto y el tema. Cada control
+(abrir, cerrar, enfocar, minimizar, maximizar) es una acción pequeña contra ese
+store, y nada más necesita saber cómo funciona por dentro.
+
+## Pointer Events, no eventos de mouse
+
+Arrastrar y redimensionar usan **Pointer Events**, así que el mismo camino de
+código maneja mouse y touch. La barra de título lleva `touch-action: none` para
+que mover una ventana no intente también desplazar la página en móvil. Muy amable
+de parte del navegador intentarlo, pero no gracias.
+
+## El foco es solo z-order
+
+No hay un estado real de "foco" que valga la pena guardar. Cualquier
+pointer-down sube el z-index de esa ventana por encima del actual, y ese es todo
+el truco. La ventana que tocaste de último es, por definición, la que está
+encima.
+
+## Transforms por encima de layout
+
+Al arrastrar, se actualizan `left`/`top` con un setter amigable para rAF, y las
+animaciones de abrir y cerrar usan `scale` y `opacity`. Mantener el movimiento en
+el compositor es justo lo que hace que se sienta instantáneo en vez de pesado.
+
+La lección, como siempre: modela el estado con honestidad y las interacciones
+casi se caen solas.
+
+<!-- locale:fr -->
+
+Un gestionnaire de fenêtres est plus profond qu'il n'en a l'air. Voici les choix
+qui ont gardé le mien simple.
+
+## Un seul store, des objets simples
+
+Les fenêtres ne sont pas des routes, ce sont des objets d'interface gérés. Un
+seul store Zustand possède la carte des fenêtres, le z-index le plus haut et le
+thème. Chaque contrôle (ouvrir, fermer, focus, minimiser, maximiser) est une
+petite action contre ce store, et rien d'autre n'a besoin de connaître la
+mécanique interne.
+
+## Pointer Events, pas des événements souris
+
+Le déplacement et le redimensionnement passent tous les deux par **Pointer
+Events**, donc le même chemin de code gère la souris et le tactile. La barre de
+titre reçoit `touch-action: none` pour qu'une fenêtre déplacée ne fasse pas
+aussi défiler la page sur mobile. C'était gentil de proposer, navigateur, mais
+non merci.
+
+## Le focus, c'est juste le z-order
+
+Il n'y a pas vraiment d'état de "focus" qui mérite d'être suivi. N'importe quel
+pointer-down remonte le z-index de la fenêtre au-dessus du maximum actuel, et
+c'est tout. La fenêtre touchée en dernier est, par définition, celle du dessus.
+
+## Les transforms plutôt que le layout
+
+Le drag modifie `left`/`top` via un setter compatible avec rAF, et les animations
+d'ouverture et de fermeture utilisent `scale` et `opacity`. Garder le mouvement
+sur le compositor, c'est toute la raison pour laquelle l'interaction semble
+instantanée au lieu d'être molle.
+
+La leçon, comme toujours : modélise l'état honnêtement, et les interactions
+tombent presque toutes en place.

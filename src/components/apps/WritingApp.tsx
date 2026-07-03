@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePosts } from "@/components/os/posts-store";
 import { useLocale } from "@/components/os/locale-store";
-import { t, type Localized } from "@/data";
+import { t, type Locale, type Localized } from "@/data";
 
 const COPY: Record<string, Localized<string>> = {
   eyebrow: {
@@ -25,11 +25,15 @@ const COPY: Record<string, Localized<string>> = {
 };
 
 function formatDate(iso: string, locale: string): string {
-  return new Date(iso).toLocaleDateString(locale, {
+  return new Date(`${iso}T12:00:00`).toLocaleDateString(locale, {
     year: "numeric",
     month: "short",
     day: "numeric",
   });
+}
+
+function postHref(slug: string, locale: Locale): string {
+  return locale === "en" ? `/writing/${slug}` : `/writing/${slug}/${locale}`;
 }
 
 /** Writing — lists MDX posts (newest first), each opening its own page. */
@@ -49,9 +53,9 @@ export function WritingApp() {
         <ul className="mt-4 flex flex-col gap-2.5">
           {posts.map((post) => (
             <li key={post.slug}>
-              <Link href={`/writing/${post.slug}`} className="os-post-row">
+              <Link href={postHref(post.slug, locale)} className="os-post-row">
                 <div className="flex items-baseline justify-between gap-3">
-                  <span className="font-semibold">{post.title}</span>
+                  <span className="font-semibold">{t(post.title, locale)}</span>
                   <time
                     dateTime={post.date}
                     className="shrink-0 whitespace-nowrap text-[12px] font-semibold text-ink-soft"
@@ -59,7 +63,7 @@ export function WritingApp() {
                     {formatDate(post.date, locale)}
                   </time>
                 </div>
-                <p className="mt-1 text-[13px] text-ink-soft">{post.summary}</p>
+                <p className="mt-1 text-[13px] text-ink-soft">{t(post.summary, locale)}</p>
               </Link>
             </li>
           ))}

@@ -1,20 +1,11 @@
 import type { Metadata } from "next";
-import Link from "next/link";
 import { notFound } from "next/navigation";
-import { MDXRemote } from "next-mdx-remote/rsc";
+import { t } from "@/data";
 import { getAllPosts, getPost } from "@/lib/posts";
-import { ContentPage } from "@/components/content/ContentPage";
+import { WritingPostContent } from "@/components/content/WritingPostContent";
 
 export function generateStaticParams() {
   return getAllPosts().map((post) => ({ slug: post.slug }));
-}
-
-function formatDate(iso: string): string {
-  return new Date(iso).toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
 }
 
 export async function generateMetadata({
@@ -26,8 +17,8 @@ export async function generateMetadata({
   const post = getPost(slug);
   if (!post || post.meta.draft) return { title: "Post not found · RicardoOS" };
 
-  const title = `${post.meta.title} · RicardoOS`;
-  const description = post.meta.summary;
+  const title = `${t(post.meta.title, "en")} · RicardoOS`;
+  const description = t(post.meta.summary, "en");
   const url = `/writing/${slug}`;
 
   return {
@@ -55,33 +46,5 @@ export default async function WritingPostPage({
   const post = getPost(slug);
   if (!post || post.meta.draft) notFound();
 
-  const { meta, content } = post;
-
-  return (
-    <ContentPage back={{ href: "/writing", label: "← All writing" }}>
-      <article className="content-article">
-        <div className="mt-5 flex flex-wrap items-center gap-2 text-[13px] font-semibold text-ink-soft">
-          <time dateTime={meta.date}>{formatDate(meta.date)}</time>
-          {meta.tags.map((tag) => (
-            <span key={tag} className="os-tag">
-              {tag}
-            </span>
-          ))}
-        </div>
-
-        <h1 className="content-title">{meta.title}</h1>
-        <p className="content-lede">{meta.summary}</p>
-
-        <div className="content-prose content-mdx">
-          <MDXRemote source={content} />
-        </div>
-
-        <div className="content-footer">
-          <Link href="/?app=writing" className="os-gel os-gel--ghost">
-            Open in RicardoOS
-          </Link>
-        </div>
-      </article>
-    </ContentPage>
-  );
+  return <WritingPostContent post={post} locale="en" />;
 }

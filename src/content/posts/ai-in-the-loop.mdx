@@ -1,10 +1,18 @@
 ---
-title: AI in the loop, not in the driver's seat
-summary: How I fold AI assistance into real engineering without giving up review, security, or taste.
-date: "2024-11-19"
+title:
+  en: AI in the loop, not in the driver's seat
+  es: IA en el proceso, no al volante
+  fr: L'IA dans la boucle, pas au volant
+summary:
+  en: How I fold AI assistance into real engineering without giving up review, security, or taste.
+  es: Cómo uso la asistencia de IA en ingeniería real sin renunciar a la revisión, la seguridad ni el criterio.
+  fr: Comment j'intègre l'assistance IA dans l'ingénierie réelle sans abandonner la revue, la sécurité ni le goût.
+date: "2026-05-19"
 tags: ["ai", "engineering"]
 draft: false
 ---
+
+<!-- locale:en -->
 
 AI-assisted development isn't magic, and it isn't the thing coming for your job.
 It's a power tool, and power tools are wonderful right up until the moment you
@@ -32,3 +40,64 @@ is how bad things ship.
 
 Used this way, it was never about writing more code. It's about spending
 judgment where judgment counts.
+
+<!-- locale:es -->
+
+El desarrollo asistido por IA no es magia, y tampoco es esa cosa dramática que
+viene a quitarte el trabajo. Es una herramienta potente, y las herramientas
+potentes son maravillosas justo hasta el momento en que dejas de respetarlas.
+
+## Humano en el proceso, siempre
+
+Cada cambio que sugiere el modelo pasa por la misma revisión que le haría al PR
+de un compañero. ¿Encaja con la arquitectura? ¿Es seguro? ¿Cubre esos casos
+borde en los que nadie piensa hasta las dos de la mañana? El modelo propone, una
+persona decide, y esa frontera no se mueve.
+
+## Los fundamentos no se abaratan
+
+Si acaso, la IA hace que los fundamentos valgan más, no menos. SOLID, código
+limpio, HTML semántico, accesibilidad: ese es el kit que usas para juzgar lo que
+te entrega el modelo. No puedes revisar código que no entiendes, y fingir lo
+contrario es una receta bastante eficiente para mandar basura a producción.
+
+## Donde sí brilla
+
+- Montar el 80% aburrido para poder poner atención real en el 20% que importa
+- Ponerme al día rápido con una API nueva, y luego verificar cada afirmación contra la documentación
+- Cazar el bug tonto de typo antes de que otra persona tenga que verlo
+
+Usada así, nunca se trató de escribir más código. Se trata de gastar el criterio
+donde el criterio cuenta.
+
+<!-- locale:fr -->
+
+Le développement assisté par IA n'est pas magique, et ce n'est pas non plus la
+chose dramatique qui vient voler ton travail. C'est un outil puissant, et les
+outils puissants sont formidables jusqu'au moment précis où tu arrêtes de les
+respecter.
+
+## Humain dans la boucle, toujours
+
+Chaque changement proposé par le modèle passe par la même revue que je ferais
+pour la PR d'un collègue. Est-ce que ça respecte l'architecture ? Est-ce que
+c'est sûr ? Est-ce que ça couvre les cas limites auxquels personne ne pense
+avant deux heures du matin ? Le modèle propose, l'humain décide, et cette
+frontière ne bouge pas.
+
+## Les fondamentaux ne valent pas moins
+
+Au contraire, l'IA rend les fondamentaux encore plus précieux. SOLID, code
+propre, HTML sémantique, accessibilité : c'est la boîte à outils qui permet de
+juger ce que le modèle te donne. Tu ne peux pas relire du code que tu ne
+comprends pas, et prétendre le contraire est une façon très efficace de livrer
+du mauvais travail.
+
+## Là où elle brille vraiment
+
+- Monter les 80% ennuyeux pour que je puisse donner une vraie attention aux 20% qui comptent
+- Me mettre vite à niveau sur une API inconnue, puis vérifier chaque affirmation dans la documentation
+- Attraper le petit bug de typo avant qu'un humain doive perdre du temps dessus
+
+Utilisée comme ça, l'IA n'a jamais été une question d'écrire plus de code. C'est
+une question de garder le jugement pour les endroits où il compte.

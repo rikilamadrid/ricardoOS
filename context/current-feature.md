@@ -1,5 +1,22 @@
 # Current Feature
 
+**Field Notes content localization fix.** The Field Notes app chrome already
+switches languages, but the post titles/summaries are still plain English MDX
+metadata and the article bodies are English-only. Make post metadata and MDX
+body content localized, then resolve the active language from the Field Notes
+app through static article routes.
+
+Branch: `fix/localize-field-notes-content`.
+
+## Status
+
+**In progress** — build green (`npm run build`); static export now generates
+localized article pages for all three posts in EN/ES/FR. Localized post pages now
+return to the Field Notes index with `?locale=es|fr`, and the index renders that
+language instead of falling back to English.
+
+---
+
 **Humanize the copy.** Rewrite the user-facing strings across `src/data/*` so
 they stop reading like AI output. Concrete goals: (1) kill the em-dash tic — the
 biggest "ChatGPT wrote this" tell — by rewriting sentences, not find-replacing;
