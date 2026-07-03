@@ -2,4 +2,4 @@
 export const SITE_URL = "https://ricardolamadrid.com";
 export const SITE_NAME = "RicardoOS";
 export const SITE_DESCRIPTION =
-  "A personal site that behaves like a beautifully crafted operating system — glassy, alive, and fun to explore.";
+  "My portfolio, disguised as a tiny operating system. Boot it up, drag some windows around, and poke at the things I've built.";

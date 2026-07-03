@@ -1,31 +1,34 @@
 ---
 title: AI in the loop, not in the driver's seat
 summary: How I fold AI assistance into real engineering without giving up review, security, or taste.
-date: 2026-06-29
+date: 2024-11-19
 tags: ["ai", "engineering"]
 draft: false
 ---
 
-AI-assisted development is neither magic nor a threat — it's a power tool. Power
-tools are wonderful right up until you respect them less than they deserve.
+AI-assisted development isn't magic, and it isn't the thing coming for your job.
+It's a power tool, and power tools are wonderful right up until the moment you
+stop respecting them.
 
 ## Human-in-the-loop, always
 
-Every AI-suggested change goes through the same review I'd give a teammate's PR:
-does it match the architecture, is it secure, does it handle the edge cases?
-The model drafts; a human decides. That boundary is non-negotiable.
+Every change the model suggests goes through the same review I'd give a
+teammate's PR. Does it match the architecture? Is it secure? Does it handle the
+edge cases nobody thinks about until 2am? The model drafts, a human decides, and
+that boundary doesn't move.
 
 ## Fundamentals don't get cheaper
 
-If anything, AI raises the value of fundamentals. SOLID, clean code, semantic
-HTML, accessibility — they're how you *evaluate* what the model gives you. You
-can't review code you don't understand.
+If anything, AI makes the fundamentals worth more, not less. SOLID, clean code,
+semantic HTML, accessibility: that's the toolkit you use to judge what the model
+hands you. You can't review code you don't understand, and pretending otherwise
+is how bad things ship.
 
-## Where it shines
+## Where it actually shines
 
-- Scaffolding the boring 80% so I can spend attention on the 20% that matters
-- Exploring an unfamiliar API quickly, then verifying against the docs
-- Catching the typo-class bug before it reaches review
+- Scaffolding the boring 80% so I can spend real attention on the 20% that matters
+- Getting me up to speed on an unfamiliar API fast, then verifying every claim against the docs
+- Catching the dumb typo-class bug before a human ever has to
 
-Used this way, it's not about writing more code. It's about spending judgment
-where judgment counts.
+Used this way, it was never about writing more code. It's about spending
+judgment where judgment counts.

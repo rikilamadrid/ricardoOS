@@ -25,9 +25,9 @@ export interface TerminalCommand {
 
 export const terminal: TerminalContent = {
   banner: {
-    en: "RicardoOS terminal — type 'help'",
-    es: "Terminal de RicardoOS — escribe 'help'",
-    fr: "Terminal RicardoOS — tapez 'help'",
+    en: "RicardoOS terminal. Type 'help' to get started.",
+    es: "Terminal de RicardoOS. Escribe 'help' para empezar.",
+    fr: "Terminal RicardoOS. Tapez 'help' pour commencer.",
   },
   prompt: "%",
   user: "ricardo",
@@ -58,9 +58,9 @@ export const terminal: TerminalContent = {
       name: "whoami",
       description: { en: "Print the current user", es: "Imprime el usuario actual", fr: "Affiche l'utilisateur actuel" },
       response: {
-        en: ["ricardo — builder, tinkerer, perpetual student of the craft.", "Currently: making software that feels alive."],
-        es: ["ricardo — constructor, manitas, eterno estudiante del oficio.", "Actualmente: haciendo software que se siente vivo."],
-        fr: ["ricardo — bâtisseur, bricoleur, éternel étudiant du métier.", "Actuellement : je crée des logiciels qui semblent vivants."],
+        en: ["ricardo: builder, tinkerer, perpetual student of the craft.", "Currently: making software that feels alive."],
+        es: ["ricardo: constructor, manitas, eterno estudiante del oficio.", "Actualmente: haciendo software que se siente vivo."],
+        fr: ["ricardo : bâtisseur, bricoleur, éternel étudiant du métier.", "Actuellement : je crée des logiciels qui semblent vivants."],
       },
     },
     {

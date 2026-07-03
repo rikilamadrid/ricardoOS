@@ -25,9 +25,9 @@ export const playground: PlaygroundContent = {
   eyebrow: { en: "HALF-BAKED ON PURPOSE", es: "A MEDIO HACER A PROPÓSITO", fr: "À MOITIÉ FAIT, EXPRÈS" },
   heading: { en: "Playground", es: "Patio de Juegos", fr: "Bac à Sable" },
   intro: {
-    en: "Experiments with no obligation to become anything. Click around — it's mostly noise and joy.",
-    es: "Experimentos sin obligación de convertirse en nada. Haz clic por ahí — es sobre todo ruido y alegría.",
-    fr: "Des expériences sans obligation de devenir quoi que ce soit. Cliquez un peu partout — c'est surtout du bruit et de la joie.",
+    en: "Experiments with no obligation to become anything. Click around. It's mostly noise and joy.",
+    es: "Experimentos sin obligación de convertirse en nada. Haz clic por ahí. Es sobre todo ruido y alegría.",
+    fr: "Des expériences sans obligation de devenir quoi que ce soit. Cliquez un peu partout. C'est surtout du bruit et de la joie.",
   },
   experiments: [
     {

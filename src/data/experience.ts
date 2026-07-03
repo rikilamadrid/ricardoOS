@@ -45,9 +45,9 @@ export const experiences: Experience[] = [
       {
         kind: "ai",
         text: {
-          en: "Introduced AI-assisted development into the team workflow — Claude Code, MCP servers, and context engineering for scaffolding, refactoring, and faster reviews — under a strict human-review gate for every AI-generated change.",
-          es: "Introdujo el desarrollo asistido por IA en el flujo del equipo — Claude Code, servidores MCP e ingeniería de contexto para scaffolding, refactorización y revisiones más rápidas — bajo un estricto control de revisión humana para cada cambio generado por IA.",
-          fr: "A introduit le développement assisté par l'IA dans le flux de l'équipe — Claude Code, serveurs MCP et ingénierie de contexte pour le scaffolding, le refactoring et des revues plus rapides — sous un contrôle humain strict pour chaque changement généré par l'IA.",
+          en: "Introduced AI-assisted development into the team workflow (Claude Code, MCP servers, and context engineering for scaffolding, refactoring, and faster reviews), under a strict human-review gate for every AI-generated change.",
+          es: "Introdujo el desarrollo asistido por IA en el flujo del equipo (Claude Code, servidores MCP e ingeniería de contexto para scaffolding, refactorización y revisiones más rápidas), bajo un estricto control de revisión humana para cada cambio generado por IA.",
+          fr: "A introduit le développement assisté par l'IA dans le flux de l'équipe (Claude Code, serveurs MCP et ingénierie de contexte pour le scaffolding, le refactoring et des revues plus rapides), sous un contrôle humain strict pour chaque changement généré par l'IA.",
         },
       },
       {
