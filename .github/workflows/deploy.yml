@@ -22,10 +22,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: npm
@@ -39,14 +39,17 @@ jobs:
       - name: Add server config (.htaccess)
         run: cp deploy/.htaccess out/.htaccess
 
-      # Hostinger sporadically drops some GitHub-runner IPs on port 21
-      # (intermittent ETIMEDOUT), so we attempt the FTP deploy up to 3 times.
-      # The action resumes from its server-side sync state, so retries are cheap.
+      # Hostinger sporadically drops GitHub-runner IPs on port 21 for a few
+      # minutes at a time (intermittent ETIMEDOUT). We ride that out with up to
+      # five FTP attempts on an escalating backoff (0s, 30s, 60s, 120s, 180s ≈ a
+      # ~6-minute window), so a normal blip recovers on its own instead of
+      # needing a manual "re-run failed jobs". All attempts share one SHA-scoped
+      # state file, so each retry resumes cleanly from the same full-upload plan.
       - name: Deploy to Hostinger via FTP (attempt 1)
         id: ftp1
         continue-on-error: true
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with: &ftp
           server: ${{ secrets.FTP_SERVER }}
           username: ${{ secrets.FTP_USERNAME }}
           password: ${{ secrets.FTP_PASSWORD }}
@@ -62,7 +65,7 @@ jobs:
           # 550. We used to fix this by hand-bumping a version suffix after every
           # red deploy (a treadmill). A SHA-scoped state name means every deploy
           # finds NO prior state -> full re-upload, deletes nothing, always green.
-          # The three retry attempts share this same SHA, so they resume cleanly.
+          # The retry attempts share this same SHA, so they resume cleanly.
           # (Trade-off: old _next/<hash> chunks orphan on the server; harmless
           # dead weight. Run a manual dangerous-clean-slate deploy to prune.)
           state-name: .ricardo-os-deploy-state-${{ github.sha }}.json
@@ -72,46 +75,41 @@ jobs:
             **/.git*/**
             **/.well-known/**
 
-      - name: Wait before retry 2
+      - name: Wait before attempt 2
         if: steps.ftp1.outcome == 'failure'
-        run: sleep 20
-
+        run: sleep 30
       - name: Deploy to Hostinger via FTP (attempt 2)
         id: ftp2
         if: steps.ftp1.outcome == 'failure'
         continue-on-error: true
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          timeout: 60000
-          local-dir: ./out/
-          server-dir: ./
-          state-name: .ricardo-os-deploy-state-${{ github.sha }}.json
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/.well-known/**
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with: *ftp
 
-      - name: Wait before retry 3
-        if: steps.ftp1.outcome == 'failure' && steps.ftp2.outcome == 'failure'
-        run: sleep 30
-
+      - name: Wait before attempt 3
+        if: steps.ftp2.outcome == 'failure'
+        run: sleep 60
       - name: Deploy to Hostinger via FTP (attempt 3)
-        if: steps.ftp1.outcome == 'failure' && steps.ftp2.outcome == 'failure'
-        uses: SamKirkland/FTP-Deploy-Action@v4.3.5
-        with:
-          server: ${{ secrets.FTP_SERVER }}
-          username: ${{ secrets.FTP_USERNAME }}
-          password: ${{ secrets.FTP_PASSWORD }}
-          protocol: ftps
-          timeout: 60000
-          local-dir: ./out/
-          server-dir: ./
-          state-name: .ricardo-os-deploy-state-${{ github.sha }}.json
-          exclude: |
-            **/.git*
-            **/.git*/**
-            **/.well-known/**
+        id: ftp3
+        if: steps.ftp2.outcome == 'failure'
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with: *ftp
+
+      - name: Wait before attempt 4
+        if: steps.ftp3.outcome == 'failure'
+        run: sleep 120
+      - name: Deploy to Hostinger via FTP (attempt 4)
+        id: ftp4
+        if: steps.ftp3.outcome == 'failure'
+        continue-on-error: true
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with: *ftp
+
+      - name: Wait before attempt 5
+        if: steps.ftp4.outcome == 'failure'
+        run: sleep 180
+      # Final attempt: no continue-on-error, so a still-dead FTP fails the job.
+      - name: Deploy to Hostinger via FTP (attempt 5)
+        if: steps.ftp4.outcome == 'failure'
+        uses: SamKirkland/FTP-Deploy-Action@v4.4.0
+        with: *ftp
