@@ -843,6 +843,7 @@
      (z-index 1), framed by the Aero glass so it reflects the app without
      touching the OS chrome. Shared by the card thumb and the detail hero. */
   .os-thumb[data-motif]::before,
+  .content-index-thumb[data-motif]::before,
   .content-hero[data-motif]::before {
     content: "";
     position: absolute;
@@ -851,6 +852,7 @@
   }
   /* War-room neon grid + a pink glow rising from the base. */
   .os-thumb[data-motif="neon-grid"]::before,
+  .content-index-thumb[data-motif="neon-grid"]::before,
   .content-hero[data-motif="neon-grid"]::before {
     background:
       linear-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px) 0 0 / 100% 15px,
@@ -859,6 +861,7 @@
   }
   /* Holographic card shimmer — soft diagonal sheen. */
   .os-thumb[data-motif="holo"]::before,
+  .content-index-thumb[data-motif="holo"]::before,
   .content-hero[data-motif="holo"]::before {
     background: repeating-linear-gradient(
       115deg,
@@ -869,6 +872,7 @@
   }
   /* Aero wallpaper bubbles. */
   .os-thumb[data-motif="bubbles"]::before,
+  .content-index-thumb[data-motif="bubbles"]::before,
   .content-hero[data-motif="bubbles"]::before {
     background:
       radial-gradient(circle at 20% 72%, rgba(255, 255, 255, 0.5) 0 4px, transparent 5px),
@@ -881,7 +885,8 @@
      Framed as an inset "peek" (not a full bleed): the app gradient + motif
      stays visible as a mat around it, echoing the gold-framed, glowing chrome
      both apps actually use. A missing image degrades to the motif + gradient. */
-  .os-thumb-shot {
+  .os-thumb-shot,
+  .content-index-thumb-shot {
     position: absolute;
     inset: 0;
     z-index: 2;
@@ -912,7 +917,8 @@
     .os-thumb[data-motif="holo"]::before {
       transition: background-position 0.6s ease;
     }
-    .os-card:hover .os-thumb[data-motif="holo"]::before {
+    .os-card:hover .os-thumb[data-motif="holo"]::before,
+    .content-index-row:hover .content-index-thumb[data-motif="holo"]::before {
       background-position: 34px 0;
     }
   }
@@ -943,7 +949,7 @@
     color: transparent;
   }
 
-  /* PokéPal — the card's stark, chunky gold frame + gold title. */
+  /* PokéPal — the card's stark, chunky gold frame + red title. */
   .os-card[data-motif="holo"] {
     border: 3px solid #edb63f;
     box-shadow:
@@ -963,7 +969,8 @@
     border: 1px solid rgba(0, 114, 178, 0.34);
     box-shadow: 0 8px 20px rgba(0, 70, 115, 0.18);
   }
-  .cb .os-card[data-motif] .os-card-name {
+  .cb .os-card[data-motif] .os-card-name,
+  .cb .content-index-row[data-motif] .content-index-name {
     background: none;
     color: inherit;
     -webkit-text-fill-color: currentColor;
@@ -1197,6 +1204,42 @@
     transform: translateY(-3px);
     box-shadow: 0 16px 30px rgba(15, 60, 120, 0.22);
   }
+  .content-index-row[data-motif="neon-grid"] {
+    border-color: rgba(255, 45, 120, 0.42);
+    box-shadow:
+      0 8px 20px rgba(20, 70, 130, 0.1),
+      0 0 0 1px rgba(255, 45, 120, 0.22),
+      0 0 16px -5px rgba(255, 45, 120, 0.55);
+  }
+  .content-index-row[data-motif="neon-grid"]:hover {
+    box-shadow:
+      0 16px 30px rgba(15, 60, 120, 0.22),
+      0 0 0 1px rgba(255, 45, 120, 0.55),
+      0 0 24px -3px rgba(255, 45, 120, 0.68);
+  }
+  .content-index-row[data-motif="neon-grid"] .content-index-name {
+    background: linear-gradient(180deg, #f6d488, #d99a3f);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+  .content-index-row[data-motif="holo"] {
+    border: 3px solid #edb63f;
+    box-shadow:
+      0 8px 18px rgba(120, 82, 10, 0.18),
+      0 2px 0 0 rgba(140, 96, 12, 0.22);
+  }
+  .content-index-row[data-motif="holo"]:hover {
+    box-shadow:
+      0 16px 30px rgba(120, 82, 10, 0.26),
+      0 2px 0 0 rgba(140, 96, 12, 0.26);
+  }
+  .content-index-row[data-motif="holo"] .content-index-name { color: #c62828; }
+  .dark .content-index-row[data-motif="holo"] .content-index-name { color: #ff6b6b; }
+  .cb .content-index-row[data-motif] {
+    border: 1px solid rgba(0, 114, 178, 0.34);
+    box-shadow: 0 8px 20px rgba(0, 70, 115, 0.16);
+  }
   .content-index-thumb {
     flex: 0 0 auto;
     width: 52px;
@@ -1205,8 +1248,37 @@
     display: grid;
     place-items: center;
     font-size: 26px;
+    position: relative;
+    overflow: hidden;
     background: linear-gradient(135deg, var(--c1, #7fd4ff), var(--c2, #b69bff));
     box-shadow: inset 0 1px 1px rgba(255, 255, 255, 0.6);
+  }
+  .content-index-thumb::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 3;
+    background: radial-gradient(120% 80% at 20% 0%, rgba(255, 255, 255, 0.55), rgba(255, 255, 255, 0) 60%);
+  }
+  .content-index-thumb-emoji {
+    position: relative;
+    z-index: 4;
+    line-height: 1;
+  }
+  .content-index-thumb[data-shot] {
+    place-items: start start;
+    padding: 5px;
+  }
+  .content-index-thumb[data-shot] .content-index-thumb-emoji {
+    display: grid;
+    place-items: center;
+    width: 24px;
+    height: 24px;
+    font-size: 15px;
+    border-radius: 7px;
+    background: rgba(255, 255, 255, 0.58);
+    backdrop-filter: blur(6px);
+    box-shadow: 0 2px 6px rgba(15, 60, 120, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.85);
   }
   .content-index-title {
     display: block;

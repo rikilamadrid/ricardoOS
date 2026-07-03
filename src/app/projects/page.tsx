@@ -21,16 +21,29 @@ export default function ProjectsIndexPage() {
       <ul className="content-index">
         {projectList().map((project) => (
           <li key={project.id}>
-            <Link href={`/projects/${projectSlug(project)}`} className="content-index-row">
+            <Link
+              href={`/projects/${projectSlug(project)}`}
+              className="content-index-row"
+              data-motif={project.motif || undefined}
+            >
               <span
                 className="content-index-thumb"
-                style={{ ["--c1" as string]: project.from, ["--c2" as string]: project.to }}
+                data-motif={project.motif || undefined}
+                data-shot={project.screenshot ? "" : undefined}
+                style={{
+                  ["--c1" as string]: project.from,
+                  ["--c2" as string]: project.to,
+                  ...(project.screenshot ? { ["--shot" as string]: `url(${project.screenshot})` } : {}),
+                }}
                 aria-hidden="true"
               >
-                {project.icon}
+                {project.screenshot && <span className="content-index-thumb-shot" />}
+                <span className="content-index-thumb-emoji">{project.icon}</span>
               </span>
               <span className="min-w-0">
-                <span className="content-index-title">{project.title.en}</span>
+                <span className="content-index-title">
+                  <span className="content-index-name">{project.title.en}</span>
+                </span>
                 <span className="content-index-blurb">
                   {(project.tagline ?? project.blurb).en}
                 </span>
