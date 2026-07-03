@@ -25,6 +25,10 @@
 }
 
 :root {
+  --cb-sky-top: #0072b2;
+  --cb-sky-mid: #56b4e9;
+  --cb-sky-low: #e6f6ff;
+
   /* Grass (green hill) as raw RGB channels so the wallpaper hill can take an
      alpha while still responding to the colorblind-safe palette swap below. */
   --grass-rgb: 126, 217, 87;
@@ -52,6 +56,12 @@
    the most common (red-green) color vision deficiencies. Status pills and the
    window traffic lights get their own safe hues + non-color cues in globals.css. */
 .cb {
+  --color-sky-top: var(--cb-sky-top);
+  --color-sky-mid: var(--cb-sky-mid);
+  --color-sky-low: var(--cb-sky-low);
+  --color-aqua: #56b4e9;
+  --color-aqua-deep: #0072b2;
   --color-grass: #009e73;
   --grass-rgb: 0, 158, 115;
+  --glass-edge: rgba(0, 114, 178, 0.48);
 }

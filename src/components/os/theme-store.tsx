@@ -43,6 +43,13 @@ const ThemeContext = createContext<ThemeStore | null>(null);
 
 const STORAGE_KEY = "ricardo-os:appearance";
 
+const COLORBLIND_WALLPAPER = {
+  top: "#0072b2",
+  mid: "#56b4e9",
+  low: "#e6f6ff",
+  grass: "0.62",
+};
+
 interface Persisted {
   theme: Theme;
   wallpaper: WallpaperId;
@@ -83,18 +90,20 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
   // Project the colorblind-safe palette onto the `.cb` class.
   useEffect(() => {
-    document.documentElement.classList.toggle("cb", colorblind);
+    const root = document.documentElement;
+    root.classList.toggle("cb", colorblind);
+    root.dataset.colorblind = colorblind ? "true" : "false";
   }, [colorblind]);
 
   // Project the wallpaper onto the sky custom properties.
   useEffect(() => {
     const wp = wallpapers[wallpaper];
     const root = document.documentElement.style;
-    root.setProperty("--wp-top", wp.top);
-    root.setProperty("--wp-mid", wp.mid);
-    root.setProperty("--wp-low", wp.low);
-    root.setProperty("--wp-grass", String(wp.grass));
-  }, [wallpaper]);
+    root.setProperty("--wp-top", colorblind ? COLORBLIND_WALLPAPER.top : wp.top);
+    root.setProperty("--wp-mid", colorblind ? COLORBLIND_WALLPAPER.mid : wp.mid);
+    root.setProperty("--wp-low", colorblind ? COLORBLIND_WALLPAPER.low : wp.low);
+    root.setProperty("--wp-grass", colorblind ? COLORBLIND_WALLPAPER.grass : String(wp.grass));
+  }, [wallpaper, colorblind]);
 
   // Persist.
   useEffect(() => {

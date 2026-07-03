@@ -174,11 +174,10 @@ export const apps: AppDefinition[] = [
   },
 ];
 
-/** Top menu-bar navigation links (the "About / Projects / Playground" row). */
+/** Top menu-bar navigation links. Keep this focused on the primary sections. */
 export const menuBar: { id: string; label: Localized<string>; target: string }[] = [
   { id: "nav-about", label: { en: "About", es: "Sobre Mí", fr: "À Propos" }, target: "about" },
   { id: "nav-projects", label: { en: "Projects", es: "Proyectos", fr: "Projets" }, target: "projects" },
-  { id: "nav-playground", label: { en: "Playground", es: "Patio de Juegos", fr: "Bac à Sable" }, target: "playground" },
 ];
 
 /**

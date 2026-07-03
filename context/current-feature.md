@@ -1,5 +1,27 @@
 # Current Feature
 
+**Colorblind-safe palette + Projects header cleanup.** Make the accessibility
+toggle visibly change the OS palette, and remove the Playground shortcut from
+the top header so Projects remains the primary nav action.
+
+Branch: `feature/colorblind-header-projects`.
+
+## Status
+
+**In progress** — build green (`npm run build`).
+
+### Changes
+
+- **`src/components/os/theme-store.tsx` / `src/styles/tokens.css` /
+  `src/app/globals.css`** — colorblind mode now projects safe wallpaper tokens
+  and swaps desktop sky hues, night-sky hues, wallpaper primitives, glass
+  accents, dock chrome, app tiles, title bars, project thumbs, status pills, and
+  the pressed state of the glasses toggle.
+- **`src/data/os.ts`** — menu-bar nav now shows About + Projects, with Playground
+  still available from the dock.
+
+---
+
 **Add PokéPal project.** Add a real shipped project — **PokéPal**, a mobile-first,
 iOS-style Pokémon card companion for kids (scan a card, tag it, build a
 local-first, installable collection) — to the Projects app and its

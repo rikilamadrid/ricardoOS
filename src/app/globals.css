@@ -189,6 +189,16 @@
         #eaf7e0 100%);
     transition: background 1.1s ease, opacity 1.1s ease;
   }
+  .cb .os-sky--day {
+    background:
+      radial-gradient(120% 90% at 78% -10%, rgba(255, 255, 255, 0.94), rgba(255, 255, 255, 0) 42%),
+      radial-gradient(120% 80% at 20% 110%, rgba(0, 158, 115, 0.58), rgba(0, 158, 115, 0) 55%),
+      linear-gradient(180deg,
+        var(--cb-sky-top) 0%,
+        var(--cb-sky-mid) 48%,
+        var(--cb-sky-low) 78%,
+        #eef8f4 100%);
+  }
   .os-sky--night {
     opacity: 0;
     background:
@@ -201,6 +211,12 @@
   }
   .dark .os-sky--night {
     opacity: 1;
+  }
+  .dark.cb .os-sky--night {
+    background:
+      radial-gradient(120% 90% at 80% 8%, rgba(240, 228, 66, 0.2), rgba(240, 228, 66, 0) 40%),
+      radial-gradient(120% 70% at 18% 100%, rgba(0, 158, 115, 0.35), rgba(0, 158, 115, 0) 55%),
+      linear-gradient(180deg, #07162d 0%, #0d3157 42%, #164f77 72%, #1f6f8f 100%);
   }
 
   /* Slow rotating light rays (sun shafts). */
@@ -222,6 +238,13 @@
       rgba(150, 255, 225, 0), rgba(150, 255, 225, 0.5) 8deg, rgba(150, 255, 225, 0) 16deg,
       rgba(140, 180, 255, 0) 50deg, rgba(140, 180, 255, 0.4) 58deg, rgba(140, 180, 255, 0) 66deg);
   }
+  .cb .os-rays {
+    opacity: 0.42;
+    background: conic-gradient(from 200deg at 78% -6%,
+      rgba(255, 255, 255, 0) 0deg, rgba(255, 255, 255, 0.5) 6deg, rgba(255, 255, 255, 0) 12deg,
+      rgba(240, 228, 66, 0) 28deg, rgba(240, 228, 66, 0.42) 34deg, rgba(240, 228, 66, 0) 42deg,
+      rgba(0, 158, 115, 0) 62deg, rgba(0, 158, 115, 0.36) 68deg, rgba(0, 158, 115, 0) 76deg);
+  }
   @keyframes os-spin {
     to { transform: rotate(360deg); }
   }
@@ -236,6 +259,9 @@
   }
   .dark .os-stars {
     opacity: 0.8;
+  }
+  .dark.cb .os-stars {
+    opacity: 0.58;
   }
 
   /* Drifting translucent bubbles. */
@@ -254,6 +280,12 @@
       radial-gradient(circle at 70% 75%, rgba(120, 200, 255, 0.45), rgba(120, 200, 255, 0) 60%);
     box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.6), 0 0 14px rgba(255, 255, 255, 0.25);
     animation: os-rise linear infinite;
+  }
+  .cb .os-bubble {
+    background:
+      radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0.15) 42%, rgba(255, 255, 255, 0) 60%),
+      radial-gradient(circle at 70% 75%, rgba(86, 180, 233, 0.5), rgba(86, 180, 233, 0) 60%);
+    box-shadow: inset 0 0 12px rgba(255, 255, 255, 0.6), 0 0 14px rgba(0, 114, 178, 0.22);
   }
   @keyframes os-rise {
     0% { transform: translateY(0) translateX(0) scale(0.9); opacity: 0; }
@@ -276,6 +308,9 @@
     background: radial-gradient(circle, rgba(180, 255, 235, 0.5), rgba(180, 255, 235, 0) 60%);
     opacity: 0.6;
   }
+  .cb .os-sun {
+    background: radial-gradient(circle at 50% 50%, rgba(255, 255, 255, 0.9), rgba(240, 228, 66, 0.34) 38%, rgba(240, 228, 66, 0) 62%);
+  }
   .os-hill {
     position: absolute;
     left: -5%;
@@ -285,6 +320,10 @@
     background: radial-gradient(120% 150% at 50% 100%, #8fe06a 0%, #4fb84f 55%, #2f9a44 100%);
     border-radius: 50% 50% 0 0 / 100% 100% 0 0;
     box-shadow: inset 0 8px 30px rgba(255, 255, 255, 0.5), inset 0 -40px 60px rgba(0, 60, 20, 0.35);
+  }
+  .cb .os-hill {
+    background: radial-gradient(120% 150% at 50% 100%, #5ed0b1 0%, #009e73 58%, #00674e 100%);
+    box-shadow: inset 0 8px 30px rgba(255, 255, 255, 0.46), inset 0 -40px 60px rgba(0, 70, 52, 0.36);
   }
   .dark .os-hill {
     filter: brightness(0.5) saturate(0.8);
@@ -298,6 +337,9 @@
     border: 1px solid var(--glass-line);
     box-shadow: var(--os-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.6), 0 0 0 1px rgba(120, 170, 225, 0.25);
   }
+  .cb .os-glass {
+    box-shadow: var(--os-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.58), 0 0 0 1px rgba(0, 114, 178, 0.24);
+  }
 
   /* App windows are stacked, so a low-opacity glass lets the window behind
      bleed through. Use a more opaque surface (still frosted) for windows. */
@@ -306,6 +348,12 @@
   }
   .dark .os-window {
     background: rgba(26, 48, 86, 0.92);
+  }
+  .cb .os-window {
+    background: rgba(240, 250, 255, 0.92);
+  }
+  .dark.cb .os-window {
+    background: rgba(16, 55, 84, 0.94);
   }
 
   /* ---- Menu bar ---- */
@@ -319,6 +367,13 @@
   .dark .os-menubar {
     background: linear-gradient(180deg, rgba(40, 64, 110, 0.7), rgba(24, 44, 84, 0.5));
   }
+  .cb .os-menubar {
+    background: linear-gradient(180deg, rgba(242, 250, 255, 0.82), rgba(210, 235, 248, 0.58));
+    border-bottom-color: rgba(0, 114, 178, 0.42);
+  }
+  .dark.cb .os-menubar {
+    background: linear-gradient(180deg, rgba(20, 70, 102, 0.78), rgba(11, 44, 76, 0.58));
+  }
 
   /* ---- Dock ---- */
   .os-dock {
@@ -330,6 +385,14 @@
   }
   .dark .os-dock {
     background: linear-gradient(180deg, rgba(40, 64, 110, 0.5), rgba(24, 44, 84, 0.35));
+  }
+  .cb .os-dock {
+    background: linear-gradient(180deg, rgba(246, 252, 255, 0.58), rgba(205, 235, 248, 0.42));
+    border-color: rgba(0, 114, 178, 0.34);
+    box-shadow: 0 18px 50px -10px rgba(0, 70, 115, 0.45), inset 0 1px 0 rgba(255, 255, 255, 0.74);
+  }
+  .dark.cb .os-dock {
+    background: linear-gradient(180deg, rgba(20, 70, 102, 0.56), rgba(11, 44, 76, 0.4));
   }
 
   /* Dock app: single-icon hover lift (no neighbor magnification) + running dot. */
@@ -365,6 +428,10 @@
   .dark .os-dock-dot {
     background: #bfe3ff;
   }
+  .cb .os-dock-dot {
+    background: #e69f00;
+    box-shadow: 0 0 6px rgba(230, 159, 0, 0.7);
+  }
   .os-dock-app.is-running .os-dock-dot {
     opacity: 0.85;
   }
@@ -399,6 +466,11 @@
     border-right: 2px solid rgba(90, 140, 200, 0.5);
     border-bottom: 2px solid rgba(90, 140, 200, 0.5);
   }
+  .cb .os-resize::before,
+  .cb .os-resize::after {
+    border-right-color: rgba(0, 114, 178, 0.72);
+    border-bottom-color: rgba(0, 114, 178, 0.72);
+  }
 
   /* ---- Glossy app tile (per-app palette via modifier) ---- */
   .os-tile {
@@ -432,6 +504,13 @@
   .os-tile--teal { --t-light: #8fe6d2; --t-dark: #1f9fb0; }
   .os-tile--pink { --t-light: #ffb6e0; --t-dark: #b66cff; }
   .os-tile--graphite { --t-light: #3a5878; --t-dark: #11243f; }
+  .cb .os-tile--blue,
+  .cb .os-tile--sky { --t-light: #9bd8ff; --t-dark: #0072b2; }
+  .cb .os-tile--green,
+  .cb .os-tile--teal { --t-light: #89dbc5; --t-dark: #009e73; }
+  .cb .os-tile--violet,
+  .cb .os-tile--pink { --t-light: #ffe08a; --t-dark: #e69f00; }
+  .cb .os-tile--graphite { --t-light: #4c6f8f; --t-dark: #132f4a; }
 
   /* ---- Window chrome ---- */
   .os-titlebar {
@@ -440,6 +519,13 @@
   }
   .dark .os-titlebar {
     background: linear-gradient(180deg, rgba(60, 96, 150, 0.7), rgba(30, 56, 100, 0.5));
+  }
+  .cb .os-titlebar {
+    background: linear-gradient(180deg, rgba(238, 249, 255, 0.9), rgba(198, 230, 246, 0.58));
+    border-bottom-color: rgba(0, 114, 178, 0.36);
+  }
+  .dark.cb .os-titlebar {
+    background: linear-gradient(180deg, rgba(27, 84, 118, 0.78), rgba(13, 50, 86, 0.58));
   }
 
   /* ---- Jellybean traffic lights ---- */
@@ -546,8 +632,16 @@
     transition: background 0.15s, transform 0.1s;
   }
   .os-glyph:hover { background: rgba(255, 255, 255, 0.55); }
+  .os-glyph[aria-pressed="true"] {
+    background: rgba(0, 114, 178, 0.16);
+    box-shadow: inset 0 0 0 1px rgba(0, 114, 178, 0.45);
+  }
   .os-glyph:active { transform: scale(0.94); }
   .dark .os-glyph:hover { background: rgba(120, 170, 225, 0.28); }
+  .dark .os-glyph[aria-pressed="true"] {
+    background: rgba(86, 180, 233, 0.22);
+    box-shadow: inset 0 0 0 1px rgba(86, 180, 233, 0.52);
+  }
 
   /* ---- Floating aqua menu / popover (Radix dropdown, popover, context) ---- */
   .os-menu {
@@ -710,6 +804,11 @@
     transition: transform 0.18s cubic-bezier(0.2, 1, 0.4, 1), box-shadow 0.18s;
   }
   .dark .os-card { background: rgba(40, 68, 116, 0.5); }
+  .cb .os-card {
+    border-color: rgba(0, 114, 178, 0.34);
+    box-shadow: 0 8px 20px rgba(0, 70, 115, 0.18);
+  }
+  .dark.cb .os-card { background: rgba(24, 72, 102, 0.56); }
   .os-card:hover {
     transform: translateY(-4px);
     box-shadow: 0 18px 34px rgba(15, 60, 120, 0.28);
@@ -721,6 +820,9 @@
     place-items: center;
     font-size: 34px;
     background: linear-gradient(135deg, var(--c1, #7fd4ff), var(--c2, #b69bff));
+  }
+  .cb .os-thumb {
+    background: linear-gradient(135deg, var(--c1, #56b4e9), var(--c2, #e69f00));
   }
   .os-thumb::after {
     content: "";
