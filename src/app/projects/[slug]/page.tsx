@@ -57,11 +57,18 @@ export default async function ProjectDetailPage({
 
   return (
     <ContentPage>
-      <article className="content-article">
+      <article className="content-article" data-motif={project.motif || undefined}>
         <div
           className="content-hero"
-          style={{ ["--c1" as string]: project.from, ["--c2" as string]: project.to }}
+          data-motif={project.motif || undefined}
+          data-shot={project.screenshot ? "" : undefined}
+          style={{
+            ["--c1" as string]: project.from,
+            ["--c2" as string]: project.to,
+            ...(project.screenshot ? { ["--shot" as string]: `url(${project.screenshot})` } : {}),
+          }}
         >
+          {project.screenshot && <span className="content-hero-shot" aria-hidden="true" />}
           <span aria-hidden="true">{project.icon}</span>
         </div>
 

@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { motion } from "motion/react";
 import { useReducedMotion } from "motion/react";
+import { FooterCredit } from "@/components/os/FooterCredit";
 
 /**
  * Full-screen, scrollable shell for the standalone content pages
@@ -33,6 +34,7 @@ export function ContentPage({
         </Link>
         {children}
       </motion.main>
+      <FooterCredit className="fixed bottom-4 right-4 z-[7000]" />
     </div>
   );
 }

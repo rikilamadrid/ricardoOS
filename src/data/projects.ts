@@ -30,6 +30,18 @@ export interface Project {
   tagline?: Localized<string>;
   /** Long-form write-up for `/projects/[slug]`. Blank lines separate paragraphs. */
   writeup?: Localized<string>;
+  /**
+   * Optional CSS texture painted inside the card thumbnail — a "peek" at the
+   * project's own vibe, framed by the Aero glass. Falls back to the plain
+   * gradient when omitted.
+   */
+  motif?: "neon-grid" | "holo" | "bubbles";
+  /**
+   * Optional screenshot shown in the card thumbnail (path under `/public`,
+   * e.g. `/projects/ai-strategy-table.png`). Layers over the motif, so a
+   * missing file degrades gracefully to the motif + gradient.
+   */
+  screenshot?: string;
 }
 
 /** Slug used for `/projects/[slug]` — currently the stable `id`. */
@@ -79,6 +91,39 @@ export const projects: ProjectsContent = {
         es: "PokéPal es la app que me habría gustado tener para los niños que coleccionan cartas Pokémon. Escaneas una carta, la etiquetas con nombre, tipo, rareza y número de Pokédex, y la colección crece desde ahí. Sin hojas de cálculo, sin cajas de zapatos.\n\nEs local primero, así que la colección vive en el dispositivo: rápida, sin conexión y tuya. Se instala como PWA y llega a iOS mediante Capacitor, que envuelve la misma app de Next.js en una carcasa nativa para que la cámara y el escaneo se sientan como en casa en un teléfono, no pegados con celo.\n\nPor dentro es Next.js, React y Tailwind, con Supabase encargándose de Postgres, autenticación y almacenamiento. Cada pantalla tiene forma de teléfono: pantalla completa, cómoda para el pulgar y descaradamente juguetona. Es para niños, al fin y al cabo.",
         fr: "PokéPal est l'app que j'aurais aimé avoir pour les enfants qui collectionnent les cartes Pokémon. Tu scannes une carte, tu l'étiquettes avec le nom, le type, la rareté et le numéro de Pokédex, et la collection grandit à partir de là. Pas de tableurs, pas de boîtes à chaussures.\n\nElle est local d'abord, donc la collection vit sur l'appareil : rapide, hors ligne et à toi. Elle s'installe en PWA et arrive sur iOS via Capacitor, qui enveloppe la même app Next.js dans une coque native pour que l'appareil photo et le scan soient à leur place sur un téléphone, plutôt que collés à la va-vite.\n\nSous le capot, c'est Next.js, React et Tailwind, avec Supabase pour Postgres, l'authentification et le stockage. Chaque écran a la forme d'un téléphone : plein écran, adapté au pouce et résolument joueur. C'est pour des enfants, après tout.",
       },
+      motif: "holo",
+      screenshot: "/projects/pokepal.png",
+    },
+    {
+      id: "ai-strategy-table",
+      title: { en: "AI Strategy Table", es: "Mesa de Estrategia IA", fr: "Table de Stratégie IA" },
+      blurb: {
+        en: "Ask a hard question and four AI advisors argue it out in a Brass & Neon war room, then a moderator boils the noise down to one decision brief. It's stateless and cost-disciplined, so a whole session is two or three model calls, not a runaway meter.",
+        es: "Haces una pregunta difícil y cuatro asesores de IA la debaten en una sala de guerra de latón y neón; luego un moderador reduce el ruido a un solo informe de decisión. No guarda estado y cuida el gasto, así que una sesión entera son dos o tres llamadas al modelo, no un contador desbocado.",
+        fr: "Tu poses une question épineuse et quatre conseillers IA en débattent dans une war room laiton et néon, puis un modérateur réduit le bruit à une seule note de décision. Sans état et sobre en coûts : une session entière tient en deux ou trois appels au modèle, pas un compteur qui s'emballe.",
+      },
+      status: "building",
+      tags: ["Next.js", "TypeScript", "Vercel AI SDK"],
+      icon: "♟️",
+      from: "#f5b642",
+      to: "#ff2d78",
+      links: [
+        { label: { en: "Live demo", es: "Demo en vivo", fr: "Démo en ligne" }, href: "https://ai-strategy-room-bice.vercel.app" },
+        { label: { en: "GitHub", es: "GitHub", fr: "GitHub" }, href: "https://github.com/rikilamadrid/ai-strategy-room" },
+      ],
+      year: 2026,
+      tagline: {
+        en: "A cinematic multi-agent decision room.",
+        es: "Una sala de decisiones multiagente y cinematográfica.",
+        fr: "Une salle de décision multi-agents et cinématographique.",
+      },
+      writeup: {
+        en: "AI Strategy Table is what happens when you stop asking one model for one answer and instead sit four of them around a table. You type a strategic question, and four AI advisors with different temperaments deliberate on it in a Brass & Neon war-room UI. A moderator then reads the room and hands you a single decision brief instead of four competing walls of text.\n\nThe interesting constraint was money. It would be easy to let agents chatter forever and watch the bill climb, so the whole thing is stateless and deliberately cheap: a full session is two or three model calls, no more. Every response is structured output validated with Zod, which means the UI never has to guess what a model meant, and I never have to parse prose by hand.\n\nIt runs on Next.js and TypeScript, with the Vercel AI SDK orchestrating the calls, Zustand holding the session together on the client, and Tailwind carrying the war-room look. It's less a chatbot and more a decision instrument that happens to think out loud.",
+        es: "AI Strategy Table es lo que pasa cuando dejas de pedirle una respuesta a un solo modelo y en su lugar sientas a cuatro alrededor de una mesa. Escribes una pregunta estratégica y cuatro asesores de IA con temperamentos distintos la deliberan en una interfaz de sala de guerra de latón y neón. Después un moderador lee la sala y te entrega un único informe de decisión en vez de cuatro muros de texto que compiten.\n\nLa restricción interesante era el dinero. Sería fácil dejar que los agentes charlen sin fin y ver subir la factura, así que todo es sin estado y deliberadamente barato: una sesión completa son dos o tres llamadas al modelo, no más. Cada respuesta es salida estructurada validada con Zod, así la interfaz nunca tiene que adivinar qué quiso decir un modelo y yo nunca tengo que analizar prosa a mano.\n\nFunciona con Next.js y TypeScript, con el Vercel AI SDK orquestando las llamadas, Zustand manteniendo la sesión unida en el cliente y Tailwind cargando con la estética de sala de guerra. Es menos un chatbot y más un instrumento de decisión que piensa en voz alta.",
+        fr: "AI Strategy Table, c'est ce qui arrive quand tu arrêtes de demander une réponse à un seul modèle et que tu en installes plutôt quatre autour d'une table. Tu tapes une question stratégique, et quatre conseillers IA aux tempéraments différents en délibèrent dans une interface de war room laiton et néon. Un modérateur lit ensuite la salle et te remet une seule note de décision au lieu de quatre pavés de texte concurrents.\n\nLa contrainte intéressante, c'était l'argent. Il serait facile de laisser les agents bavarder sans fin et regarder la note grimper, donc l'ensemble est sans état et volontairement économe : une session complète tient en deux ou trois appels au modèle, pas plus. Chaque réponse est une sortie structurée validée avec Zod, ce qui fait que l'interface n'a jamais à deviner ce qu'un modèle voulait dire, et que je n'ai jamais à analyser de la prose à la main.\n\nÇa tourne sous Next.js et TypeScript, avec le Vercel AI SDK qui orchestre les appels, Zustand qui tient la session côté client et Tailwind qui porte le look war room. C'est moins un chatbot qu'un instrument de décision qui pense à voix haute.",
+      },
+      motif: "neon-grid",
+      screenshot: "/projects/ai-strategy-table.png",
     },
     {
       id: "ricardo-os",
@@ -105,6 +150,7 @@ export const projects: ProjectsContent = {
         es: "RicardoOS es mi intento de hacer un sitio personal que valga la pena explorar en vez de recorrer con el scroll. En lugar de leer un currículum, arrancas un escritorio, arrastras ventanas, cambias fondos y tropiezas con alguna que otra sorpresa.\n\nFunciona con Next.js, React y Tailwind, con un gestor de ventanas en Zustand haciendo el trabajo poco glamuroso: foco, orden, arrastre y tamaño. La estética es Frutiger Aero, todo ese brillo y translucidez de principios de los 2000, con un listón moderno de rendimiento y accesibilidad para que la nostalgia no te cueste una experiencia fluida.\n\nNo es novedad por la novedad. Quería algo que se sintiera hecho por alguien que de verdad disfruta creando cosas. Lo estás mirando.",
         fr: "RicardoOS, c'est ma tentative de faire un site personnel qui vaille la peine d'être exploré plutôt que scrollé. Au lieu de lire un CV, tu démarres un bureau, tu déplaces des fenêtres, tu changes de fond d'écran et tu tombes sur l'une ou l'autre surprise.\n\nIl tourne sous Next.js, React et Tailwind, avec un gestionnaire de fenêtres en Zustand qui fait le travail ingrat : focus, ordre d'affichage, glissement, redimensionnement. Le style est Frutiger Aero, toute cette brillance et cette translucidité du début des années 2000, tenu à un niveau moderne de performance et d'accessibilité pour que la nostalgie ne te coûte pas une expérience fluide.\n\nCe n'est pas de la nouveauté pour la nouveauté. Je voulais quelque chose qui semble fait par une personne qui aime vraiment fabriquer des choses. Tu es en train de le regarder.",
       },
+      motif: "bubbles",
     },
   ],
 };

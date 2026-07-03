@@ -1,5 +1,37 @@
 # Current Feature
 
+**Add AI Strategy Table project.** Add a real project — **AI Strategy Table**, a
+cinematic multi-agent decision room where four AI advisors deliberate a strategic
+question in a Brass & Neon war-room UI and a moderator returns a single decision
+brief (stateless, 2–3 LLM calls/session, structured-output-only) — to the Projects
+app and its `/projects/ai-strategy-table` detail page.
+
+Branch: `feature/add-ai-strategy-table`.
+
+## Status
+
+**In progress** — build green (`npm run build` generates
+`/projects/ai-strategy-table` + OG image).
+
+### Changes
+
+- **`src/data/projects.ts`** — new `ai-strategy-table` entry (status `building`,
+  `♟️` tile, brass→neon gradient `#f5b642`→`#ff2d78`, trilingual
+  tagline/blurb/writeup, live-demo + GitHub links, year 2026).
+- **Per-project motif on card + detail page** — the card and `/projects/[slug]`
+  now lean toward each app's real chrome (read off the screenshots), keyed on the
+  existing `motif`:
+  - `neon-grid` (AI Strategy Table): a hint of the war-room's neon-pink edge
+    (glow border on the card + detail hero) and a brass-gradient title.
+  - `holo` (PokéPal): the stark chunky gold frame (thick gold border on the card
+    + detail hero) and a gold title.
+  - `ProjectCard.tsx` exposes `data-motif` on `.os-card` and wraps the title in
+    `.os-card-name`; `[slug]/page.tsx` exposes `data-motif` on `.content-article`;
+    styles live in `globals.css`. Colorblind mode neutralises the card accents
+    back to the Okabe-Ito-safe frame.
+
+---
+
 **Field Notes content localization fix.** The Field Notes app chrome already
 switches languages, but the post titles/summaries are still plain English MDX
 metadata and the article bodies are English-only. Make post metadata and MDX
