@@ -4,7 +4,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { aeroFm, t } from "@/data";
 import { useLocale } from "@/components/os/locale-store";
 
-const BARS = 9;
+/** Spectrum analyzer bar count (fed by the AnalyserNode). */
+const BARS = 16;
 
 const fmt = (s: number) => {
   if (!Number.isFinite(s)) return "0:00";
@@ -14,11 +15,13 @@ const fmt = (s: number) => {
 };
 
 /**
- * Aero FM — a Winamp-flavored, Frutiger Aero player that streams real audio
- * files from `public/audio/` (see `data/music.ts`). It never autoplays: sound
- * starts on a user gesture. The equalizer is driven by a real AnalyserNode, so
- * the bars react to whatever is playing. If a track's file is missing, the
- * player flags it as unavailable rather than breaking.
+ * Aero FM — reskinned as a **classic Winamp 2.x** media player: dark brushed
+ * metal, a green segmented LCD, a live spectrum analyzer, beveled transport
+ * buttons, and a black-on-green playlist. It streams real audio files from
+ * `public/audio/` (see `data/music.ts`) and never autoplays: sound starts on a
+ * user gesture. The analyzer is driven by a real AnalyserNode, and balance runs
+ * through a StereoPannerNode. If a track's file is missing, the player flags it
+ * as unavailable rather than breaking.
  */
 export function MusicApp() {
   const { locale } = useLocale();
@@ -29,6 +32,9 @@ export function MusicApp() {
   const [current, setCurrent] = useState(0);
   const [duration, setDuration] = useState(0);
   const [volume, setVolume] = useState(0.7);
+  const [balance, setBalance] = useState(0); // -1 (L) … 0 … 1 (R)
+  const [shuffle, setShuffle] = useState(false);
+  const [repeat, setRepeat] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
 
   const track = tracks[index];
@@ -37,10 +43,11 @@ export function MusicApp() {
   const barsRef = useRef<(HTMLSpanElement | null)[]>([]);
   const ctxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
+  const pannerRef = useRef<StereoPannerNode | null>(null);
   const rafRef = useRef<number | null>(null);
 
-  // Build the analyser graph once, on the first user-initiated play.
-  const ensureAnalyser = useCallback(() => {
+  // Build the analyser + panner graph once, on the first user-initiated play.
+  const ensureGraph = useCallback(() => {
     const audio = audioRef.current;
     if (!audio || ctxRef.current) return;
     type WebkitWindow = Window & { webkitAudioContext?: typeof AudioContext };
@@ -51,19 +58,24 @@ export function MusicApp() {
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 64;
     analyser.smoothingTimeConstant = 0.8;
+    const panner = ctx.createStereoPanner();
+    panner.pan.value = balance;
+    // source → analyser → panner → destination
     source.connect(analyser);
-    analyser.connect(ctx.destination);
+    analyser.connect(panner);
+    panner.connect(ctx.destination);
     ctxRef.current = ctx;
     analyserRef.current = analyser;
-  }, []);
+    pannerRef.current = panner;
+  }, [balance]);
 
-  // Animate the equalizer bars from live frequency data.
+  // Animate the spectrum analyzer from live frequency data.
   const runEq = useCallback(() => {
     const analyser = analyserRef.current;
     if (!analyser) return;
     // Reduced motion: keep a gentle static readout, no animation loop.
     if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
-      barsRef.current.forEach((b, i) => b && (b.style.height = `${10 + (i % 3) * 6}px`));
+      barsRef.current.forEach((b, i) => b && (b.style.height = `${18 + ((i * 7) % 5) * 6}%`));
       return;
     }
     const data = new Uint8Array(analyser.frequencyBinCount);
@@ -73,7 +85,7 @@ export function MusicApp() {
       for (let i = 0; i < BARS; i++) {
         const v = data[i * step] / 255; // 0..1
         const bar = barsRef.current[i];
-        if (bar) bar.style.height = `${6 + v * 24}px`;
+        if (bar) bar.style.height = `${8 + v * 92}%`;
       }
       rafRef.current = requestAnimationFrame(tick);
     };
@@ -89,13 +101,13 @@ export function MusicApp() {
   const play = useCallback(() => {
     const audio = audioRef.current;
     if (!audio) return;
-    ensureAnalyser();
+    ensureGraph();
     void ctxRef.current?.resume();
     audio
       .play()
       .then(() => setUnavailable(false))
       .catch(() => setUnavailable(true));
-  }, [ensureAnalyser]);
+  }, [ensureGraph]);
 
   const pause = useCallback(() => {
     audioRef.current?.pause();
@@ -120,12 +132,41 @@ export function MusicApp() {
     [play, tracks.length],
   );
 
+  // Advance honoring shuffle / repeat (used by Next + on-ended).
+  const advance = useCallback(
+    (autoplay: boolean) => {
+      if (shuffle && tracks.length > 1) {
+        let r = index;
+        while (r === index) r = Math.floor(Math.random() * tracks.length);
+        select(r, autoplay);
+      } else {
+        select(index + 1, autoplay);
+      }
+    },
+    [index, select, shuffle, tracks.length],
+  );
+
+  const onEnded = useCallback(() => {
+    const audio = audioRef.current;
+    if (repeat && audio) {
+      audio.currentTime = 0;
+      void audio.play();
+      return;
+    }
+    advance(true);
+  }, [advance, repeat]);
+
   // Keep the audio element's volume in sync.
   useEffect(() => {
     if (audioRef.current) audioRef.current.volume = volume;
   }, [volume]);
 
-  // Drive the equalizer with the play state.
+  // Keep the panner in sync with the balance slider.
+  useEffect(() => {
+    if (pannerRef.current) pannerRef.current.pan.value = balance;
+  }, [balance]);
+
+  // Drive the analyzer with the play state.
   useEffect(() => {
     if (playing) runEq();
     else stopEq();
@@ -141,8 +182,10 @@ export function MusicApp() {
     };
   }, [stopEq]);
 
+  const trackNo = (index + 1).toString().padStart(2, "0");
+
   return (
-    <div className="os-amp">
+    <div className="os-wa" data-skin="classic">
       <audio
         ref={audioRef}
         src={track.src}
@@ -151,24 +194,25 @@ export function MusicApp() {
         onPause={() => setPlaying(false)}
         onTimeUpdate={(e) => setCurrent(e.currentTarget.currentTime)}
         onLoadedMetadata={(e) => setDuration(e.currentTarget.duration)}
-        onEnded={() => select(index + 1, true)}
+        onEnded={onEnded}
         onError={() => {
           setUnavailable(true);
           setPlaying(false);
         }}
       />
 
-      {/* LCD display */}
-      <div className="os-amp-lcd">
-        <div className="os-amp-lcd-top">
-          <span className="os-amp-cover" aria-hidden="true">
-            {track.cover}
-          </span>
-          <div className="os-amp-marquee">
-            <span className="os-amp-title">{track.title}</span>
-            <span className="os-amp-artist">{track.artist}</span>
-          </div>
-          <div className={`os-eq ${playing ? "os-eq--on" : ""}`} aria-hidden="true">
+      {/* Titlebar wordmark — doubles as the window's drag handle. */}
+      <div className="os-wa-title" data-drag-handle aria-hidden="true">
+        <span className="os-wa-grip" />
+        <span className="os-wa-word">WINAMP</span>
+        <span className="os-wa-grip" />
+      </div>
+
+      {/* Main display */}
+      <div className="os-wa-display">
+        <div className="os-wa-lcd-left">
+          <span className={`os-wa-clock ${playing ? "is-on" : ""}`}>{fmt(current)}</span>
+          <div className={`os-wa-viz ${playing ? "is-on" : ""}`} aria-hidden="true">
             {Array.from({ length: BARS }).map((_, i) => (
               <span
                 key={i}
@@ -179,49 +223,49 @@ export function MusicApp() {
             ))}
           </div>
         </div>
-        <div className="os-amp-lcd-bottom">
-          <span className="os-amp-time">{fmt(current)}</span>
-          <input
-            type="range"
-            className="os-amp-seek"
-            min={0}
-            max={duration || 0}
-            value={Math.min(current, duration || 0)}
-            onChange={(e) => {
-              const audio = audioRef.current;
-              if (audio) audio.currentTime = Number(e.target.value);
-              setCurrent(Number(e.target.value));
-            }}
-            aria-label="Seek"
-          />
-          <span className="os-amp-total">{fmt(duration)}</span>
+        <div className="os-wa-lcd-right">
+          <div className="os-wa-marquee">
+            <div className={`os-wa-scroll ${playing ? "is-scrolling" : ""}`}>
+              {/* Duplicated for a seamless -50% scroll loop. */}
+              <span>
+                {trackNo}. {track.title} &mdash; {track.artist} &#9834;
+              </span>
+              <span aria-hidden="true">
+                {trackNo}. {track.title} &mdash; {track.artist} &#9834;
+              </span>
+            </div>
+          </div>
+          <div className="os-wa-meta">
+            <span className="os-wa-kbps">128</span>
+            <span className="os-wa-unit">kbps</span>
+            <span className="os-wa-kbps">44</span>
+            <span className="os-wa-unit">kHz</span>
+            <span className={`os-wa-chan ${playing ? "is-on" : ""}`}>stereo</span>
+          </div>
         </div>
       </div>
 
-      {/* Transport + volume */}
-      <div className="os-amp-bar">
-        <div className="os-amp-controls">
-          <button type="button" className="os-amp-btn" onClick={() => select(index - 1, playing)} aria-label="Previous">
-            ⏮
-          </button>
-          <button
-            type="button"
-            className="os-amp-btn os-amp-btn--play"
-            onClick={playing ? pause : play}
-            aria-pressed={playing}
-            aria-label={playing ? "Pause" : "Play"}
-          >
-            {playing ? "⏸" : "▶"}
-          </button>
-          <button type="button" className="os-amp-btn" onClick={stop} aria-label="Stop">
-            ⏹
-          </button>
-          <button type="button" className="os-amp-btn" onClick={() => select(index + 1, playing)} aria-label="Next">
-            ⏭
-          </button>
-        </div>
-        <label className="os-amp-vol">
-          <span aria-hidden="true">🔊</span>
+      {/* Position slider */}
+      <input
+        type="range"
+        className="os-wa-seek"
+        min={0}
+        max={duration || 0}
+        value={Math.min(current, duration || 0)}
+        onChange={(e) => {
+          const audio = audioRef.current;
+          if (audio) audio.currentTime = Number(e.target.value);
+          setCurrent(Number(e.target.value));
+        }}
+        aria-label="Seek"
+      />
+
+      {/* Volume + balance */}
+      <div className="os-wa-sliders">
+        <label className="os-wa-slider">
+          <span className="os-wa-slabel" aria-hidden="true">
+            VOL
+          </span>
           <input
             type="range"
             min={0}
@@ -232,26 +276,87 @@ export function MusicApp() {
             aria-label="Volume"
           />
         </label>
+        <label className="os-wa-slider">
+          <span className="os-wa-slabel" aria-hidden="true">
+            BAL
+          </span>
+          <input
+            type="range"
+            min={-1}
+            max={1}
+            step={0.02}
+            value={balance}
+            onChange={(e) => setBalance(Number(e.target.value))}
+            aria-label="Balance"
+          />
+        </label>
+      </div>
+
+      {/* Transport + toggles */}
+      <div className="os-wa-transport">
+        <div className="os-wa-controls">
+          <button type="button" className="os-wa-btn" onClick={() => select(index - 1, playing)} aria-label="Previous">
+            <span aria-hidden="true">⏮</span>
+          </button>
+          <button
+            type="button"
+            className="os-wa-btn"
+            onClick={play}
+            aria-label="Play"
+            aria-pressed={playing}
+          >
+            <span aria-hidden="true">▶</span>
+          </button>
+          <button type="button" className="os-wa-btn" onClick={pause} aria-label="Pause">
+            <span aria-hidden="true">⏸</span>
+          </button>
+          <button type="button" className="os-wa-btn" onClick={stop} aria-label="Stop">
+            <span aria-hidden="true">⏹</span>
+          </button>
+          <button type="button" className="os-wa-btn" onClick={() => advance(playing)} aria-label="Next">
+            <span aria-hidden="true">⏭</span>
+          </button>
+        </div>
+        <div className="os-wa-toggles">
+          <button
+            type="button"
+            className={`os-wa-chip ${shuffle ? "is-on" : ""}`}
+            onClick={() => setShuffle((s) => !s)}
+            aria-pressed={shuffle}
+          >
+            SHUFFLE
+          </button>
+          <button
+            type="button"
+            className={`os-wa-chip ${repeat ? "is-on" : ""}`}
+            onClick={() => setRepeat((r) => !r)}
+            aria-pressed={repeat}
+          >
+            REPEAT
+          </button>
+        </div>
       </div>
 
       {/* Playlist */}
-      <ul className="os-amp-list">
+      <ul className="os-wa-list">
         {tracks.map((tr, i) => (
           <li key={tr.id}>
             <button
               type="button"
-              className={`os-amp-row ${i === index ? "os-amp-row--active" : ""}`}
+              className={`os-wa-row ${i === index ? "is-active" : ""}`}
               onClick={() => select(i, true)}
             >
-              <span className="os-amp-row-num">{(i + 1).toString().padStart(2, "0")}</span>
-              <span className="os-amp-row-title">{tr.title}</span>
-              <span className="os-amp-row-cap">{t(tr.caption, locale)}</span>
+              <span className="os-wa-row-num">{(i + 1).toString().padStart(2, "0")}.</span>
+              <span className="os-wa-row-title">
+                {tr.title} &mdash; {tr.artist}
+              </span>
+              <span className="os-wa-row-cap">{t(tr.caption, locale)}</span>
             </button>
           </li>
         ))}
       </ul>
 
-      <p className="os-amp-note">
+      <p className="os-wa-note">
         {unavailable
           ? "Track unavailable — add its MP3 to public/audio/ (see README)."
           : `${aeroFm.station} · ${t(aeroFm.genre, locale)} — press play. Never autoplays.`}

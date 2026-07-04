@@ -1,5 +1,23 @@
 # Current Feature
 
+**Active: Phase 15 — Retro Winamp Media Player.** Replacing the soft Frutiger-Aero
+"Aero FM" glass panel with a classic Winamp 2.x-inspired player (dark metal chrome,
+green LCD, spectrum analyzer) plus a skin system. Spec:
+@context/features/phase-15-winamp-media-player-spec.md
+
+Branch: `feature/winamp-media-player`.
+
+Sub-features (build one at a time):
+
+- **A — Classic 2.x chrome (default skin)** ← in progress. Re-skin the shell;
+  keep all audio/analyser logic.
+- **B — Skin system** (`data/skins.ts` + switcher, persisted).
+- **C — Docked Playlist + 10-band EQ panels.**
+- **D — Projects section:** add a project card for the new player (motif +
+  screenshot + localized writeup), superseding the "Aero FM" branding.
+
+---
+
 **Maintenance mode — feature roadmap complete.** RicardoOS and the post-launch
 enhancements are shipped. The active track is now live QA, real-content polish,
 and any small follow-up fixes discovered on the deployed site.
