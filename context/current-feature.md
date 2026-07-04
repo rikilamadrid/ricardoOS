@@ -1,18 +1,36 @@
 # Current Feature
 
-<!-- No active feature. Populate when the next one is scoped. -->
+## Fix: Aero Amp mobile touch targets (EQ sliders, volume slider, minimize/close)
 
 ## Status
 
-<!-- Not Started -->
+In Progress
 
 ## Goals
 
-<!-- Populate when the next feature is scoped. -->
+On iPhone, the Aero Amp (Winamp) player is hard to operate:
+
+- The EQ band sliders (10 bands + preamp) and the volume slider are small and
+  imprecise to grab with a finger.
+- The window's minimize (`_`) and close (`×`) buttons are tiny (13×12px).
+
+Root cause: these controls are sized for mouse precision (authentic tiny
+Winamp look) and never got a touch-friendly variant; the sliders also have no
+`touch-action`, so a touch-drag can fight the browser's default scroll
+gesture.
+
+Fix, touch-only (`@media (pointer: coarse)`) so the desktop retro pixel look
+is untouched:
+
+- Add `touch-action: none` to the seek, volume, and EQ band sliders so touch
+  drags don't get interpreted as page/window scroll.
+- Enlarge the slider thumbs/tracks (seek, volume, EQ bands) for touch.
+- Enlarge the invisible tap area around the minimize/close buttons via a
+  pseudo-element, without changing their visual size.
 
 ## Notes
 
-<!-- Populate when the next feature is scoped. -->
+CSS-only change in `src/app/globals.css`; no component/logic changes expected.
 
 ---
 

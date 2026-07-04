@@ -33,7 +33,7 @@ Locales live in `types.ts`: `LOCALES`, `Locale`, `DEFAULT_LOCALE`,
 | `about.ts`      | "About Me" window copy ("Hi, I'm Ricardo 👋")                       |
 | `projects.ts`   | "Projects" window (placeholders for now)                            |
 | `playground.ts` | "Playground" experiments                                            |
-| `music.ts`      | "Aero FM" mini player                                               |
+| `music.ts`      | "Aero Amp" mini player                                              |
 | `terminal.ts`   | Fake-shell command registry                                         |
 | `os.ts`         | App registry, dock, desktop icons, menu bar, status bar, wallpaper  |
 | `index.ts`      | Barrel — import everything from `@/data`                            |

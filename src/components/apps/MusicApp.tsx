@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { aeroFm, skins, t } from "@/data";
+import { aeroAmp, skins, t } from "@/data";
 import { useLocale } from "@/components/os/locale-store";
 import { useSkinStore } from "@/lib/skin-store";
 
@@ -26,7 +26,7 @@ const fmt = (s: number) => {
 };
 
 /**
- * Aero FM — reskinned as a **classic Winamp 2.x** media player: dark brushed
+ * Aero Amp — reskinned as a **classic Winamp 2.x** media player: dark brushed
  * metal, a green segmented LCD, a live spectrum analyzer, beveled transport
  * buttons, and a black-on-green playlist. It streams real audio files from
  * `public/audio/` (see `data/music.ts`) and never autoplays: sound starts on a
@@ -38,7 +38,7 @@ export function MusicApp() {
   const { locale } = useLocale();
   const skin = useSkinStore((s) => s.skin);
   const setSkin = useSkinStore((s) => s.setSkin);
-  const tracks = aeroFm.tracks;
+  const tracks = aeroAmp.tracks;
 
   const [index, setIndex] = useState(0);
   const [playing, setPlaying] = useState(false);
@@ -254,7 +254,7 @@ export function MusicApp() {
       {/* Titlebar wordmark — doubles as the window's drag handle. */}
       <div className="os-wa-title" data-drag-handle aria-hidden="true">
         <span className="os-wa-grip" />
-        <span className="os-wa-word">Aero FM</span>
+        <span className="os-wa-word">Aero Amp</span>
         <span className="os-wa-grip" />
       </div>
 
@@ -501,7 +501,7 @@ export function MusicApp() {
       <p className="os-wa-note">
         {unavailable
           ? "Track unavailable — add its MP3 to public/audio/ (see README)."
-          : `${aeroFm.station} · ${t(aeroFm.genre, locale)} — press play. Never autoplays.`}
+          : `${aeroAmp.station} · ${t(aeroAmp.genre, locale)} — press play. Never autoplays.`}
       </p>
     </div>
   );

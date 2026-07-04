@@ -1,7 +1,7 @@
 import type { Localized } from "./types";
 
 /**
- * "Aero FM" — a Winamp-flavored mini player that streams real audio files from
+ * "Aero Amp" — a Winamp-flavored mini player that streams real audio files from
  * `public/audio/`. Drop an MP3 named `<id>.mp3` for each track below. The
  * player reads duration from the file and drives a live equalizer from the
  * audio itself; it never autoplays (sound starts on a user gesture).
@@ -24,8 +24,8 @@ export interface Track {
 
 const audio = (id: string) => `/audio/${id}.mp3`;
 
-export const aeroFm: MusicStation = {
-  station: "Aero FM",
+export const aeroAmp: MusicStation = {
+  station: "Aero Amp",
   genre: { en: "original", es: "original", fr: "original" },
   tracks: [
     {

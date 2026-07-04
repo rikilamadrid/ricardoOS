@@ -128,7 +128,7 @@ export const apps: AppDefinition[] = [
   },
   {
     id: "music",
-    title: { en: "Aero FM", es: "Aero FM", fr: "Aero FM" },
+    title: { en: "Aero Amp", es: "Aero Amp", fr: "Aero Amp" },
     icon: "🎵",
     tile: "pink",
     kind: "music",

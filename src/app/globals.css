@@ -1491,7 +1491,7 @@
     caret-color: #7ed957;
   }
 
-  /* ── Aero FM (Winamp 2.x player) ───────────────────────────────
+  /* ── Aero Amp (Winamp 2.x player) ──────────────────────────────
      A deliberate retro break from the OS glass. The chrome is fully
      token-driven (`--wa-*`); the base `.os-wa` block below holds the
      Classic skin (dark brushed metal + green LCD) as defaults, and each
@@ -1562,6 +1562,7 @@
     gap: 2px;
   }
   .os-wa-winbtn {
+    position: relative;
     width: 13px;
     height: 12px;
     display: flex;
@@ -1577,6 +1578,16 @@
   }
   .os-wa-winbtn:hover { filter: brightness(1.12); }
   .os-wa-winbtn:active { filter: brightness(0.9); }
+  /* Invisible tap-area extension — the pixel-perfect 13×12 button stays as
+     drawn, but touch devices get a real hit target around it. */
+  @media (pointer: coarse) {
+    .os-wa-winctl { gap: 14px; }
+    .os-wa-winbtn::before {
+      content: "";
+      position: absolute;
+      inset: -14px -7px;
+    }
+  }
 
   /* Titlebar wordmark — also the drag handle for the bare window. */
   .os-wa-title {
@@ -1710,6 +1721,7 @@
     background: var(--wa-recess);
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
     cursor: pointer;
+    touch-action: none;
   }
   .os-wa-seek { width: 100%; }
   .os-wa-seek::-webkit-slider-thumb,
@@ -1733,6 +1745,24 @@
     background: linear-gradient(180deg, #e2e8ee, #9aa6b1 50%, #6c7883);
     border: 1px solid #2a3037;
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
+  }
+  /* Touch devices get a thicker track + bigger thumb — mouse precision isn't
+     available, so the authentic tiny Winamp sizing is unusable with a finger. */
+  @media (pointer: coarse) {
+    .os-wa-seek,
+    .os-wa-slider input {
+      height: 18px;
+    }
+    .os-wa-seek::-webkit-slider-thumb,
+    .os-wa-slider input::-webkit-slider-thumb {
+      width: 22px;
+      height: 26px;
+    }
+    .os-wa-seek::-moz-range-thumb,
+    .os-wa-slider input::-moz-range-thumb {
+      width: 22px;
+      height: 26px;
+    }
   }
   .os-wa-sliders {
     display: flex;
@@ -1874,12 +1904,16 @@
     flex: 1;
     justify-content: space-between;
     gap: 4px;
+    overflow-x: auto;
+    scrollbar-width: none;
   }
+  .os-wa-eq-bands::-webkit-scrollbar { display: none; }
   .os-wa-eq-band {
     display: flex;
     flex-direction: column;
     align-items: center;
     gap: 4px;
+    flex-shrink: 0;
   }
   .os-wa-eq-pre {
     padding-right: 8px;
@@ -1896,6 +1930,7 @@
     background: var(--wa-recess);
     box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
     cursor: pointer;
+    touch-action: none;
   }
   .os-wa-eq-hz {
     font-size: 8px;
@@ -1909,6 +1944,23 @@
     padding: 0 8px;
     font-size: 9px;
     flex-shrink: 0;
+  }
+  /* Touch devices: widen the fader track/thumb and give bands breathing room —
+     the row scrolls horizontally (see .os-wa-eq-bands) if it no longer fits. */
+  @media (pointer: coarse) {
+    .os-wa-eq-bands { gap: 10px; }
+    .os-wa-eq-band input[type="range"] {
+      width: 14px;
+      height: 64px;
+    }
+    .os-wa-eq-band input::-webkit-slider-thumb {
+      width: 22px;
+      height: 20px;
+    }
+    .os-wa-eq-band input::-moz-range-thumb {
+      width: 22px;
+      height: 20px;
+    }
   }
 
   /* ── Skins ─────────────────────────────────────────────────────

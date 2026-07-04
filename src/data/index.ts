@@ -27,7 +27,7 @@ export type { Project, ProjectsContent } from "./projects";
 export type { AboutContent } from "./about";
 export { playground } from "./playground";
 export type { PlaygroundContent, Experiment } from "./playground";
-export { aeroFm } from "./music";
+export { aeroAmp } from "./music";
 export type { MusicStation, Track } from "./music";
 export { skins, DEFAULT_SKIN } from "./skins";
 export type { Skin, SkinId } from "./skins";
