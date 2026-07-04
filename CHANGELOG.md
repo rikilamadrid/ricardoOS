@@ -8,6 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- "Aero Amp" project card in the Projects app — a write-up of the Winamp-style
+  media player, with a detail page at `/projects/aero-amp`, superseding the old
+  "Aero FM" branding.
 - Winamp player skins: switch the media player between Classic (green LCD),
   Frutiger Aero (glossy blue), and Amber CRT looks from a labeled SKIN row of
   swatch tiles. The choice is remembered between visits.
@@ -17,6 +20,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   skin's colors.
 
 ### Changed
+- Replaced the Winamp player's placeholder vaporwave tracks with Ricardo's own
+  music, released as RKY — eight original tracks now stream from the player's
+  playlist.
 - Reskinned the Aero FM music app as a classic Winamp 2.x-style media player:
   dark brushed-metal chrome, a green segmented LCD with a scrolling title
   marquee and live spectrum analyzer, beveled transport buttons, and a

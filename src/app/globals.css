@@ -850,14 +850,14 @@
     inset: 0;
     z-index: 1;
   }
-  /* War-room neon grid + a pink glow rising from the base. */
+  /* War-room neon grid + a brass glow rising from the base. */
   .os-thumb[data-motif="neon-grid"]::before,
   .content-index-thumb[data-motif="neon-grid"]::before,
   .content-hero[data-motif="neon-grid"]::before {
     background:
       linear-gradient(rgba(255, 255, 255, 0.14) 1px, transparent 1px) 0 0 / 100% 15px,
       linear-gradient(90deg, rgba(255, 255, 255, 0.14) 1px, transparent 1px) 0 0 / 15px 100%,
-      radial-gradient(90% 70% at 50% 125%, rgba(255, 45, 120, 0.5), transparent 70%);
+      radial-gradient(90% 70% at 50% 125%, rgba(217, 154, 63, 0.55), transparent 70%);
   }
   /* Holographic card shimmer — soft diagonal sheen. */
   .os-thumb[data-motif="holo"]::before,
@@ -879,6 +879,17 @@
       radial-gradient(circle at 63% 28%, rgba(255, 255, 255, 0.42) 0 6px, transparent 7px),
       radial-gradient(circle at 84% 60%, rgba(255, 255, 255, 0.45) 0 3px, transparent 4px),
       radial-gradient(circle at 42% 44%, rgba(255, 255, 255, 0.32) 0 5px, transparent 6px);
+  }
+  /* Aero Amp — horizontal LCD scanlines, like the player's own display panel
+     rather than the war-room's crosshatch grid. */
+  .os-thumb[data-motif="led-green"]::before,
+  .content-index-thumb[data-motif="led-green"]::before,
+  .content-hero[data-motif="led-green"]::before {
+    background: repeating-linear-gradient(
+      0deg,
+      rgba(6, 17, 11, 0.32) 0 2px,
+      transparent 2px 4px
+    );
   }
 
   /* ── Optional screenshot layer (z-index 2), over the motif ──────────────
@@ -928,19 +939,19 @@
      only the frame + title colour lean toward the project. Colorblind mode
      (below) neutralises these back to the safe palette. */
 
-  /* AI Strategy Table — a hint of the war-room's neon-pink edge + brass title. */
+  /* AI Strategy Table — a brass war-room edge + brass title. */
   .os-card[data-motif="neon-grid"] {
-    border-color: rgba(255, 45, 120, 0.5);
+    border-color: rgba(217, 154, 63, 0.55);
     box-shadow:
       0 8px 20px rgba(20, 70, 130, 0.16),
-      0 0 0 1px rgba(255, 45, 120, 0.28),
-      0 0 16px -3px rgba(255, 45, 120, 0.5);
+      0 0 0 1px rgba(217, 154, 63, 0.32),
+      0 0 16px -3px rgba(217, 154, 63, 0.55);
   }
   .os-card[data-motif="neon-grid"]:hover {
     box-shadow:
       0 18px 34px rgba(15, 60, 120, 0.28),
-      0 0 0 1px rgba(255, 45, 120, 0.6),
-      0 0 26px -1px rgba(255, 45, 120, 0.68);
+      0 0 0 1px rgba(217, 154, 63, 0.65),
+      0 0 26px -1px rgba(217, 154, 63, 0.75);
   }
   .os-card[data-motif="neon-grid"] .os-card-name {
     background: linear-gradient(180deg, #f6d488, #d99a3f);
@@ -949,20 +960,40 @@
     color: transparent;
   }
 
-  /* PokéPal — the card's stark, chunky gold frame + red title. */
+  /* PokéPal — a stark, chunky ink-outlined frame + hard red offset shadow
+     (neobrutalist nod: flat shadow, no blur) + red title. */
   .os-card[data-motif="holo"] {
-    border: 3px solid #edb63f;
-    box-shadow:
-      0 8px 18px rgba(120, 82, 10, 0.22),
-      0 2px 0 0 rgba(140, 96, 12, 0.28);
+    border: 3px solid #1a1410;
+    box-shadow: 5px 5px 0 0 #c62828;
   }
   .os-card[data-motif="holo"]:hover {
-    box-shadow:
-      0 18px 30px rgba(120, 82, 10, 0.3),
-      0 2px 0 0 rgba(140, 96, 12, 0.28);
+    box-shadow: 7px 7px 0 0 #c62828;
   }
   .os-card[data-motif="holo"] .os-card-name { color: #c62828; }
   .dark .os-card[data-motif="holo"] .os-card-name { color: #ff6b6b; }
+
+  /* Aero Amp — lit from within like the real LCD panel: an inset glow instead
+     of an outer aura, so it doesn't read as a recolor of the war-room frame. */
+  .os-card[data-motif="led-green"] {
+    border: 1px solid rgba(31, 227, 125, 0.55);
+    box-shadow:
+      0 8px 20px rgba(20, 70, 130, 0.16),
+      inset 0 0 0 1px rgba(31, 227, 125, 0.35),
+      inset 0 0 18px -4px rgba(31, 227, 125, 0.7);
+  }
+  .os-card[data-motif="led-green"]:hover {
+    box-shadow:
+      0 18px 34px rgba(15, 60, 120, 0.28),
+      inset 0 0 0 1px rgba(31, 227, 125, 0.65),
+      inset 0 0 26px -3px rgba(31, 227, 125, 0.9);
+  }
+  .os-card[data-motif="led-green"] .os-card-name {
+    color: #189a5c;
+  }
+  .dark .os-card[data-motif="led-green"] .os-card-name {
+    color: #1fe37d;
+    text-shadow: 0 0 6px rgba(31, 227, 125, 0.65);
+  }
 
   /* Colorblind mode wins: restore the Okabe-Ito-safe frame + default title. */
   .cb .os-card[data-motif] {
@@ -1143,12 +1174,12 @@
   }
 
   /* ── Detail page carries the same per-project motif as the card ─────────── */
-  /* AI Strategy Table — neon-pink war-room glow on the hero + brass title. */
+  /* AI Strategy Table — brass war-room glow on the hero + brass title. */
   .content-article[data-motif="neon-grid"] .content-hero {
     box-shadow:
       var(--os-shadow),
-      0 0 0 1px rgba(255, 45, 120, 0.45),
-      0 0 34px -6px rgba(255, 45, 120, 0.55);
+      0 0 0 1px rgba(217, 154, 63, 0.5),
+      0 0 34px -6px rgba(217, 154, 63, 0.6);
   }
   .content-article[data-motif="neon-grid"] .content-title {
     background: linear-gradient(180deg, #f6d488, #d99a3f);
@@ -1157,12 +1188,27 @@
     color: transparent;
     width: fit-content;
   }
-  /* PokéPal — the stark, chunky gold frame on the hero + gold title. */
+  /* PokéPal — a stark, chunky ink-outlined frame + hard red offset shadow on
+     the hero + red title. */
   .content-article[data-motif="holo"] .content-hero {
-    border: 4px solid #edb63f;
+    border: 4px solid #1a1410;
+    box-shadow: 6px 6px 0 0 #c62828;
   }
   .content-article[data-motif="holo"] .content-title { color: #c62828; }
   .dark .content-article[data-motif="holo"] .content-title { color: #ff6b6b; }
+
+  /* Aero Amp — the hero panel lit from within, like the real LCD, + glowing title. */
+  .content-article[data-motif="led-green"] .content-hero {
+    box-shadow:
+      var(--os-shadow),
+      inset 0 0 0 1px rgba(31, 227, 125, 0.5),
+      inset 0 0 40px -8px rgba(31, 227, 125, 0.75);
+  }
+  .content-article[data-motif="led-green"] .content-title { color: #189a5c; }
+  .dark .content-article[data-motif="led-green"] .content-title {
+    color: #1fe37d;
+    text-shadow: 0 0 8px rgba(31, 227, 125, 0.6);
+  }
   .content-prose {
     margin-top: 22px;
     display: flex;
@@ -1205,17 +1251,17 @@
     box-shadow: 0 16px 30px rgba(15, 60, 120, 0.22);
   }
   .content-index-row[data-motif="neon-grid"] {
-    border-color: rgba(255, 45, 120, 0.42);
+    border-color: rgba(217, 154, 63, 0.48);
     box-shadow:
       0 8px 20px rgba(20, 70, 130, 0.1),
-      0 0 0 1px rgba(255, 45, 120, 0.22),
-      0 0 16px -5px rgba(255, 45, 120, 0.55);
+      0 0 0 1px rgba(217, 154, 63, 0.28),
+      0 0 16px -5px rgba(217, 154, 63, 0.55);
   }
   .content-index-row[data-motif="neon-grid"]:hover {
     box-shadow:
       0 16px 30px rgba(15, 60, 120, 0.22),
-      0 0 0 1px rgba(255, 45, 120, 0.55),
-      0 0 24px -3px rgba(255, 45, 120, 0.68);
+      0 0 0 1px rgba(217, 154, 63, 0.6),
+      0 0 24px -3px rgba(217, 154, 63, 0.7);
   }
   .content-index-row[data-motif="neon-grid"] .content-index-name {
     background: linear-gradient(180deg, #f6d488, #d99a3f);
@@ -1224,18 +1270,33 @@
     color: transparent;
   }
   .content-index-row[data-motif="holo"] {
-    border: 3px solid #edb63f;
-    box-shadow:
-      0 8px 18px rgba(120, 82, 10, 0.18),
-      0 2px 0 0 rgba(140, 96, 12, 0.22);
+    border: 3px solid #1a1410;
+    box-shadow: 5px 5px 0 0 #c62828;
   }
   .content-index-row[data-motif="holo"]:hover {
-    box-shadow:
-      0 16px 30px rgba(120, 82, 10, 0.26),
-      0 2px 0 0 rgba(140, 96, 12, 0.26);
+    box-shadow: 7px 7px 0 0 #c62828;
   }
   .content-index-row[data-motif="holo"] .content-index-name { color: #c62828; }
   .dark .content-index-row[data-motif="holo"] .content-index-name { color: #ff6b6b; }
+
+  .content-index-row[data-motif="led-green"] {
+    border: 1px solid rgba(31, 227, 125, 0.45);
+    box-shadow:
+      0 8px 20px rgba(20, 70, 130, 0.1),
+      inset 0 0 0 1px rgba(31, 227, 125, 0.3),
+      inset 0 0 14px -4px rgba(31, 227, 125, 0.6);
+  }
+  .content-index-row[data-motif="led-green"]:hover {
+    box-shadow:
+      0 16px 30px rgba(15, 60, 120, 0.22),
+      inset 0 0 0 1px rgba(31, 227, 125, 0.6),
+      inset 0 0 20px -3px rgba(31, 227, 125, 0.8);
+  }
+  .content-index-row[data-motif="led-green"] .content-index-name { color: #189a5c; }
+  .dark .content-index-row[data-motif="led-green"] .content-index-name {
+    color: #1fe37d;
+    text-shadow: 0 0 6px rgba(31, 227, 125, 0.6);
+  }
   .cb .content-index-row[data-motif] {
     border: 1px solid rgba(0, 114, 178, 0.34);
     box-shadow: 0 8px 20px rgba(0, 70, 115, 0.16);

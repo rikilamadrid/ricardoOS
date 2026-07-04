@@ -2,10 +2,9 @@ import type { Localized } from "./types";
 
 /**
  * "Aero FM" — a Winamp-flavored mini player that streams real audio files from
- * `public/audio/`. Drop an MP3 named `<id>.mp3` for each track below (e.g.
- * `public/audio/endless-summer-03.mp3`). Use royalty-free / licensed vaporwave
- * only. The player reads duration from the file and drives a live equalizer
- * from the audio itself; it never autoplays (sound starts on a user gesture).
+ * `public/audio/`. Drop an MP3 named `<id>.mp3` for each track below. The
+ * player reads duration from the file and drives a live equalizer from the
+ * audio itself; it never autoplays (sound starts on a user gesture).
  */
 export interface MusicStation {
   station: string;
@@ -27,67 +26,103 @@ const audio = (id: string) => `/audio/${id}.mp3`;
 
 export const aeroFm: MusicStation = {
   station: "Aero FM",
-  genre: { en: "vaporwave", es: "vaporwave", fr: "vaporwave" },
+  genre: { en: "original", es: "original", fr: "original" },
   tracks: [
     {
-      id: "endless-summer-03",
-      title: "Endless Summer '03",
-      artist: "ｓｋｙ ｄｉｓｃ",
+      id: "break",
+      title: "break",
+      artist: "RKY",
       caption: {
-        en: "pool reflections",
-        es: "reflejos de piscina",
-        fr: "reflets de piscine",
+        en: "a beat breaks open",
+        es: "un ritmo se abre",
+        fr: "un rythme s'ouvre",
       },
-      cover: "🌴",
-      src: audio("endless-summer-03"),
+      cover: "🎧",
+      src: audio("break"),
     },
     {
-      id: "mall-hours-2am",
-      title: "Mall Hours, 2 AM",
-      artist: "ＤＵＴＹ ＦＲＥＥ",
+      id: "el-tiempo-pasa",
+      title: "el tiempo pasa",
+      artist: "RKY",
       caption: {
-        en: "empty atrium hum",
-        es: "zumbido del atrio vacío",
-        fr: "bourdon de l'atrium vide",
+        en: "time keeps moving",
+        es: "el tiempo sigue",
+        fr: "le temps avance",
       },
-      cover: "🛍️",
-      src: audio("mall-hours-2am"),
+      cover: "⏳",
+      src: audio("el-tiempo-pasa"),
     },
     {
-      id: "poolside-telephone",
-      title: "Poolside Telephone",
-      artist: "ＡＱＵＡ７７",
+      id: "floating",
+      title: "floating",
+      artist: "RKY",
       caption: {
-        en: "warm rotary tone",
-        es: "tono cálido de marcado",
-        fr: "tonalité chaude",
+        en: "weightless and slow",
+        es: "ingrávido y lento",
+        fr: "en apesanteur, lentement",
       },
-      cover: "☎️",
-      src: audio("poolside-telephone"),
+      cover: "🪶",
+      src: audio("floating"),
     },
     {
-      id: "aero-glass-dreams",
-      title: "Aero Glass Dreams",
-      artist: "ｆｒｕｔｉｇｅｒ",
+      id: "primera",
+      title: "primera",
+      artist: "RKY",
       caption: {
-        en: "bubbles drifting up",
-        es: "burbujas ascendentes",
-        fr: "bulles qui montent",
+        en: "the first one",
+        es: "la primera",
+        fr: "la première",
       },
-      cover: "🫧",
-      src: audio("aero-glass-dreams"),
+      cover: "🌱",
+      src: audio("primera"),
     },
     {
-      id: "vhs-memory-foam",
-      title: "VHS Memory Foam",
-      artist: "ＮＩＧＨＴ ＴＡＰＥ",
+      id: "sin-sueno",
+      title: "sin sueño",
+      artist: "RKY",
       caption: {
-        en: "tape wow & flutter",
-        es: "fluctuación de cinta",
-        fr: "pleurage de bande",
+        en: "wide awake at 3am",
+        es: "despierto a las 3am",
+        fr: "éveillé à 3h du matin",
       },
-      cover: "📼",
-      src: audio("vhs-memory-foam"),
+      cover: "🌙",
+      src: audio("sin-sueno"),
+    },
+    {
+      id: "trance",
+      title: "trance",
+      artist: "RKY",
+      caption: {
+        en: "locked into the loop",
+        es: "atrapado en el loop",
+        fr: "pris dans la boucle",
+      },
+      cover: "🌀",
+      src: audio("trance"),
+    },
+    {
+      id: "try-it",
+      title: "Try it",
+      artist: "RKY",
+      caption: {
+        en: "just try it",
+        es: "solo inténtalo",
+        fr: "essaie, juste",
+      },
+      cover: "✨",
+      src: audio("try-it"),
+    },
+    {
+      id: "waves",
+      title: "waves",
+      artist: "RKY",
+      caption: {
+        en: "rolling in, rolling out",
+        es: "van y vienen",
+        fr: "elles vont et viennent",
+      },
+      cover: "🌊",
+      src: audio("waves"),
     },
   ],
 };
