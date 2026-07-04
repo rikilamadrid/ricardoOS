@@ -35,7 +35,7 @@ export interface Project {
    * project's own vibe, framed by the Aero glass. Falls back to the plain
    * gradient when omitted.
    */
-  motif?: "neon-grid" | "holo" | "bubbles";
+  motif?: "neon-grid" | "holo" | "bubbles" | "led-green";
   /**
    * Optional screenshot shown in the card thumbnail (path under `/public`,
    * e.g. `/projects/ai-strategy-table.png`). Layers over the motif, so a
@@ -124,6 +124,36 @@ export const projects: ProjectsContent = {
       },
       motif: "neon-grid",
       screenshot: "/projects/ai-strategy-table.png",
+    },
+    {
+      id: "aero-amp",
+      title: { en: "Aero Amp", es: "Aero Amp", fr: "Aero Amp" },
+      blurb: {
+        en: "A classic Winamp, rebuilt for the browser. Brushed-metal chrome, a green segmented LCD with a scrolling marquee and live spectrum analyzer, a real 10-band equalizer, a dockable playlist, and switchable skins, all streaming real audio through the Web Audio API.",
+        es: "Un Winamp clásico, reconstruido para el navegador. Chasis de metal cepillado, un LCD verde segmentado con marquesina y analizador de espectro en vivo, un ecualizador real de 10 bandas, una lista de reproducción acoplable y skins intercambiables, todo transmitiendo audio real por la Web Audio API.",
+        fr: "Un Winamp classique, reconstruit pour le navigateur. Châssis en métal brossé, un LCD vert segmenté avec marquee défilant et analyseur de spectre en direct, un vrai égaliseur 10 bandes, une playlist ancrable et des skins interchangeables, le tout diffusant du vrai audio via la Web Audio API.",
+      },
+      status: "shipped",
+      tags: ["Web Audio API", "React", "TypeScript"],
+      icon: "🎧",
+      from: "#3b424c",
+      to: "#12b866",
+      links: [
+        { label: { en: "Open the player", es: "Abrir el reproductor", fr: "Ouvrir le lecteur" }, href: "/?app=music" },
+      ],
+      year: 2026,
+      tagline: {
+        en: "A classic Winamp, rebuilt in the browser.",
+        es: "Un Winamp clásico, reconstruido en el navegador.",
+        fr: "Un Winamp classique, reconstruit dans le navigateur.",
+      },
+      writeup: {
+        en: "Aero Amp is the media player living inside RicardoOS, and it's an unapologetic love letter to Winamp 2.x. Instead of the soft, glassy Frutiger-Aero panel the rest of the OS wears, it's dark brushed metal, a green segmented LCD, and beveled transport buttons. It's a deliberate retro break that still feels native to the desktop.\n\nUnderneath the nostalgia it's a real player. It streams actual audio files through an HTML audio element wired into the Web Audio API, so the spectrum analyzer dancing across the LCD is reading the live signal, not faking it. The 10-band graphic equalizer is a genuine chain of biquad filters sitting between the source and the analyser, the position and volume sliders do what they say, and the playlist docks and undocks like the real thing.\n\nLike Winamp, it wears skins. A small data-driven registry powers Classic, a Frutiger-Aero \"egg\" alternate, and an Amber CRT look, each just a set of CSS tokens, with your choice persisted across visits. The whole thing floats as its own chromeless window you can drag by the titlebar and resize from the corner grip, because a music player should never be locked to one spot on the desktop.",
+        es: "Aero Amp es el reproductor multimedia que vive dentro de RicardoOS, y es una carta de amor sin disculpas a Winamp 2.x. En lugar del panel suave y cristalino Frutiger-Aero que lleva el resto del sistema, es metal cepillado oscuro, un LCD verde segmentado y botones de transporte biselados. Es una ruptura retro deliberada que aún se siente nativa del escritorio.\n\nBajo la nostalgia es un reproductor de verdad. Transmite archivos de audio reales a través de un elemento audio conectado a la Web Audio API, así que el analizador de espectro que baila en el LCD lee la señal en vivo, no la finge. El ecualizador gráfico de 10 bandas es una cadena real de filtros biquad entre la fuente y el analizador, los deslizadores de posición y volumen hacen lo que dicen, y la lista de reproducción se acopla y desacopla como la de verdad.\n\nComo Winamp, lleva skins. Un pequeño registro basado en datos alimenta Classic, una alternativa \"egg\" Frutiger-Aero y un aspecto Amber CRT, cada uno solo un conjunto de tokens CSS, con tu elección guardada entre visitas. Todo flota como su propia ventana sin marco que puedes arrastrar por la barra de título y redimensionar desde la esquina, porque un reproductor de música nunca debería quedar fijo en un solo sitio del escritorio.",
+        fr: "Aero Amp est le lecteur multimédia qui vit dans RicardoOS, et c'est une lettre d'amour assumée à Winamp 2.x. Au lieu du panneau doux et vitré Frutiger-Aero que porte le reste de l'OS, c'est du métal brossé sombre, un LCD vert segmenté et des boutons de transport biseautés. C'est une rupture rétro délibérée qui reste native au bureau.\n\nSous la nostalgie, c'est un vrai lecteur. Il diffuse de vrais fichiers audio via un élément audio branché sur la Web Audio API, donc l'analyseur de spectre qui danse sur le LCD lit le signal en direct, il ne le simule pas. L'égaliseur graphique 10 bandes est une véritable chaîne de filtres biquad placée entre la source et l'analyseur, les curseurs de position et de volume font ce qu'ils annoncent, et la playlist s'ancre et se désancre comme la vraie.\n\nComme Winamp, il porte des skins. Un petit registre piloté par les données alimente Classic, une alternative \"egg\" Frutiger-Aero et un look Amber CRT, chacun n'étant qu'un jeu de tokens CSS, ton choix étant conservé d'une visite à l'autre. Le tout flotte comme sa propre fenêtre sans cadre que tu peux déplacer par la barre de titre et redimensionner depuis le coin, parce qu'un lecteur de musique ne devrait jamais être bloqué à un seul endroit du bureau.",
+      },
+      motif: "led-green",
+      screenshot: "/projects/aero-amp.png",
     },
     {
       id: "ricardo-os",
