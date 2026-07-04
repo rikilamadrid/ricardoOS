@@ -5,13 +5,15 @@
 green LCD, spectrum analyzer) plus a skin system. Spec:
 @context/features/phase-15-winamp-media-player-spec.md
 
-Branch: `feature/winamp-media-player`.
+Branch: branch per sub-feature off `main` as each is scoped.
 
 Sub-features (build one at a time):
 
-- **A — Classic 2.x chrome (default skin)** ← in progress. Re-skin the shell;
-  keep all audio/analyser logic.
-- **B — Skin system** (`data/skins.ts` + switcher, persisted).
+- **A — Classic 2.x chrome (default skin)** ✅ **Merged** (`86e69f0`). Re-skinned
+  the shell as a classic Winamp 2.x player and floated it as a chromeless window
+  (drags from the WINAMP titlebar, resizes from the corner grip, own
+  minimize/close controls). All audio/analyser logic preserved.
+- **B — Skin system** (`data/skins.ts` + switcher, persisted). ← next.
 - **C — Docked Playlist + 10-band EQ panels.**
 - **D — Projects section:** add a project card for the new player (motif +
   screenshot + localized writeup), superseding the "Aero FM" branding.
@@ -53,6 +55,13 @@ Only maintenance, verification, and content cleanup remain.
 ---
 
 ## Recently landed
+
+**Phase 15A — Winamp reskin + chromeless floating player.** ✅ Merged to `main`
+(`86e69f0`). The media player now renders outside the aqua-glass frame as its own
+draggable, resizable Winamp panel. Sub-features B (skins), C (playlist/EQ), and D
+(project card) remain.
+
+---
 
 **Semantic versioning + changelog workflow.** Added `CHANGELOG.md`, version bump
 scripts in `package.json`, and repo guidance so releases follow SemVer and Keep a
