@@ -26,16 +26,34 @@ Sub-features (build one at a time):
 
 ## Status
 
-**Next up — Phase 15D.** Sub-features A–C are merged. Only the Projects-section
-card for the new Winamp player remains before Phase 15 lands.
+**In Progress — Phase 15D.** Sub-features A–C are merged. Building the
+Projects-section card for the new Winamp player ("Aero Amp") — the final slice
+before Phase 15 lands.
+
+Branch: `feature/phase-15d-aero-amp-project`
 
 ## Goals
 
-<!-- Populate when Phase 15D is scoped. -->
+- Add a new `aero-amp` project entry to `src/data/projects.ts`, following the
+  PokéPal / AI-Strategy pattern: localized `title` / `blurb` / `tagline` /
+  `writeup`, `tags`, `icon`, gradient `from`/`to`, `status`, `year`, `links`,
+  `motif`, and `screenshot`. This supersedes the "Aero FM" branding.
+  - Title: **Aero Amp** → `/projects/aero-amp`.
+  - Localized EN/ES/FR copy for every user-facing string (`Localized<T>`).
+  - Screenshot peek at `/public/projects/aero-amp.png` of the actual player.
+- Verify the card renders in the Projects window and the detail page
+  (`/projects/aero-amp`) builds and reads well.
+- `npm run build` passes; add a `## [Unreleased]` CHANGELOG entry.
 
 ## Notes
 
-<!-- Populate when Phase 15D is scoped. -->
+- Content-only slice — no component changes expected beyond data + a screenshot
+  asset. The card/detail rendering already supports `motif` + `screenshot`.
+- Screenshot must be a real capture of the Winamp/Aero-Amp player (default
+  Classic skin), placed at `public/projects/aero-amp.png` like the existing
+  `pokepal.png` / `ai-strategy-table.png` peeks.
+- No `links.demo`/GitHub — the player lives inside this site; a deep link like
+  `/?app=music` is the natural "open it" affordance if we want one.
 
 ---
 
