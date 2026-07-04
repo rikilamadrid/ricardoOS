@@ -1,59 +1,18 @@
 # Current Feature
 
-**Active: Phase 15 — Retro Winamp Media Player.** Replacing the soft Frutiger-Aero
-"Aero FM" glass panel with a classic Winamp 2.x-inspired player (dark metal chrome,
-green LCD, spectrum analyzer) plus a skin system. Spec:
-@context/features/phase-15-winamp-media-player-spec.md
-
-Branch: branch per sub-feature off `main` as each is scoped.
-
-Sub-features (build one at a time):
-
-- **A — Classic 2.x chrome (default skin)** ✅ **Merged** (`86e69f0`). Re-skinned
-  the shell as a classic Winamp 2.x player and floated it as a chromeless window
-  (drags from the WINAMP titlebar, resizes from the corner grip, own
-  minimize/close controls). All audio/analyser logic preserved.
-- **B — Skin system** ✅ **Merged** (`ff06c04`). `.os-wa` chrome colors are now
-  `--wa-*` CSS tokens; `data/skins.ts` registers Classic / Frutiger Aero /
-  Amber CRT, `lib/skin-store.ts` persists the choice, and a labeled `SKIN` row
-  of rectangular swatch tiles (above the playlist) selects the skin.
-- **C — Docked Playlist + 10-band EQ panels** ✅ **Merged** (`482d33f`).
-  Toggleable PL/EQ chips reveal a dockable playlist panel and a real preamp +
-  10-band graphic equalizer (biquad chain between source and analyser), both
-  skin-token driven.
-- **D — Projects section:** add a project card for the new player (motif +
-  screenshot + localized writeup), superseding the "Aero FM" branding.
+<!-- No active feature. Populate when the next one is scoped. -->
 
 ## Status
 
-**In Progress — Phase 15D.** Sub-features A–C are merged. Building the
-Projects-section card for the new Winamp player ("Aero Amp") — the final slice
-before Phase 15 lands.
-
-Branch: `feature/phase-15d-aero-amp-project`
+<!-- Not Started -->
 
 ## Goals
 
-- Add a new `aero-amp` project entry to `src/data/projects.ts`, following the
-  PokéPal / AI-Strategy pattern: localized `title` / `blurb` / `tagline` /
-  `writeup`, `tags`, `icon`, gradient `from`/`to`, `status`, `year`, `links`,
-  `motif`, and `screenshot`. This supersedes the "Aero FM" branding.
-  - Title: **Aero Amp** → `/projects/aero-amp`.
-  - Localized EN/ES/FR copy for every user-facing string (`Localized<T>`).
-  - Screenshot peek at `/public/projects/aero-amp.png` of the actual player.
-- Verify the card renders in the Projects window and the detail page
-  (`/projects/aero-amp`) builds and reads well.
-- `npm run build` passes; add a `## [Unreleased]` CHANGELOG entry.
+<!-- Populate when the next feature is scoped. -->
 
 ## Notes
 
-- Content-only slice — no component changes expected beyond data + a screenshot
-  asset. The card/detail rendering already supports `motif` + `screenshot`.
-- Screenshot must be a real capture of the Winamp/Aero-Amp player (default
-  Classic skin), placed at `public/projects/aero-amp.png` like the existing
-  `pokepal.png` / `ai-strategy-table.png` peeks.
-- No `links.demo`/GitHub — the player lives inside this site; a deep link like
-  `/?app=music` is the natural "open it" affordance if we want one.
+<!-- Populate when the next feature is scoped. -->
 
 ---
 
@@ -69,6 +28,15 @@ Resume after Phase 15 lands. Overview retained for reference:
 ---
 
 ## Recently landed
+
+**Phase 15D — Aero Amp project card + RKY playlist.** ✅ Merged to `main`
+(`969734d`; feature commits `7e4e99e`, `585ccd0`, `d47068f`). Adds the
+`aero-amp` project entry and `/projects/aero-amp` detail page, superseding the
+old "Aero FM" branding, and swaps the Winamp player's placeholder vaporwave
+tracks for eight of Ricardo's own tracks (released as RKY). **Phase 15 —
+Retro Winamp Media Player is now complete** (sub-features A–D all merged).
+
+---
 
 **Phase 15C — Docked Winamp playlist + 10-band EQ panels.** ✅ Merged to `main`
 (`482d33f`; feature commit `1f5a733`). The PL and EQ chips toggle a dockable
