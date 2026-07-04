@@ -37,10 +37,13 @@ export function Window({ win }: { win: WindowState }) {
   if (!app) return null;
   const { rect } = win;
 
-  const onTitlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
-    if ((e.target as HTMLElement).closest(".os-light")) return;
+  // Some apps (the Winamp media player) render as a bare, chromeless window:
+  // no aqua glass, no traffic-light titlebar — they bring their own chrome and
+  // drag from an element marked `data-drag-handle`.
+  const frameless = app.kind === "music";
+
+  const beginDrag = (e: ReactPointerEvent<HTMLElement>) => {
     if (win.maximized) return; // don't drag a maximized window
-    focus(win.id);
     drag.current = {
       pointerX: e.clientX,
       pointerY: e.clientY,
@@ -50,6 +53,19 @@ export function Window({ win }: { win: WindowState }) {
       height: rect.height,
     };
     e.currentTarget.setPointerCapture(e.pointerId);
+  };
+
+  const onTitlePointerDown = (e: ReactPointerEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest(".os-light")) return;
+    focus(win.id);
+    beginDrag(e);
+  };
+
+  // Frameless windows drag only from their own `data-drag-handle` element.
+  const onFramelessPointerDown = (e: ReactPointerEvent<HTMLElement>) => {
+    focus(win.id);
+    if (!(e.target as HTMLElement).closest("[data-drag-handle]")) return;
+    beginDrag(e);
   };
 
   const onTitlePointerMove = (e: ReactPointerEvent<HTMLDivElement>) => {
@@ -100,34 +116,78 @@ export function Window({ win }: { win: WindowState }) {
     window.setTimeout(() => setAnimatingRect(false), 220);
   };
 
+  const motionProps = {
+    initial: reduceMotion ? false : { opacity: 0, scale: 0.96, y: 14 },
+    animate: win.minimized
+      ? reduceMotion
+        ? { opacity: 0 }
+        : { opacity: 0, scale: 0.2, y: 260 }
+      : { opacity: 1, scale: 1, y: 0 },
+    exit: reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95, y: 10 },
+    transition: reduceMotion
+      ? { duration: 0.12 }
+      : { duration: 0.26, ease: [0.2, 1.2, 0.4, 1] as const },
+    style: {
+      left: rect.x,
+      top: rect.y,
+      width: rect.width,
+      height: rect.height,
+      zIndex: win.z,
+      transformOrigin: "center bottom" as const,
+      pointerEvents: (win.minimized ? "none" : "auto") as "none" | "auto",
+    },
+  };
+
+  if (frameless) {
+    return (
+      <motion.section
+        role="dialog"
+        aria-label={t(app.title, locale)}
+        onPointerDown={onFramelessPointerDown}
+        onPointerMove={onTitlePointerMove}
+        onPointerUp={endDrag}
+        {...motionProps}
+        className={cn(
+          "os-window os-window--bare fixed flex min-w-[275px] flex-col",
+          animatingRect && "transition-[left,top,width,height] duration-200 ease-out",
+        )}
+      >
+        <div className="os-wa-winctl">
+          <button
+            type="button"
+            aria-label="Minimize"
+            className="os-wa-winbtn"
+            onClick={() => minimize(win.id)}
+          >
+            <span aria-hidden="true">_</span>
+          </button>
+          <button
+            type="button"
+            aria-label="Close"
+            className="os-wa-winbtn"
+            onClick={() => closeApp(win.id)}
+          >
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        <WindowContent app={app} />
+        <div
+          onPointerDown={onGripPointerDown}
+          onPointerMove={onGripPointerMove}
+          onPointerUp={endDrag}
+          className="os-resize absolute bottom-0 right-0 h-6 w-6 cursor-nwse-resize touch-none"
+          aria-hidden="true"
+        />
+      </motion.section>
+    );
+  }
+
   return (
     <motion.section
       role="dialog"
       aria-label={t(app.title, locale)}
       onPointerDown={() => focus(win.id)}
-      initial={reduceMotion ? false : { opacity: 0, scale: 0.96, y: 14 }}
-      animate={
-        win.minimized
-          ? reduceMotion
-            ? { opacity: 0 }
-            : { opacity: 0, scale: 0.2, y: 260 }
-          : { opacity: 1, scale: 1, y: 0 }
-      }
-      exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.95, y: 10 }}
-      transition={
-        reduceMotion
-          ? { duration: 0.12 }
-          : { duration: 0.26, ease: [0.2, 1.2, 0.4, 1] }
-      }
-      style={{
-        left: rect.x,
-        top: rect.y,
-        width: rect.width,
-        height: rect.height,
-        zIndex: win.z,
-        transformOrigin: "center bottom",
-        pointerEvents: win.minimized ? "none" : "auto",
-      }}
+      {...motionProps}
       className={cn(
         "os-glass os-window fixed flex min-w-[280px] flex-col overflow-hidden rounded-os",
         animatingRect && "transition-[left,top,width,height] duration-200 ease-out",

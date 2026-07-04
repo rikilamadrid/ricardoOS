@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- Reskinned the Aero FM music app as a classic Winamp 2.x-style media player:
+  dark brushed-metal chrome, a green segmented LCD with a scrolling title
+  marquee and live spectrum analyzer, beveled transport buttons, and a
+  black-on-green playlist. Added balance, shuffle, and repeat controls. All
+  existing audio behavior (real streaming, never-autoplay) is preserved.
+- The Winamp player now floats as a chromeless window instead of sitting inside
+  the aqua glass frame: it drags from its own WINAMP titlebar, resizes from the
+  corner, and has its own minimize/close buttons — while still behaving as a
+  real window (focus, z-order, dock indicator).
+
 ## [1.1.0] - 2026-07-03
 
 ### Added

@@ -40,5 +40,8 @@ yarn-error.log*
 *.tsbuildinfo
 next-env.d.ts
 
-# deployment artifact (build output)
-ricardo-os-deploy*.zip
+# local working docs & agent config (kept out of the shared repo)
+/.claude/
+/CLAUDE.md
+/AGENTS.md
+/context/

@@ -1430,251 +1430,347 @@
     caret-color: #7ed957;
   }
 
-  /* ── Aero FM (Winamp-style player) ──────────────────────────── */
-  .os-amp {
+  /* ── Aero FM (classic Winamp 2.x skin) ─────────────────────────
+     A deliberate retro break from the OS glass: dark brushed metal,
+     a green segmented LCD, live spectrum analyzer, and a black-on-green
+     playlist. Always dark (ignores day/night — Winamp always was). */
+  .os-wa {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: 8px;
+    padding: 10px;
+    border-radius: 6px;
+    background: linear-gradient(180deg, #3b434d 0%, #2a3038 6%, #22272e 100%);
+    border: 1px solid #0c0f12;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), inset 0 0 0 1px rgba(255, 255, 255, 0.04);
+    color: #c7d0d8;
+    font-family: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
   }
 
-  /* LCD display — dark glossy blue with glowing readout */
-  .os-amp-lcd {
-    position: relative;
-    border-radius: 18px;
-    padding: 14px 16px 12px;
-    background: linear-gradient(180deg, #163a6b 0%, #0c2348 55%, #0a1c3c 100%);
-    border: 1px solid rgba(120, 170, 225, 0.55);
-    box-shadow:
-      inset 0 2px 10px rgba(0, 0, 0, 0.55),
-      inset 0 1px 0 rgba(150, 200, 255, 0.35),
-      0 14px 30px -16px rgba(10, 30, 70, 0.7);
-    overflow: hidden;
+  /* Bare (chromeless) window host: the Winamp panel fills the whole window so
+     dragging + resizing act on the player itself, not an aqua glass frame. */
+  .os-window--bare,
+  .dark .os-window--bare,
+  .cb .os-window--bare,
+  .dark.cb .os-window--bare {
+    background: transparent;
   }
-  .os-amp-lcd::before {
-    content: "";
+  .os-window--bare {
+    filter: drop-shadow(0 22px 50px rgba(13, 52, 99, 0.55));
+  }
+  .os-window--bare .os-wa {
+    flex: 1;
+    min-height: 0;
+    height: 100%;
+  }
+  /* The playlist grows to consume the resized height. */
+  .os-window--bare .os-wa-list {
+    flex: 1;
+    max-height: none;
+  }
+
+  /* Winamp-style minimize/close buttons, overlaid on the titlebar's right. */
+  .os-wa-winctl {
     position: absolute;
-    inset: 1px 1px 50%;
-    border-radius: 17px 17px 40% 40%;
-    background: linear-gradient(180deg, rgba(170, 210, 255, 0.28), rgba(170, 210, 255, 0));
-    pointer-events: none;
-  }
-  .os-amp-lcd-top {
-    position: relative;
+    top: 12px;
+    right: 12px;
+    z-index: 2;
     display: flex;
-    align-items: center;
-    gap: 12px;
+    gap: 2px;
   }
-  .os-amp-cover {
+  .os-wa-winbtn {
+    width: 13px;
+    height: 12px;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 46px;
-    height: 46px;
-    border-radius: 12px;
-    font-size: 26px;
-    background: linear-gradient(160deg, rgba(255, 255, 255, 0.22), rgba(120, 170, 225, 0.12));
-    border: 1px solid rgba(150, 200, 255, 0.35);
+    font-family: ui-monospace, Menlo, Consolas, monospace;
+    font-size: 11px;
+    line-height: 1;
+    color: #cfe2ff;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #5a9be0, #2c5f9e);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 1px 1px rgba(0, 0, 0, 0.4);
+  }
+  .os-wa-winbtn:hover { filter: brightness(1.12); }
+  .os-wa-winbtn:active { filter: brightness(0.9); }
+
+  /* Titlebar wordmark — also the drag handle for the bare window. */
+  .os-wa-title {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    height: 18px;
+    padding: 0 6px;
+    border-radius: 3px;
+    background: linear-gradient(180deg, #4b90d6, #2c5f9e 45%, #1d4b86);
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  }
+  .os-wa-title[data-drag-handle] {
+    cursor: grab;
+    touch-action: none;
+    user-select: none;
+  }
+  .os-wa-title[data-drag-handle]:active { cursor: grabbing; }
+  .os-wa-word {
+    font-size: 10px;
+    letter-spacing: 0.35em;
+    font-weight: 700;
+    color: #dfeeff;
+    text-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  }
+  .os-wa-grip {
+    flex: 1;
+    height: 6px;
+    border-radius: 2px;
+    opacity: 0.55;
+    background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.35) 0 1px, transparent 1px 3px);
+  }
+
+  /* Main display (LCD housing) */
+  .os-wa-display {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+    padding: 8px 10px;
+    border-radius: 4px;
+    background: #06110b;
+    border: 1px solid #000;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.85), inset 0 0 0 1px rgba(40, 120, 80, 0.15);
+  }
+  .os-wa-lcd-left {
+    display: flex;
+    align-items: center;
+    gap: 8px;
     flex-shrink: 0;
   }
-  .os-amp-marquee {
+  .os-wa-clock {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.04em;
+    line-height: 1;
+    font-variant-numeric: tabular-nums;
+    color: #1a7f4c;
+  }
+  .os-wa-clock.is-on {
+    color: #1fe37d;
+    text-shadow: 0 0 8px rgba(31, 227, 125, 0.6);
+  }
+  .os-wa-viz {
+    display: flex;
+    align-items: flex-end;
+    gap: 2px;
+    height: 28px;
+    width: 62px;
+  }
+  .os-wa-viz > span {
+    flex: 1;
+    height: 8%;
+    opacity: 0.4;
+    background: linear-gradient(180deg, #25f08a, #0f8f4d);
+    /* Heights are set live from the AnalyserNode (see MusicApp). */
+    transition: height 0.07s linear;
+  }
+  .os-wa-viz.is-on > span { opacity: 1; }
+  .os-wa-lcd-right {
     flex: 1;
     min-width: 0;
     display: flex;
     flex-direction: column;
-    gap: 2px;
+    justify-content: center;
+    gap: 6px;
   }
-  .os-amp-title {
-    font-family: var(--font-brand, inherit);
-    font-weight: 700;
-    font-size: 16px;
-    letter-spacing: 0.01em;
-    color: #8ff0c8;
-    text-shadow: 0 0 10px rgba(120, 240, 190, 0.55);
-    white-space: nowrap;
+  .os-wa-marquee {
     overflow: hidden;
-    text-overflow: ellipsis;
+    white-space: nowrap;
   }
-  .os-amp-artist {
+  .os-wa-scroll {
+    display: inline-flex;
+    white-space: nowrap;
     font-size: 12px;
-    letter-spacing: 0.06em;
-    color: rgba(150, 205, 255, 0.85);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
+    color: #1fe37d;
+    text-shadow: 0 0 6px rgba(31, 227, 125, 0.45);
   }
-  .os-amp-lcd-bottom {
-    position: relative;
+  .os-wa-scroll > span { padding-right: 2.5em; }
+  .os-wa-scroll.is-scrolling { animation: os-wa-marquee 14s linear infinite; }
+  @keyframes os-wa-marquee {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .os-wa-meta {
     display: flex;
     align-items: center;
-    gap: 10px;
-    margin-top: 12px;
+    gap: 6px;
+    font-size: 9px;
+    letter-spacing: 0.08em;
   }
-  .os-amp-time,
-  .os-amp-total {
-    font-variant-numeric: tabular-nums;
+  .os-wa-kbps { color: #1fe37d; font-weight: 700; }
+  .os-wa-unit { color: #0f8f4d; }
+  .os-wa-chan {
+    margin-left: auto;
+    color: #0f6a3c;
     font-weight: 700;
-    font-size: 13px;
-    color: #8ff0c8;
-    text-shadow: 0 0 8px rgba(120, 240, 190, 0.5);
+    letter-spacing: 0.12em;
   }
-  .os-amp-total { color: rgba(150, 205, 255, 0.8); text-shadow: none; }
+  .os-wa-chan.is-on {
+    color: #1fe37d;
+    text-shadow: 0 0 6px rgba(31, 227, 125, 0.4);
+  }
 
-  /* Equalizer (lives inside the LCD now) */
-  .os-eq {
-    display: flex;
-    align-items: flex-end;
-    gap: 3px;
-    height: 30px;
-    flex-shrink: 0;
-  }
-  .os-eq > span {
-    width: 4px;
-    height: 6px;
-    border-radius: 2px;
-    background: #6fe6b8;
-    box-shadow: 0 0 6px rgba(120, 240, 190, 0.6);
-    opacity: 0.5;
-    /* Heights are set live from the AnalyserNode (see MusicApp). */
-    transition: height 0.08s linear;
-  }
-  .os-eq--on > span { opacity: 1; }
-
-  /* Range sliders (seek + volume) — slim aqua track + glossy thumb */
-  .os-amp-seek,
-  .os-amp-vol input {
+  /* Sliders — grooved dark track + rectangular metal thumb */
+  .os-wa-seek,
+  .os-wa-slider input {
     -webkit-appearance: none;
     appearance: none;
-    height: 6px;
-    border-radius: 999px;
-    background: linear-gradient(180deg, rgba(10, 20, 40, 0.6), rgba(40, 80, 140, 0.5));
-    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.5);
+    height: 10px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #12161a, #20262d);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8), inset 0 -1px 0 rgba(255, 255, 255, 0.05);
     cursor: pointer;
   }
-  .os-amp-seek { flex: 1; min-width: 0; }
-  .os-amp-seek::-webkit-slider-thumb,
-  .os-amp-vol input::-webkit-slider-thumb {
+  .os-wa-seek { width: 100%; }
+  .os-wa-seek::-webkit-slider-thumb,
+  .os-wa-slider input::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
-    width: 14px;
-    height: 14px;
-    border-radius: 999px;
-    background: radial-gradient(circle at 35% 30%, #ffffff, #9fe0ff 55%, #2e9bdc);
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    box-shadow: 0 1px 4px rgba(10, 40, 80, 0.6);
+    width: 12px;
+    height: 16px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #e2e8ee, #9aa6b1 50%, #6c7883);
+    border: 1px solid #2a3037;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
   }
-  .os-amp-seek::-moz-range-thumb,
-  .os-amp-vol input::-moz-range-thumb {
-    width: 14px;
-    height: 14px;
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    border-radius: 999px;
-    background: radial-gradient(circle at 35% 30%, #ffffff, #9fe0ff 55%, #2e9bdc);
-    box-shadow: 0 1px 4px rgba(10, 40, 80, 0.6);
+  .os-wa-seek::-moz-range-thumb,
+  .os-wa-slider input::-moz-range-thumb {
+    width: 12px;
+    height: 16px;
+    border-radius: 2px;
+    background: linear-gradient(180deg, #e2e8ee, #9aa6b1 50%, #6c7883);
+    border: 1px solid #2a3037;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
   }
+  .os-wa-sliders {
+    display: flex;
+    gap: 14px;
+  }
+  .os-wa-slider {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex: 1;
+    min-width: 0;
+  }
+  .os-wa-slabel {
+    font-size: 9px;
+    letter-spacing: 0.1em;
+    color: #8892a0;
+    flex-shrink: 0;
+  }
+  .os-wa-slider input { flex: 1; min-width: 0; }
 
-  /* Transport bar — glossy aqua panel */
-  .os-amp-bar {
+  /* Transport + toggles */
+  .os-wa-transport {
     display: flex;
     align-items: center;
     justify-content: space-between;
     flex-wrap: wrap;
-    gap: 12px 14px;
-    padding: 10px 14px;
-    border-radius: 16px;
-    background: linear-gradient(180deg, rgba(255, 255, 255, 0.7), rgba(210, 235, 255, 0.45));
-    border: 1px solid rgba(255, 255, 255, 0.8);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 6px 16px -10px rgba(13, 52, 99, 0.5);
+    gap: 8px;
   }
-  .dark .os-amp-bar {
-    background: linear-gradient(180deg, rgba(60, 92, 150, 0.5), rgba(30, 54, 100, 0.4));
-    border-color: rgba(120, 170, 225, 0.3);
-  }
-  .os-amp-controls { display: flex; align-items: center; gap: 8px; flex-shrink: 0; }
-  .os-amp-btn {
+  .os-wa-controls { display: flex; gap: 3px; }
+  .os-wa-btn {
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 38px;
-    height: 38px;
-    font-size: 15px;
-    border-radius: 999px;
-    color: var(--color-ink);
-    background: radial-gradient(circle at 50% 28%, #ffffff, #dbeeff 60%, #b6dcf6);
-    border: 1px solid rgba(255, 255, 255, 0.85);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.95), 0 3px 8px -3px rgba(13, 52, 99, 0.5);
-    transition: transform 0.12s ease, box-shadow 0.12s ease;
+    width: 32px;
+    height: 24px;
+    font-size: 11px;
+    border-radius: 3px;
+    color: #12161a;
+    background: linear-gradient(180deg, #cfd7de, #9aa5af 48%, #7c8791);
+    border: 1px solid #2a3037;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75), 0 1px 2px rgba(0, 0, 0, 0.5);
+    transition: filter 0.1s ease;
   }
-  .os-amp-btn:hover { transform: translateY(-1px); }
-  .os-amp-btn:active { transform: translateY(0) scale(0.96); }
-  .os-amp-btn--play {
-    width: 48px;
-    height: 48px;
-    font-size: 18px;
-    color: #0a3a22;
-    background: radial-gradient(circle at 50% 26%, #d6ffe9, #8be8b6 55%, #43c486);
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.9), 0 4px 12px -3px rgba(40, 150, 90, 0.6);
+  .os-wa-btn:hover { filter: brightness(1.07); }
+  .os-wa-btn:active {
+    background: linear-gradient(180deg, #9aa5af, #cfd7de);
+    box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
   }
-  .os-amp-vol {
-    display: flex;
-    align-items: center;
-    justify-content: flex-end;
-    gap: 8px;
-    font-size: 14px;
-    flex: 1 1 130px;
-    min-width: 0;
+  .os-wa-toggles { display: flex; gap: 4px; }
+  .os-wa-chip {
+    font-size: 9px;
+    letter-spacing: 0.08em;
+    font-weight: 700;
+    padding: 5px 8px;
+    border-radius: 3px;
+    color: #7c8791;
+    background: linear-gradient(180deg, #2a3037, #1c2127);
+    border: 1px solid #0c0f12;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
+    transition: color 0.12s ease, box-shadow 0.12s ease;
   }
-  .os-amp-vol input { flex: 1; min-width: 60px; max-width: 130px; }
+  .os-wa-chip.is-on {
+    color: #1fe37d;
+    text-shadow: 0 0 5px rgba(31, 227, 125, 0.5);
+    box-shadow: inset 0 0 6px rgba(31, 227, 125, 0.25), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  }
 
-  /* Playlist */
-  .os-amp-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
+  /* Playlist — black-on-green, monospace */
+  .os-wa-list {
     list-style: none;
     margin: 0;
-    padding: 6px;
-    border-radius: 14px;
-    background: rgba(255, 255, 255, 0.4);
-    border: 1px solid rgba(255, 255, 255, 0.6);
+    padding: 5px;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    border-radius: 4px;
+    background: #06110b;
+    border: 1px solid #000;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+    max-height: 38vh;
+    overflow: auto;
   }
-  .dark .os-amp-list {
-    background: rgba(30, 54, 100, 0.4);
-    border-color: rgba(120, 170, 225, 0.22);
-  }
-  .os-amp-row {
+  .os-wa-row {
     display: grid;
-    grid-template-columns: auto 1fr auto;
+    grid-template-columns: auto 1fr;
     align-items: baseline;
-    gap: 4px 10px;
+    gap: 2px 8px;
     width: 100%;
     text-align: left;
-    padding: 7px 10px;
-    border-radius: 9px;
-    color: var(--color-ink);
-    transition: background 0.14s ease;
-  }
-  .os-amp-row:hover { background: rgba(120, 180, 240, 0.16); }
-  .os-amp-row--active {
-    background: linear-gradient(180deg, rgba(120, 200, 255, 0.32), rgba(120, 200, 255, 0.18));
-    box-shadow: inset 0 0 0 1px rgba(120, 190, 255, 0.5);
-  }
-  .os-amp-row-num {
-    font-variant-numeric: tabular-nums;
+    padding: 4px 8px;
+    border-radius: 2px;
+    color: #1a9f5c;
     font-size: 12px;
-    color: var(--color-ink-soft);
+    transition: background 0.12s ease;
   }
-  .os-amp-row-title { font-weight: 600; font-size: 14px; }
-  .os-amp-row-len {
+  .os-wa-row:hover { background: rgba(31, 227, 125, 0.08); }
+  .os-wa-row.is-active {
+    background: linear-gradient(180deg, rgba(31, 120, 70, 0.5), rgba(31, 120, 70, 0.3));
+    color: #8bffc4;
+  }
+  .os-wa-row-num {
     font-variant-numeric: tabular-nums;
-    font-size: 12px;
-    color: var(--color-ink-soft);
+    opacity: 0.85;
   }
-  .os-amp-row-cap {
+  .os-wa-row-title {
+    font-weight: 700;
+    color: inherit;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .os-wa-row-cap {
     grid-column: 2 / 3;
-    font-size: 12px;
-    color: var(--color-ink-soft);
+    font-size: 10px;
+    opacity: 0.55;
+    font-style: italic;
   }
-  .os-amp-note { font-size: 12px; color: var(--color-ink-soft); text-align: center; }
+  .os-wa-note {
+    font-size: 11px;
+    color: #8892a0;
+    text-align: center;
+    font-family: var(--font-sans, inherit);
+  }
 
   /* ── Recycle Bin ────────────────────────────────────────────── */
   .os-trash-list { display: flex; flex-direction: column; gap: 10px; }
@@ -1777,7 +1873,7 @@
   .os-rays,
   .os-boot-orb,
   .os-boot-bar > i,
-  .os-eq--on > span {
+  .os-wa-scroll.is-scrolling {
     animation: none;
   }
   .os-boot-bar > i { width: 100%; }
