@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Winamp player skins: switch the media player between Classic (green LCD),
+  Frutiger Aero (glossy blue), and Amber CRT looks from swatches in the
+  titlebar. The choice is remembered between visits.
+
 ### Changed
 - Reskinned the Aero FM music app as a classic Winamp 2.x-style media player:
   dark brushed-metal chrome, a green segmented LCD with a scrolling title
