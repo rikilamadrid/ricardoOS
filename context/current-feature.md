@@ -13,7 +13,10 @@ Sub-features (build one at a time):
   the shell as a classic Winamp 2.x player and floated it as a chromeless window
   (drags from the WINAMP titlebar, resizes from the corner grip, own
   minimize/close controls). All audio/analyser logic preserved.
-- **B — Skin system** (`data/skins.ts` + switcher, persisted). ← next.
+- **B — Skin system** ✅ **Merged** (`ff06c04`). `.os-wa` chrome colors are now
+  `--wa-*` CSS tokens; `data/skins.ts` registers Classic / Frutiger Aero /
+  Amber CRT, `lib/skin-store.ts` persists the choice, and a labeled `SKIN` row
+  of rectangular swatch tiles (above the playlist) selects the skin.
 - **C — Docked Playlist + 10-band EQ panels.**
 - **D — Projects section:** add a project card for the new player (motif +
   screenshot + localized writeup), superseding the "Aero FM" branding.
@@ -56,10 +59,16 @@ Only maintenance, verification, and content cleanup remain.
 
 ## Recently landed
 
+**Phase 15B — Winamp skin system.** ✅ Merged to `main` (`ff06c04`). Token-driven
+`--wa-*` chrome with Classic / Frutiger Aero / Amber CRT skins, persisted via
+`lib/skin-store.ts`, selected from a labeled `SKIN` row of swatch tiles above the
+playlist. Sub-features C (playlist/EQ) and D (project card) remain.
+
+---
+
 **Phase 15A — Winamp reskin + chromeless floating player.** ✅ Merged to `main`
 (`86e69f0`). The media player now renders outside the aqua-glass frame as its own
-draggable, resizable Winamp panel. Sub-features B (skins), C (playlist/EQ), and D
-(project card) remain.
+draggable, resizable Winamp panel.
 
 ---
 
