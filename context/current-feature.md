@@ -1,36 +1,18 @@
 # Current Feature
 
-## Fix: Aero Amp mobile touch targets (EQ sliders, volume slider, minimize/close)
+<!-- No active feature. Populate when the next one is scoped. -->
 
 ## Status
 
-In Progress
+<!-- Not Started -->
 
 ## Goals
 
-On iPhone, the Aero Amp (Winamp) player is hard to operate:
-
-- The EQ band sliders (10 bands + preamp) and the volume slider are small and
-  imprecise to grab with a finger.
-- The window's minimize (`_`) and close (`×`) buttons are tiny (13×12px).
-
-Root cause: these controls are sized for mouse precision (authentic tiny
-Winamp look) and never got a touch-friendly variant; the sliders also have no
-`touch-action`, so a touch-drag can fight the browser's default scroll
-gesture.
-
-Fix, touch-only (`@media (pointer: coarse)`) so the desktop retro pixel look
-is untouched:
-
-- Add `touch-action: none` to the seek, volume, and EQ band sliders so touch
-  drags don't get interpreted as page/window scroll.
-- Enlarge the slider thumbs/tracks (seek, volume, EQ bands) for touch.
-- Enlarge the invisible tap area around the minimize/close buttons via a
-  pseudo-element, without changing their visual size.
+<!-- Populate when the next feature is scoped. -->
 
 ## Notes
 
-CSS-only change in `src/app/globals.css`; no component/logic changes expected.
+<!-- Populate when the next feature is scoped. -->
 
 ---
 
@@ -46,6 +28,17 @@ Resume after Phase 15 lands. Overview retained for reference:
 ---
 
 ## Recently landed
+
+**Aero Amp mobile touch targets.** ✅ Merged to `main` (merge `a730640`, commit
+`6d6ef64`). Touch-only (`pointer: coarse`) sizing for the Winamp player: bigger
+seek/volume/EQ slider thumbs and tracks with `touch-action: none` so drags
+don't fight page scroll, and an invisible tap-area extension around the tiny
+minimize/close buttons — desktop mouse sizing untouched. Also finishes the
+Aero FM → Aero Amp rename left over from Phase 15D, removes the unused shadcn
+`dropdown-menu.tsx` scaffold, and backfills `context/history.md` with the
+Phase 15A–15D entries that were never logged.
+
+---
 
 **Phase 15D — Aero Amp project card + RKY playlist.** ✅ Merged to `main`
 (`969734d`; feature commits `7e4e99e`, `585ccd0`, `d47068f`). Adds the
