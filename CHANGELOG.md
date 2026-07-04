@@ -9,8 +9,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 - Winamp player skins: switch the media player between Classic (green LCD),
-  Frutiger Aero (glossy blue), and Amber CRT looks from swatches in the
-  titlebar. The choice is remembered between visits.
+  Frutiger Aero (glossy blue), and Amber CRT looks from a labeled SKIN row of
+  swatch tiles. The choice is remembered between visits.
+- Dockable Playlist and 10-band Equalizer panels in the Winamp player, toggled
+  by PL and EQ buttons. The equalizer is a real graphic EQ (preamp + ten
+  frequency bands) wired into the audio, with a reset, and follows the active
+  skin's colors.
 
 ### Changed
 - Reskinned the Aero FM music app as a classic Winamp 2.x-style media player:

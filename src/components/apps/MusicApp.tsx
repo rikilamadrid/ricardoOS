@@ -8,6 +8,16 @@ import { useSkinStore } from "@/lib/skin-store";
 /** Spectrum analyzer bar count (fed by the AnalyserNode). */
 const BARS = 16;
 
+/** Classic Winamp-style 10-band graphic EQ center frequencies (Hz). */
+const EQ_BANDS = [60, 170, 310, 600, 1000, 3000, 6000, 12000, 14000, 16000];
+/** Per-band + preamp gain range in dB (±). */
+const EQ_RANGE = 12;
+
+/** Short LCD label for an EQ band frequency (e.g. 3000 → "3K"). */
+const eqLabel = (hz: number) => (hz >= 1000 ? `${hz / 1000}K` : `${hz}`);
+/** dB → linear amplitude, for the preamp GainNode. */
+const dbToGain = (db: number) => Math.pow(10, db / 20);
+
 const fmt = (s: number) => {
   if (!Number.isFinite(s)) return "0:00";
   const m = Math.floor(s / 60);
@@ -39,6 +49,11 @@ export function MusicApp() {
   const [shuffle, setShuffle] = useState(false);
   const [repeat, setRepeat] = useState(false);
   const [unavailable, setUnavailable] = useState(false);
+  // Docked panels (Phase 15C): playlist shows by default, EQ hidden.
+  const [showPl, setShowPl] = useState(true);
+  const [showEq, setShowEq] = useState(false);
+  const [eqGains, setEqGains] = useState<number[]>(() => EQ_BANDS.map(() => 0));
+  const [preamp, setPreamp] = useState(0);
 
   const track = tracks[index];
 
@@ -47,6 +62,8 @@ export function MusicApp() {
   const ctxRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
   const pannerRef = useRef<StereoPannerNode | null>(null);
+  const preampRef = useRef<GainNode | null>(null);
+  const eqNodesRef = useRef<BiquadFilterNode[]>([]);
   const rafRef = useRef<number | null>(null);
 
   // Build the analyser + panner graph once, on the first user-initiated play.
@@ -58,19 +75,39 @@ export function MusicApp() {
     if (!Ctor) return;
     const ctx = new Ctor();
     const source = ctx.createMediaElementSource(audio);
+    // Preamp + 10-band graphic EQ (shelf ends, peaking middle) — matches EQ_BANDS.
+    const preampNode = ctx.createGain();
+    preampNode.gain.value = dbToGain(preamp);
+    const filters = EQ_BANDS.map((freq, i) => {
+      const f = ctx.createBiquadFilter();
+      f.type = i === 0 ? "lowshelf" : i === EQ_BANDS.length - 1 ? "highshelf" : "peaking";
+      f.frequency.value = freq;
+      f.Q.value = 1;
+      f.gain.value = eqGains[i];
+      return f;
+    });
     const analyser = ctx.createAnalyser();
     analyser.fftSize = 64;
     analyser.smoothingTimeConstant = 0.8;
     const panner = ctx.createStereoPanner();
     panner.pan.value = balance;
-    // source → analyser → panner → destination
-    source.connect(analyser);
+    // source → preamp → EQ filters → analyser → panner → destination
+    let node: AudioNode = source;
+    node.connect(preampNode);
+    node = preampNode;
+    for (const f of filters) {
+      node.connect(f);
+      node = f;
+    }
+    node.connect(analyser);
     analyser.connect(panner);
     panner.connect(ctx.destination);
     ctxRef.current = ctx;
     analyserRef.current = analyser;
     pannerRef.current = panner;
-  }, [balance]);
+    preampRef.current = preampNode;
+    eqNodesRef.current = filters;
+  }, [balance, eqGains, preamp]);
 
   // Animate the spectrum analyzer from live frequency data.
   const runEq = useCallback(() => {
@@ -168,6 +205,16 @@ export function MusicApp() {
   useEffect(() => {
     if (pannerRef.current) pannerRef.current.pan.value = balance;
   }, [balance]);
+
+  // Keep the EQ filter chain + preamp in sync with the sliders.
+  useEffect(() => {
+    eqNodesRef.current.forEach((f, i) => {
+      if (f) f.gain.value = eqGains[i];
+    });
+  }, [eqGains]);
+  useEffect(() => {
+    if (preampRef.current) preampRef.current.gain.value = dbToGain(preamp);
+  }, [preamp]);
 
   // Drive the analyzer with the play state.
   useEffect(() => {
@@ -323,6 +370,22 @@ export function MusicApp() {
         <div className="os-wa-toggles">
           <button
             type="button"
+            className={`os-wa-chip ${showEq ? "is-on" : ""}`}
+            onClick={() => setShowEq((v) => !v)}
+            aria-pressed={showEq}
+          >
+            EQ
+          </button>
+          <button
+            type="button"
+            className={`os-wa-chip ${showPl ? "is-on" : ""}`}
+            onClick={() => setShowPl((v) => !v)}
+            aria-pressed={showPl}
+          >
+            PL
+          </button>
+          <button
+            type="button"
             className={`os-wa-chip ${shuffle ? "is-on" : ""}`}
             onClick={() => setShuffle((s) => !s)}
             aria-pressed={shuffle}
@@ -363,24 +426,77 @@ export function MusicApp() {
         </div>
       </div>
 
-      {/* Playlist */}
-      <ul className="os-wa-list">
-        {tracks.map((tr, i) => (
-          <li key={tr.id}>
-            <button
-              type="button"
-              className={`os-wa-row ${i === index ? "is-active" : ""}`}
-              onClick={() => select(i, true)}
-            >
-              <span className="os-wa-row-num">{(i + 1).toString().padStart(2, "0")}.</span>
-              <span className="os-wa-row-title">
-                {tr.title} &mdash; {tr.artist}
-              </span>
-              <span className="os-wa-row-cap">{t(tr.caption, locale)}</span>
-            </button>
-          </li>
-        ))}
-      </ul>
+      {/* Equalizer panel (EQ chip) — 10 bands + preamp, wired to the biquad
+          chain in ensureGraph. Vertical sliders, styled per the active skin. */}
+      {showEq && (
+        <div className="os-wa-eq" role="group" aria-label="Equalizer">
+          <label className="os-wa-eq-band os-wa-eq-pre">
+            <input
+              type="range"
+              min={-EQ_RANGE}
+              max={EQ_RANGE}
+              step={1}
+              value={preamp}
+              onChange={(e) => setPreamp(Number(e.target.value))}
+              aria-label="Preamp"
+            />
+            <span className="os-wa-eq-hz">PRE</span>
+          </label>
+          <div className="os-wa-eq-bands">
+            {EQ_BANDS.map((freq, i) => (
+              <label key={freq} className="os-wa-eq-band">
+                <input
+                  type="range"
+                  min={-EQ_RANGE}
+                  max={EQ_RANGE}
+                  step={1}
+                  value={eqGains[i]}
+                  onChange={(e) =>
+                    setEqGains((g) => {
+                      const next = [...g];
+                      next[i] = Number(e.target.value);
+                      return next;
+                    })
+                  }
+                  aria-label={`${eqLabel(freq)} Hz band`}
+                />
+                <span className="os-wa-eq-hz">{eqLabel(freq)}</span>
+              </label>
+            ))}
+          </div>
+          <button
+            type="button"
+            className="os-wa-btn os-wa-eq-reset"
+            onClick={() => {
+              setEqGains(EQ_BANDS.map(() => 0));
+              setPreamp(0);
+            }}
+          >
+            RESET
+          </button>
+        </div>
+      )}
+
+      {/* Playlist panel (PL chip) */}
+      {showPl && (
+        <ul className="os-wa-list">
+          {tracks.map((tr, i) => (
+            <li key={tr.id}>
+              <button
+                type="button"
+                className={`os-wa-row ${i === index ? "is-active" : ""}`}
+                onClick={() => select(i, true)}
+              >
+                <span className="os-wa-row-num">{(i + 1).toString().padStart(2, "0")}.</span>
+                <span className="os-wa-row-title">
+                  {tr.title} &mdash; {tr.artist}
+                </span>
+                <span className="os-wa-row-cap">{t(tr.caption, locale)}</span>
+              </button>
+            </li>
+          ))}
+        </ul>
+      )}
 
       <p className="os-wa-note">
         {unavailable
