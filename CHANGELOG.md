@@ -33,6 +33,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   corner, and has its own minimize/close buttons — while still behaving as a
   real window (focus, z-order, dock indicator).
 
+### Fixed
+- Aero Amp mobile touch targets: bigger seek/volume/EQ slider thumbs and
+  tracks on touch devices, with `touch-action: none` so drags don't fight
+  page scroll, and a larger invisible tap area around the tiny minimize/close
+  buttons. Desktop mouse sizing is untouched.
+
 ## [1.1.0] - 2026-07-03
 
 ### Added
