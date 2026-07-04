@@ -1,8 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState } from "react";
-import { aeroFm, t } from "@/data";
+import { aeroFm, skins, t } from "@/data";
 import { useLocale } from "@/components/os/locale-store";
+import { useSkinStore } from "@/lib/skin-store";
 
 /** Spectrum analyzer bar count (fed by the AnalyserNode). */
 const BARS = 16;
@@ -25,6 +26,8 @@ const fmt = (s: number) => {
  */
 export function MusicApp() {
   const { locale } = useLocale();
+  const skin = useSkinStore((s) => s.skin);
+  const setSkin = useSkinStore((s) => s.setSkin);
   const tracks = aeroFm.tracks;
 
   const [index, setIndex] = useState(0);
@@ -185,7 +188,7 @@ export function MusicApp() {
   const trackNo = (index + 1).toString().padStart(2, "0");
 
   return (
-    <div className="os-wa" data-skin="classic">
+    <div className="os-wa" data-skin={skin}>
       <audio
         ref={audioRef}
         src={track.src}
@@ -204,7 +207,7 @@ export function MusicApp() {
       {/* Titlebar wordmark — doubles as the window's drag handle. */}
       <div className="os-wa-title" data-drag-handle aria-hidden="true">
         <span className="os-wa-grip" />
-        <span className="os-wa-word">WINAMP</span>
+        <span className="os-wa-word">Aero FM</span>
         <span className="os-wa-grip" />
       </div>
 
@@ -334,6 +337,29 @@ export function MusicApp() {
           >
             REPEAT
           </button>
+        </div>
+      </div>
+
+      {/* Skin selector — repaints the `--wa-*` tokens; choice is persisted.
+          Rectangular swatch tiles (not dots) so it never reads as the site's
+          streetlight window buttons. */}
+      <div className="os-wa-skinbar">
+        <span className="os-wa-slabel" aria-hidden="true">
+          SKIN
+        </span>
+        <div className="os-wa-skins" role="group" aria-label="Player skin">
+          {skins.map((s) => (
+            <button
+              key={s.id}
+              type="button"
+              className={`os-wa-skin ${s.id === skin ? "is-on" : ""}`}
+              style={{ ["--wa-swatch" as string]: s.swatch }}
+              onClick={() => setSkin(s.id)}
+              aria-pressed={s.id === skin}
+              aria-label={`${t(s.label, locale)} skin`}
+              title={t(s.label, locale)}
+            />
+          ))}
         </div>
       </div>
 

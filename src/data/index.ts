@@ -29,6 +29,8 @@ export { playground } from "./playground";
 export type { PlaygroundContent, Experiment } from "./playground";
 export { aeroFm } from "./music";
 export type { MusicStation, Track } from "./music";
+export { skins, DEFAULT_SKIN } from "./skins";
+export type { Skin, SkinId } from "./skins";
 export { terminal } from "./terminal";
 export type { TerminalContent, TerminalCommand } from "./terminal";
 export { meditations } from "./meditations";
