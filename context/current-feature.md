@@ -17,43 +17,25 @@ Sub-features (build one at a time):
   `--wa-*` CSS tokens; `data/skins.ts` registers Classic / Frutiger Aero /
   Amber CRT, `lib/skin-store.ts` persists the choice, and a labeled `SKIN` row
   of rectangular swatch tiles (above the playlist) selects the skin.
-- **C — Docked Playlist + 10-band EQ panels.** ⏳ **In progress** (`feature/winamp-docked-panels`). See Goals below.
+- **C — Docked Playlist + 10-band EQ panels** ✅ **Merged** (`482d33f`).
+  Toggleable PL/EQ chips reveal a dockable playlist panel and a real preamp +
+  10-band graphic equalizer (biquad chain between source and analyser), both
+  skin-token driven.
 - **D — Projects section:** add a project card for the new player (motif +
   screenshot + localized writeup), superseding the "Aero FM" branding.
 
 ## Status
 
-**In Progress** — Phase 15C on `feature/winamp-docked-panels`.
+**Next up — Phase 15D.** Sub-features A–C are merged. Only the Projects-section
+card for the new Winamp player remains before Phase 15 lands.
 
 ## Goals
 
-Break the single Winamp window into the authentic stacked multi-panel layout —
-main player + Playlist (PL) + Equalizer (EQ) — matching `winamp1.png` /
-`winamp2.png`.
-
-- **Docked panels:** render Playlist and Equalizer as separate panels that dock
-  beneath / alongside the main player, toggled by the existing `PL` / `EQ` chips
-  (currently placeholders). Respect the chromeless floating-window model from 15A.
-- **Playlist panel:** promote the current inline `.os-wa-list` into its own
-  dockable PL panel (track rows, active-row highlight, click-to-select preserved).
-- **Equalizer panel:** 10-band EQ with the classic vertical sliders + preamp,
-  styled per the active skin's `--wa-*` tokens. Decorative first; optionally wire
-  to a `BiquadFilter` chain feeding the existing audio graph.
-- **Skin-aware:** all three panels honor the 15B skin tokens.
-- **Preserve audio + a11y:** real `<audio>`, live `AnalyserNode`, seek, volume,
-  balance, never-autoplay, labels, and `prefers-reduced-motion` all intact.
+<!-- Populate when Phase 15D is scoped. -->
 
 ## Notes
 
-- Visual source of truth: `context/screenshots/winamp1.png`, `winamp2.png`
-  (docked main + EQ + playlist), `winamp3.png` (main chrome).
-- **Out of scope:** real drag-to-dock window physics beyond the current window
-  manager; adding new audio files.
-- Toggling PL/EQ should feel native to the OS window model — decide whether panels
-  are extra windows in the store or child panels of the one Winamp window
-  (lean child-panels to keep the "one app = one window" invariant simple).
-- If EQ is wired to audio, insert the `BiquadFilter` chain between source and the
-  existing `AnalyserNode`/destination without breaking the analyser feed.
+<!-- Populate when Phase 15D is scoped. -->
 
 ---
 
@@ -69,6 +51,14 @@ Resume after Phase 15 lands. Overview retained for reference:
 ---
 
 ## Recently landed
+
+**Phase 15C — Docked Winamp playlist + 10-band EQ panels.** ✅ Merged to `main`
+(`482d33f`; feature commit `1f5a733`). The PL and EQ chips toggle a dockable
+playlist panel and a preamp + 10-band graphic equalizer wired into the audio
+graph (lowshelf/peaking/highshelf biquad chain between source and analyser),
+with a reset and skin-aware styling. Only sub-feature D (project card) remains.
+
+---
 
 **Phase 15B — Winamp skin system.** ✅ Merged to `main` (`ff06c04`). Token-driven
 `--wa-*` chrome with Classic / Frutiger Aero / Amber CRT skins, persisted via
