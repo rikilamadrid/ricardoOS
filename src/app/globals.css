@@ -1652,7 +1652,8 @@
   }
   .os-wa-seek { width: 100%; }
   .os-wa-seek::-webkit-slider-thumb,
-  .os-wa-slider input::-webkit-slider-thumb {
+  .os-wa-slider input::-webkit-slider-thumb,
+  .os-wa-eq-band input::-webkit-slider-thumb {
     -webkit-appearance: none;
     appearance: none;
     width: 12px;
@@ -1663,7 +1664,8 @@
     box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.75);
   }
   .os-wa-seek::-moz-range-thumb,
-  .os-wa-slider input::-moz-range-thumb {
+  .os-wa-slider input::-moz-range-thumb,
+  .os-wa-eq-band input::-moz-range-thumb {
     width: 12px;
     height: 16px;
     border-radius: 2px;
@@ -1792,6 +1794,60 @@
     color: var(--wa-slabel);
     text-align: center;
     font-family: var(--font-sans, inherit);
+  }
+
+  /* Equalizer panel — vertical band faders + preamp on a recessed LCD housing.
+     Docks below the transport when the EQ chip is on. Skin-token driven. */
+  .os-wa-eq {
+    display: flex;
+    align-items: stretch;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 4px;
+    background: var(--wa-lcd-bg);
+    border: 1px solid #000;
+    box-shadow: inset 0 2px 6px rgba(0, 0, 0, 0.8);
+  }
+  .os-wa-eq-bands {
+    display: flex;
+    flex: 1;
+    justify-content: space-between;
+    gap: 4px;
+  }
+  .os-wa-eq-band {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+  }
+  .os-wa-eq-pre {
+    padding-right: 8px;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+  }
+  .os-wa-eq-band input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    width: 8px;
+    height: 52px;
+    border-radius: 2px;
+    background: var(--wa-recess);
+    box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.8);
+    cursor: pointer;
+  }
+  .os-wa-eq-hz {
+    font-size: 8px;
+    letter-spacing: 0.02em;
+    color: var(--wa-lcd-dim);
+    font-variant-numeric: tabular-nums;
+  }
+  .os-wa-eq-reset {
+    align-self: center;
+    height: 22px;
+    padding: 0 8px;
+    font-size: 9px;
+    flex-shrink: 0;
   }
 
   /* ── Skins ─────────────────────────────────────────────────────

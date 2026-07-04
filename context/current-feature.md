@@ -17,43 +17,54 @@ Sub-features (build one at a time):
   `--wa-*` CSS tokens; `data/skins.ts` registers Classic / Frutiger Aero /
   Amber CRT, `lib/skin-store.ts` persists the choice, and a labeled `SKIN` row
   of rectangular swatch tiles (above the playlist) selects the skin.
-- **C — Docked Playlist + 10-band EQ panels.**
+- **C — Docked Playlist + 10-band EQ panels.** ⏳ **In progress** (`feature/winamp-docked-panels`). See Goals below.
 - **D — Projects section:** add a project card for the new player (motif +
   screenshot + localized writeup), superseding the "Aero FM" branding.
 
----
-
-**Maintenance mode — feature roadmap complete.** RicardoOS and the post-launch
-enhancements are shipped. The active track is now live QA, real-content polish,
-and any small follow-up fixes discovered on the deployed site.
-
-Branch: `main` until a concrete fix/content slice is scoped, then branch per
-feature as usual.
-
 ## Status
 
-**Feature roadmap complete.** No planned product feature is currently open.
-Only maintenance, verification, and content cleanup remain.
+**In Progress** — Phase 15C on `feature/winamp-docked-panels`.
 
-### Active maintenance track
+## Goals
 
-- Run the remaining live-site QA from
-  `context/features/phase-11-go-live-qa-spec.md`.
-- Replace any remaining seed/demo copy in `src/data/*` and
-  `src/content/posts/*` with final portfolio content.
-- Verify the live experience across desktop and mobile, especially touch
-  behavior, glass rendering, and localized content flows.
-- Keep `CHANGELOG.md`, `context/history.md`, and this file aligned whenever a
-  follow-up slice lands.
+Break the single Winamp window into the authentic stacked multi-panel layout —
+main player + Playlist (PL) + Equalizer (EQ) — matching `winamp1.png` /
+`winamp2.png`.
 
-### What remains
+- **Docked panels:** render Playlist and Equalizer as separate panels that dock
+  beneath / alongside the main player, toggled by the existing `PL` / `EQ` chips
+  (currently placeholders). Respect the chromeless floating-window model from 15A.
+- **Playlist panel:** promote the current inline `.os-wa-list` into its own
+  dockable PL panel (track rows, active-row highlight, click-to-select preserved).
+- **Equalizer panel:** 10-band EQ with the classic vertical sliders + preamp,
+  styled per the active skin's `--wa-*` tokens. Decorative first; optionally wire
+  to a `BiquadFilter` chain feeding the existing audio graph.
+- **Skin-aware:** all three panels honor the 15B skin tokens.
+- **Preserve audio + a11y:** real `<audio>`, live `AnalyserNode`, seek, volume,
+  balance, never-autoplay, labels, and `prefers-reduced-motion` all intact.
 
-- **Live QA:** Lighthouse on the deployed site, mobile/touch pass, cross-browser
-  visual verification, OG/social preview checks, Search Console + sitemap.
-- **Content pass:** projects, writing, About, Experience, Contact, résumé files,
-  and any remaining placeholder/demo assets.
-- **Small follow-ups as needed:** ship isolated fixes on feature branches, then
-  reconcile docs/history after merge.
+## Notes
+
+- Visual source of truth: `context/screenshots/winamp1.png`, `winamp2.png`
+  (docked main + EQ + playlist), `winamp3.png` (main chrome).
+- **Out of scope:** real drag-to-dock window physics beyond the current window
+  manager; adding new audio files.
+- Toggling PL/EQ should feel native to the OS window model — decide whether panels
+  are extra windows in the store or child panels of the one Winamp window
+  (lean child-panels to keep the "one app = one window" invariant simple).
+- If EQ is wired to audio, insert the `BiquadFilter` chain between source and the
+  existing `AnalyserNode`/destination without breaking the analyser feed.
+
+---
+
+## Deferred — maintenance & live QA track
+
+Resume after Phase 15 lands. Overview retained for reference:
+
+- Run remaining live-site QA from `context/features/phase-11-go-live-qa-spec.md`
+  (Lighthouse, mobile/touch, cross-browser, OG/social, Search Console + sitemap).
+- Replace any remaining seed/demo copy in `src/data/*` and `src/content/posts/*`.
+- Keep `CHANGELOG.md`, `context/history.md`, and this file aligned as slices land.
 
 ---
 
