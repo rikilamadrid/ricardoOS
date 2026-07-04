@@ -11,7 +11,7 @@ import { WritingApp } from "@/components/apps/WritingApp";
 
 /**
  * Routes a window to its app component by `kind`. Core content apps load
- * eagerly; the phase-6 easter-egg apps (Playground, Terminal, Aero FM, Recycle
+ * eagerly; the phase-6 easter-egg apps (Playground, Terminal, Aero Amp, Recycle
  * Bin) are lazy-loaded via `next/dynamic` so their code only ships when a user
  * first opens them. Meditations isn't here — it's a desktop-level zen overlay.
  */
