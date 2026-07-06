@@ -1,26 +1,18 @@
 # Current Feature
 
-Project detail locale persistence bugfix.
+<!-- No active feature. Populate when the next one is scoped. -->
 
 ## Status
 
-Completed.
+<!-- Not Started -->
 
 ## Goals
 
-- Preserve the selected EN/ES/FR language when opening project detail pages from
-  the Projects app cards.
-- Render project detail copy and return links in the active locale.
-- Keep the static-export route set crawlable/shareable.
+<!-- Populate when the next feature is scoped. -->
 
 ## Notes
 
-- Bug source: `ProjectCard` linked to canonical English-only
-  `/projects/<slug>` pages, while the Writing flow already uses locale-aware
-  routes.
-- Fixed by adding locale-aware project detail routes (`/projects/<slug>/es`,
-  `/projects/<slug>/fr`), localized detail rendering, and locale-preserving
-  return links.
+<!-- Populate when the next feature is scoped. -->
 
 ---
 
@@ -36,6 +28,14 @@ Resume after Phase 15 lands. Overview retained for reference:
 ---
 
 ## Recently landed
+
+**Project detail locale persistence.** ✅ Merged to `main` (`5d105ce`). Project
+cards now preserve the selected language when opening detail pages: Spanish and
+French routes use `/projects/<slug>/es` and `/projects/<slug>/fr`, detail copy
+and metadata resolve through the active locale, and return links keep the
+Projects app in that locale.
+
+---
 
 **Aero Amp mobile touch targets.** ✅ Merged to `main` (merge `a730640`, commit
 `6d6ef64`). Touch-only (`pointer: coarse`) sizing for the Winamp player: bigger
