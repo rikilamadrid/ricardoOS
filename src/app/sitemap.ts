@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { projectList, projectSlug } from "@/data";
+import { LOCALES, projectList, projectSlug } from "@/data";
 import { getAllPosts } from "@/lib/posts";
 import { SITE_URL } from "@/lib/site";
 
@@ -18,6 +18,14 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.6,
     })),
+    ...projectList().flatMap((p) =>
+      LOCALES.filter((locale) => locale !== "en").map((locale) => ({
+        url: `${SITE_URL}/projects/${projectSlug(p)}/${locale}`,
+        lastModified,
+        changeFrequency: "monthly" as const,
+        priority: 0.5,
+      })),
+    ),
     ...getAllPosts().map((post) => ({
       url: `${SITE_URL}/writing/${post.slug}`,
       lastModified: new Date(post.date),

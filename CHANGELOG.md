@@ -34,6 +34,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   real window (focus, z-order, dock indicator).
 
 ### Fixed
+- Project cards now preserve the selected language when opening detail pages,
+  including localized project copy and return links for Spanish/French routes.
 - Aero Amp mobile touch targets: bigger seek/volume/EQ slider thumbs and
   tracks on touch devices, with `touch-action: none` so drags don't fight
   page scroll, and a larger invisible tap area around the tiny minimize/close

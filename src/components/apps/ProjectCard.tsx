@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { toast } from "sonner";
-import { t, projectSlug, type Project } from "@/data";
+import { t, projectSlug, type Locale, type Project } from "@/data";
 import { useLocale } from "@/components/os/locale-store";
 import { AquaButton } from "@/components/ui/AquaButton";
 
@@ -19,6 +19,11 @@ const STATUS: Record<Project["status"], { cls: string; label: Record<"en" | "es"
   building: { cls: "os-pill--build", label: { en: "Building", es: "En curso", fr: "En cours" } },
   placeholder: { cls: "os-pill--lab", label: { en: "Soon", es: "Pronto", fr: "Bientôt" } },
 };
+
+function projectHref(project: Project, locale: Locale): string {
+  const slug = projectSlug(project);
+  return locale === "en" ? `/projects/${slug}` : `/projects/${slug}/${locale}`;
+}
 
 /** A product-like project card: gradient thumbnail, status pill, tags, actions. */
 export function ProjectCard({ project }: { project: Project }) {
@@ -62,7 +67,7 @@ export function ProjectCard({ project }: { project: Project }) {
         )}
         <div className="mt-3 flex gap-1.5">
           <Link
-            href={`/projects/${projectSlug(project)}`}
+            href={projectHref(project, locale)}
             className="os-gel os-gel--primary !px-3 !py-1.5 !text-[12.5px]"
           >
             {OPEN_LABEL[locale]} →

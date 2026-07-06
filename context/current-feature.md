@@ -1,18 +1,26 @@
 # Current Feature
 
-<!-- No active feature. Populate when the next one is scoped. -->
+Project detail locale persistence bugfix.
 
 ## Status
 
-<!-- Not Started -->
+Completed.
 
 ## Goals
 
-<!-- Populate when the next feature is scoped. -->
+- Preserve the selected EN/ES/FR language when opening project detail pages from
+  the Projects app cards.
+- Render project detail copy and return links in the active locale.
+- Keep the static-export route set crawlable/shareable.
 
 ## Notes
 
-<!-- Populate when the next feature is scoped. -->
+- Bug source: `ProjectCard` linked to canonical English-only
+  `/projects/<slug>` pages, while the Writing flow already uses locale-aware
+  routes.
+- Fixed by adding locale-aware project detail routes (`/projects/<slug>/es`,
+  `/projects/<slug>/fr`), localized detail rendering, and locale-preserving
+  return links.
 
 ---
 
