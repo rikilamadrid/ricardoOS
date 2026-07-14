@@ -39,10 +39,27 @@ before enabling external forwarding to `riki.lamadrid@gmail.com`:
   saved in that UI, but `dig` against both authoritative nameservers
   (`ns1`/`ns2.dns-parking.com`) still returns nothing for
   `titan2._domainkey.ricardolamadrid.com` after a wait — unresolved as of
-  2026-07-13. Next step when resumed: hard-refresh the Porkbun records page
-  to confirm the edit truly persisted server-side; if it did but still isn't
-  live, delete and re-add the record (possible mangling of the long
-  `v=DKIM1; k=rsa; p=...` value with its `;` and `/` characters).
+  2026-07-13.
+
+**2026-07-13 resume, round 2:** regenerated a fresh DKIM key in Titan
+(`titan3._domainkey`, supersedes the dead `titan2._domainkey` attempt).
+Found the actual root cause of the original failure: the record was first
+saved with the whole "`titan3._domainkey / v=DKIM1; k=rsa; p=...`" line
+pasted into the single **Answer/Value** field (Host left blank) — Titan's
+copy panel displays host and value together, but Porkbun needs them split.
+Corrected the entry (Host: `titan3._domainkey`, Value: `v=DKIM1; k=rsa;
+p=...` only) — but confirmed via the domain's DNS Records screen that this
+edit had again landed in Porkbun's **"DNS Powered by Cloudflare" panel**,
+which is a decoupled/inactive zone (banner: "Your domain is not currently
+using our default nameservers"), not the live zone served by
+`ns1/ns2.dns-parking.com`. **Did not** accept its offer to switch
+nameservers (would risk dropping live A/MX/SPF). Re-added the same
+corrected record (Host `titan3._domainkey`, same value) in the **classic
+view** editor instead, which is the one actually authoritative. Record may
+take up to ~24h to propagate. Next step when resumed: `dig
+titan3._domainkey.ricardolamadrid.com TXT` against both
+`ns1`/`ns2.dns-parking.com` to confirm it's live before continuing with
+Titan/Porkbun forwarding setup.
 
 This is a known dangling thread — resume by re-running the `dig` checks
 before touching DNS further.
@@ -94,15 +111,48 @@ elsewhere.
 
 ### 16C — Serverless contact endpoint
 
-- Stand up a minimal serverless function (Vercel Function is the simplest
-  option) as its own small deployment — not part of this repo's static
-  export build.
-- Endpoint accepts `POST { name, email, message }`, validates server-side,
-  calls Resend to send to `riki.lamadrid@gmail.com`.
-- Basic abuse protection: honeypot field, origin/CORS restricted to
-  `ricardolamadrid.com`, minimal rate limiting.
-- `RESEND_API_KEY` stored as an env var on that deployment only — never in
-  this repo.
+**Code done** (branch `feature/contact-endpoint`), **not yet deployed/linked
+to Vercel** — that part needs the user (project creation + env vars are
+dashboard actions).
+
+- Scaffolded as its own small project at `contact-endpoint/` (own
+  `package.json`/`tsconfig.json`, gitignored `node_modules`/`.vercel`) —
+  lives in this repo's git history but is meant to be linked as a
+  **separate Vercel project** with `contact-endpoint` as its Root
+  Directory, so it deploys independently of the static-export site.
+- `contact-endpoint/api/contact.ts` — a standard Vercel Function
+  (`@vercel/node` req/res signature). Accepts `POST { name, email, message,
+  company }`, validates server-side (name non-empty, email regex, message
+  ≥5 chars), sends via `resend.emails.send`.
+- Abuse protection implemented: honeypot (`company` — silently 200s if
+  filled), `Origin` header checked against `ALLOWED_ORIGIN` (rejects
+  cross-origin POSTs), and an in-memory sliding-window rate limit (5
+  req/min per IP) — good enough as a basic deterrent; not a durable/
+  distributed limiter, but Fluid Compute's instance reuse makes it useful
+  in practice. `OPTIONS` preflight handled.
+- Env vars the Vercel project will need once linked: `RESEND_API_KEY`
+  (required — 500s without it), `CONTACT_TO_EMAIL` (defaults to
+  `riki.lamadrid@gmail.com`), `CONTACT_FROM_EMAIL` (defaults to Resend's
+  shared `onboarding@resend.dev` sender — **swap this to a
+  `mail.ricardolamadrid.com` address once 16B's domain is verified**,
+  since the shared sender has worse deliverability), `ALLOWED_ORIGIN`
+  (defaults to `https://ricardolamadrid.com`).
+- Dependency versions verified against npm at scaffold time: `resend@6.17.2`,
+  `@vercel/node@5.8.24`, `typescript@7.0.2`. Typechecks clean
+  (`npx tsc --noEmit` in `contact-endpoint/`). `npm audit` flags several
+  moderate/high advisories, but they're all in `@vercel/node`'s transitive
+  *build-time* tooling (`@vercel/build-utils`, `@vercel/python-analysis`,
+  etc.) used only for local types/dev — not bundled into the deployed
+  function — so left as-is rather than force-downgrading `@vercel/node`.
+- `ContactApp.tsx`'s submit handler now actually sends the `company`
+  honeypot value in the POST body (it was tracked in state but never sent
+  before — small oversight fixed alongside this).
+- Remaining before this can go live: create the Vercel project (link
+  `contact-endpoint/` as Root Directory), set the env vars above, get the
+  deployed function's URL, and set `NEXT_PUBLIC_CONTACT_ENDPOINT` as a repo
+  secret/env var in the GitHub Actions workflow that builds and deploys the
+  main site to Hostinger (the main site itself stays on Hostinger, not
+  Vercel — only this one endpoint lives on Vercel).
 
 ### 16D — ContactApp form UI
 

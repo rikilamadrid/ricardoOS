@@ -8,6 +8,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Added
+- A minimal name/email/message form in the Contact app, alongside the
+  existing link buttons, with client-side validation and toast feedback.
+  Submissions aren't delivered yet — that lands with the serverless
+  endpoint in a follow-up.
 - "Aero Amp" project card in the Projects app — a write-up of the Winamp-style
   media player, with a detail page at `/projects/aero-amp`, superseding the old
   "Aero FM" branding.

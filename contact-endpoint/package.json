@@ -1,0 +1,13 @@
+{
+  "name": "ricardo-os-contact-endpoint",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Standalone Vercel Function that relays RicardoOS contact form submissions via Resend.",
+  "dependencies": {
+    "resend": "^6.17.2"
+  },
+  "devDependencies": {
+    "@vercel/node": "^5.8.24",
+    "typescript": "^7.0.2"
+  }
+}
