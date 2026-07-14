@@ -1,18 +1,136 @@
-# Current Feature
-
-<!-- No active feature. Populate when the next one is scoped. -->
+# Current Feature: Phase 16D — Contact App Form UI
 
 ## Status
 
-<!-- Not Started -->
+In Progress (on branch `feature/contact-form-ui`)
 
 ## Goals
 
-<!-- Populate when the next feature is scoped. -->
+- Extend `src/components/apps/ContactApp.tsx` with a minimal name/email/message
+  form alongside the existing link buttons.
+- Client-side validation + loading/success/error states via the existing
+  sonner toast system.
+- Localize all new copy (`Localized<T>` / `t()`).
+- Update the `contact.ts` intro copy — it currently reads "No forms. Pick
+  whatever feels right," which contradicts adding a form.
+- Submit handler posts to a `NEXT_PUBLIC_CONTACT_ENDPOINT` env var — the
+  actual serverless endpoint (Phase 16C) doesn't exist yet, so this wires the
+  UI ahead of the backend. Submissions will fail until 16C ships and the env
+  var is set; that's expected for now.
+
+## 16A status — paused, unresolved
+
+Started Phase 16A (Porkbun email forwarding) live with the user; hit a wall
+adding the DKIM TXT record (`titan2._domainkey`) Hostinger/Titan requires
+before enabling external forwarding to `riki.lamadrid@gmail.com`:
+
+- Confirmed the domain's live nameservers are `ns1/ns2.dns-parking.com`,
+  genuinely operated by Porkbun (registrar + NS match).
+- Confirmed root A record, MX (`mx1/mx2.titan.email`), and SPF are all live
+  and correct via direct `dig` against the authoritative servers — the site
+  and existing mail routing are unaffected by anything done so far.
+- Porkbun's newer "DNS Powered by Cloudflare" panel is a **decoupled, mostly
+  empty zone** — it warned the domain isn't on Porkbun's default
+  nameservers and offered to switch them. **Did not accept** — doing so
+  would likely have dropped the live A/MX/SPF records and taken the site
+  and mail down. Correctly backed out via "No, thank you."
+- Switched to Porkbun's "classic view" DNS editor instead (the one actually
+  serving the live zone) and added the DKIM TXT record there. It appears
+  saved in that UI, but `dig` against both authoritative nameservers
+  (`ns1`/`ns2.dns-parking.com`) still returns nothing for
+  `titan2._domainkey.ricardolamadrid.com` after a wait — unresolved as of
+  2026-07-13. Next step when resumed: hard-refresh the Porkbun records page
+  to confirm the edit truly persisted server-side; if it did but still isn't
+  live, delete and re-add the record (possible mangling of the long
+  `v=DKIM1; k=rsa; p=...` value with its `;` and `/` characters).
+
+This is a known dangling thread — resume by re-running the `dig` checks
+before touching DNS further.
+
+### Domain & DNS facts (confirmed via whois/dig, 2026-07-13)
+
+- Registrar: **Porkbun**. DNS is also managed at Porkbun (`ns1/ns2.dns-parking.com`
+  — despite the name, this is Porkbun's own DNS hosting, not an unused-parking
+  state).
+- Root A record already points at the Hostinger box (`191.101.79.132`) — site
+  hosting is unaffected by anything below.
+- **Existing MX + SPF records already present**, pointing at `mx1/mx2.titan.email`
+  (`v=spf1 include:spf.titan.email ~all`). Origin unknown — possibly a leftover
+  Titan Mail add-on from Porkbun, never confirmed as an active mailbox. Must be
+  checked in the Porkbun dashboard before doing anything else (Phase 16A).
+
+### Architecture constraint
+
+The site ships as a static export (`output: "export"`, no server, no API
+routes, no database — see `CLAUDE.md`). Resend's API key is a private secret
+and must never be embedded in client-side JS. Decision: add one small,
+isolated serverless function (Vercel Function, separate from this repo's
+static deploy) that holds the Resend key and relays form submissions. The
+main site stays 100% static on Hostinger; only this one endpoint lives
+elsewhere.
+
+## Phases
+
+### 16A — Email forwarding (no code, external dashboards)
+
+- Log into Porkbun, inspect the existing Titan MX/SPF records — confirm
+  whether a real mailbox exists or if it's stale/unused.
+- If no real mailbox: remove or ignore the Titan MX records and set up
+  Porkbun's free email forwarding for `ricardo@ricardolamadrid.com` →
+  `riki.lamadrid@gmail.com`.
+- If a real Titan mailbox exists: either configure a forwarding rule inside
+  it, or decide to decommission it in favor of plain forwarding (cheaper,
+  simpler — no mailbox to maintain if all mail should land in Gmail anyway).
+- Send a test email to `ricardo@ricardolamadrid.com` and confirm it arrives
+  at `riki.lamadrid@gmail.com`.
+
+### 16B — Resend domain verification
+
+- Create/confirm Resend account.
+- Add a sending domain — likely a subdomain (e.g. `mail.ricardolamadrid.com`)
+  to keep sending reputation isolated from the root domain's receiving MX.
+- Add the DKIM/SPF/DMARC DNS records Resend requires, in Porkbun's DNS panel.
+- Verify the domain in the Resend dashboard.
+
+### 16C — Serverless contact endpoint
+
+- Stand up a minimal serverless function (Vercel Function is the simplest
+  option) as its own small deployment — not part of this repo's static
+  export build.
+- Endpoint accepts `POST { name, email, message }`, validates server-side,
+  calls Resend to send to `riki.lamadrid@gmail.com`.
+- Basic abuse protection: honeypot field, origin/CORS restricted to
+  `ricardolamadrid.com`, minimal rate limiting.
+- `RESEND_API_KEY` stored as an env var on that deployment only — never in
+  this repo.
+
+### 16D — ContactApp form UI
+
+- Extend `src/components/apps/ContactApp.tsx` with a minimal form (name,
+  email, message) alongside the existing link buttons — keep it small and
+  elegant per the project's "no giant forms" principle.
+- Wire submission via `fetch()` to the Phase 16C endpoint.
+- Client-side validation, loading/success/error states via existing toast
+  system (sonner).
+- Localize all form copy (`Localized<T>` / `t()`), matching the rest of the
+  app.
+
+### 16E — Test & polish
+
+- End-to-end test: submit form → email lands in Gmail.
+- Mobile/touch check, keyboard accessibility, reduced-motion check on any new
+  animation.
+- Update `CHANGELOG.md` under `[Unreleased]`, then append a summary to
+  `context/history.md` once merged.
 
 ## Notes
 
-<!-- Populate when the next feature is scoped. -->
+- Each phase can be its own branch/PR (`feature/email-forwarding`,
+  `feature/contact-form-resend`, etc.) per the usual workflow — ask before
+  branching into implementation.
+- Phase 16A and 16B involve external dashboards (Porkbun, Resend) that only
+  the user can access; I'll walk through those steps live rather than execute
+  them.
 
 ---
 
