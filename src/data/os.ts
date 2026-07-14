@@ -121,7 +121,7 @@ export const apps: AppDefinition[] = [
     icon: "✉️",
     tile: "blue",
     kind: "contact",
-    window: { x: 34, y: 22, width: 520, height: 520 },
+    window: { x: 34, y: 22, width: 520, height: 660 },
     onDesktop: true,
     inDock: false,
     openOnBoot: false,
