@@ -91,12 +91,14 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     });
 
     if (error) {
+      console.error("Resend send error:", error);
       res.status(502).json({ error: "Failed to send" });
       return;
     }
 
     res.status(200).json({ ok: true });
-  } catch {
+  } catch (err) {
+    console.error("Resend send threw:", err);
     res.status(502).json({ error: "Failed to send" });
   }
 }
