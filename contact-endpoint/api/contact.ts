@@ -87,7 +87,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       to: TO_EMAIL,
       replyTo: email.trim(),
       subject: `New message from ${name.trim()} via RicardoOS`,
-      text: message.trim(),
+      text: `From: ${name.trim()} <${email.trim()}>\n\n${message.trim()}`,
     });
 
     if (error) {
