@@ -35,6 +35,8 @@ jobs:
 
       - name: Build static export
         run: npm run build
+        env:
+          NEXT_PUBLIC_CONTACT_ENDPOINT: ${{ secrets.NEXT_PUBLIC_CONTACT_ENDPOINT }}
 
       - name: Add server config (.htaccess)
         run: cp deploy/.htaccess out/.htaccess
