@@ -7,11 +7,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.2.0] - 2026-07-21
+
 ### Added
 - A minimal name/email/message form in the Contact app, alongside the
   existing link buttons, with client-side validation and toast feedback.
-  Submissions aren't delivered yet — that lands with the serverless
-  endpoint in a follow-up.
+  Messages are relayed by a small serverless endpoint — the site itself
+  stays fully static — and arrive with the sender's name and email in the
+  body so replies go to the right place. The endpoint validates input,
+  rejects cross-origin posts, and rate-limits by IP.
 - "Aero Amp" project card in the Projects app — a write-up of the Winamp-style
   media player, with a detail page at `/projects/aero-amp`, superseding the old
   "Aero FM" branding.
@@ -89,6 +93,7 @@ Initial public release — RicardoOS goes live at https://ricardolamadrid.com.
 - Static export (`output: "export"`) and automated deployment to Hostinger via GitHub Actions.
 - On-brand bubble-R favicon.
 
-[Unreleased]: https://github.com/rikilamadrid/ricardoOS/compare/v1.1.0...HEAD
+[Unreleased]: https://github.com/rikilamadrid/ricardoOS/compare/v1.2.0...HEAD
+[1.2.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/rikilamadrid/ricardoOS/releases/tag/v1.0.0
