@@ -1,0 +1,198 @@
+---
+title:
+  en: The machine forgets
+  es: La máquina olvida
+  fr: La machine oublie
+summary:
+  en: Why this site was built in numbered phases. Not tidiness, memory. A feature that fits in one head has to fit in one context window.
+  es: Por qué este sitio se construyó en fases numeradas. No es orden, es memoria. Una feature que cabe en una cabeza tiene que caber en una ventana de contexto.
+  fr: Pourquoi ce site a été construit en phases numérotées. Pas par goût de l'ordre, par mémoire. Une fonctionnalité qui tient dans une tête doit tenir dans une fenêtre de contexte.
+date: "2026-07-21"
+tags: ["ai", "engineering"]
+draft: false
+---
+
+<!-- locale:en -->
+
+Numbered phases. Phase 12, Phase 13, Phase 17. From the outside that looks like
+project management, the work of somebody who enjoys a tidy checklist. It isn't.
+It's memory management.
+
+The work got split this way because the machine forgets.
+
+## The harness is a file
+
+There's a file in this repo called `context/current-feature.md`. One feature at a
+time: what's active, what done looks like, what got decided and why it got
+decided that way. Every session opens by reading it. Every session closes by
+updating it.
+
+Most of the advice going around tells you to manage your context window. Sure.
+But a window isn't something you manage by being careful. You manage it with a
+file that outlives the session that wrote it.
+
+## Compaction keeps the shape and drops the reasons
+
+Let a session run long enough and the conversation gets summarized to fit. The
+summary is faithful. It just isn't complete.
+
+It will remember that window state lives in a Zustand store. It won't remember
+that React context was tried first and re-rendered every open window on every
+frame of a drag. Decisions survive compaction. The arguments behind them don't,
+and without the argument a decision is just a rule waiting for someone to come
+clean it up.
+
+So the reasons go in the file. The file is the part that doesn't rot.
+
+## A phase is a unit of forgetting
+
+The scoping rule fell out of that on its own: if a feature doesn't fit in one
+window, it isn't one feature.
+
+"Retire the Playground app" fits. A registry entry, a route, a component, some
+CSS nobody had touched in months. "Backdrop system plus four new scenes" doesn't,
+so it becomes three things: a refactor that changes nothing visually, a menu that
+grows into a swatch grid, then the scenes. One branch each.
+
+Not because branches are tidy. Because a branch is a boundary context can't leak
+across. Same reason you hand a subagent the job of reading forty files and
+bringing back one paragraph. The forty files never enter your window at all.
+
+## The rules are all one rule
+
+Branch per feature. Build passes before commit. Ask before committing. Changelog
+entry while the work is fresh, not on release day.
+
+Written out like that it reads like process for its own sake. It isn't. Every one
+of those is a checkpoint where state leaves a conversation and enters something
+that survives it: a branch, a build, a commit message, a line in a file.
+
+The model isn't a junior engineer who needs supervising. It's a very good
+engineer with no long-term memory. Build the harness for that, and it turns out
+you were building a decent one for yourself too.
+
+<!-- locale:es -->
+
+Fases numeradas. Fase 12, Fase 13, Fase 17. Visto desde fuera parece gestión de
+proyecto, cosa de alguien a quien le gustan las listas ordenadas. No lo es. Es
+gestión de memoria.
+
+El trabajo se partió así porque la máquina olvida.
+
+## El arnés es un archivo
+
+En este repo hay un archivo que se llama `context/current-feature.md`. Una
+feature a la vez: qué está activo, qué significa terminado, qué se decidió y por
+qué se decidió así. Cada sesión empieza leyéndolo. Cada sesión termina
+actualizándolo.
+
+Casi todos los consejos que circulan te dicen que gestiones tu ventana de
+contexto. Vale. Pero una ventana no se gestiona teniendo cuidado. Se gestiona con
+un archivo que sobrevive a la sesión que lo escribió.
+
+## La compactación conserva la forma y tira las razones
+
+Deja que una sesión se alargue lo suficiente y la conversación se resume para que
+quepa. El resumen es fiel. Simplemente no está completo.
+
+Va a recordar que el estado de las ventanas vive en un store de Zustand. No va a
+recordar que primero se probó con context de React y volvía a renderizar todas
+las ventanas abiertas en cada frame del arrastre. Las decisiones sobreviven a la
+compactación. Los argumentos que hay detrás, no. Y sin el argumento una decisión
+es solo una regla esperando a que alguien venga a limpiarla.
+
+Así que las razones van al archivo. El archivo es la parte que no se pudre.
+
+## Una fase es una unidad de olvido
+
+La regla de alcance salió sola de ahí: si una feature no cabe en una ventana, no
+es una feature.
+
+"Retirar la app Playground" cabe. Una entrada en el registro, una ruta, un
+componente, algo de CSS que nadie tocaba hacía meses. "Sistema de fondos más
+cuatro escenas nuevas" no cabe, así que son tres cosas: un refactor que no cambia
+nada visualmente, un menú que se convierte en una rejilla de muestras, y después
+las escenas. Una rama para cada una.
+
+No porque las ramas queden ordenadas. Porque una rama es una frontera por la que
+el contexto no se filtra. Por la misma razón le das a un subagente el trabajo de
+leer cuarenta archivos y devolverte un párrafo: los cuarenta archivos nunca
+llegan a entrar en tu ventana.
+
+## Todas las reglas son la misma regla
+
+Una rama por feature. El build pasa antes de commitear. Preguntar antes de
+commitear. La entrada del changelog mientras el trabajo está fresco, no el día
+del release.
+
+Escrito así parece proceso por el proceso. No lo es. Cada una de esas cosas es un
+punto de control donde el estado sale de una conversación y entra en algo que le
+sobrevive: una rama, un build, un mensaje de commit, una línea en un archivo.
+
+El modelo no es un junior al que hay que supervisar. Es un ingeniero muy bueno
+sin memoria a largo plazo. Construye el arnés pensando en eso y resulta que
+también estabas construyendo uno bastante decente para ti.
+
+<!-- locale:fr -->
+
+Des phases numérotées. Phase 12, Phase 13, Phase 17. Vu de l'extérieur, ça
+ressemble à de la gestion de projet, au travail de quelqu'un qui aime les listes
+bien rangées. Ce n'en est pas. C'est de la gestion de mémoire.
+
+Le travail a été découpé comme ça parce que la machine oublie.
+
+## Le harnais, c'est un fichier
+
+Il y a dans ce dépôt un fichier qui s'appelle `context/current-feature.md`. Une
+fonctionnalité à la fois : ce qui est en cours, ce que terminé veut dire, ce qui
+a été décidé et pourquoi ça a été décidé comme ça. Chaque session commence en le
+lisant. Chaque session finit en le mettant à jour.
+
+La plupart des conseils qui circulent te disent de gérer ta fenêtre de contexte.
+D'accord. Mais une fenêtre, ça ne se gère pas en faisant attention. Ça se gère
+avec un fichier qui survit à la session qui l'a écrit.
+
+## La compaction garde la forme et jette les raisons
+
+Laisse une session durer assez longtemps et la conversation est résumée pour
+tenir. Le résumé est fidèle. Il n'est juste pas complet.
+
+Il se souviendra que l'état des fenêtres vit dans un store Zustand. Il ne se
+souviendra pas qu'on a d'abord essayé le context React et que ça re-rendait
+toutes les fenêtres ouvertes à chaque frame du glisser. Les décisions survivent à
+la compaction. Les arguments derrière, non. Et sans l'argument, une décision
+n'est plus qu'une règle qui attend que quelqu'un vienne faire le ménage.
+
+Donc les raisons vont dans le fichier. Le fichier, c'est la partie qui ne pourrit
+pas.
+
+## Une phase est une unité d'oubli
+
+La règle de découpage en découle toute seule : si une fonctionnalité ne tient pas
+dans une fenêtre, ce n'est pas une fonctionnalité.
+
+« Retirer l'app Playground » tient. Une entrée de registre, une route, un
+composant, du CSS que personne n'avait touché depuis des mois. « Système de fonds
+plus quatre nouvelles scènes » ne tient pas, donc ça devient trois choses : un
+refactor qui ne change rien visuellement, un menu qui devient une grille de
+nuanciers, puis les scènes. Une branche pour chacune.
+
+Pas parce que les branches, c'est propre. Parce qu'une branche est une frontière
+que le contexte ne traverse pas. Même raison qu'on confie à un sous-agent le
+travail de lire quarante fichiers et de rapporter un paragraphe : les quarante
+fichiers n'entrent jamais dans ta fenêtre.
+
+## Toutes les règles sont la même règle
+
+Une branche par fonctionnalité. Le build passe avant le commit. Demander avant de
+commiter. L'entrée de changelog pendant que le travail est frais, pas le jour de
+la release.
+
+Écrit comme ça, on dirait du process pour le process. Ça n'en est pas. Chacune de
+ces choses est un point de contrôle où l'état sort d'une conversation pour entrer
+dans quelque chose qui lui survit : une branche, un build, un message de commit,
+une ligne dans un fichier.
+
+Le modèle n'est pas un junior qu'il faut surveiller. C'est un très bon ingénieur
+sans mémoire à long terme. Construis le harnais pour ça, et il se trouve que tu
+en construisais un plutôt bon pour toi aussi.

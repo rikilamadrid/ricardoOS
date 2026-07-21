@@ -1,18 +1,56 @@
-# Current Feature
+# Current Feature: Phase 18 — Field Notes post (agentic workflow & context windows)
 
 ## Status
 
-None active. Phase 17 landed and shipped as **v1.2.0** on 2026-07-21. Next up
-is **Phase 18 — Field Notes post: agentic workflow & context windows** (spec
-below); `/feature load` it when ready.
+**In Progress.** Branch `feature/field-notes-agentic-workflow`. Loaded 2026-07-21
+from the Iteration 3 track spec; Phase 17 shipped as v1.2.0 immediately before
+this. Post drafted at `src/content/posts/the-machine-forgets.mdx` (EN/ES/FR) with
+the `CHANGELOG.md` entry under `[Unreleased]` → Added.
 
 ## Goals
 
-<!-- Populated by /feature load. -->
+- New MDX post at `src/content/posts/*.mdx`, dated **2026-07-21**, `draft: false`.
+- **18A** — English body, in Ricardo's voice, carrying the thesis: *the work
+  wasn't split into features to stay organized — it was split because the
+  machine forgets.* Feature boundaries are context boundaries.
+- **18B** — ES + FR bodies via the `<!-- locale:xx -->` split, plus localized
+  `title` / `summary` frontmatter.
+- **18C** — final slug, `tags: ["ai", "engineering"]`, and a `CHANGELOG.md`
+  entry under `[Unreleased]` → Added.
+- Verify: `npm run build` passes and the post appears in the Field Notes app,
+  the sitemap, and its OG image in all three locales.
 
 ## Notes
 
-<!-- Populated by /feature load. -->
+**Drop-in — no wiring.** `src/lib/posts.ts` reads the filesystem, so the Writing
+app, sitemap, and OG images pick the post up automatically. The only files that
+change are the new `.mdx` and `CHANGELOG.md`.
+
+**Angle.** The prior art is all abstract advice — "use subagents", "never exceed
+60% context". The differentiator: this repo *is* the harness —
+`context/current-feature.md`, the phase specs, branch-per-feature,
+ask-before-commit. A phase that fits in one head also fits in one window.
+
+**Voice.** Calibrate against `src/content/posts/ai-in-the-loop.mdx` — short
+declaratives, second person, `##` subheads, roughly one dry aside per section
+("the edge cases nobody thinks about until 2am"), a closing line that lands
+rather than summarizes. No bullet-point listicle structure, no "In today's
+fast-moving landscape."
+
+**Prior art surveyed (2026-07-21)** — for contrast, not citation:
+
+- <https://addyosmani.com/blog/agent-harness-engineering/>
+- <https://addyosmani.com/blog/code-agent-orchestra/>
+- <https://russpoldrack.substack.com/p/workflows-for-agentic-coding-and>
+- <https://timdeschryver.dev/blog/keep-agentic-ai-simple-a-practical-workflow-for-software-development>
+- <https://dev.to/somedood/the-mental-framework-for-unlocking-agentic-workflows-cg1>
+
+Recurring vocabulary worth engaging with in his own words: *context rot*,
+*compaction*, *subagents as context firewalls*, *the principle of least
+context*.
+
+**Workflow.** Branch `feature/field-notes-agentic-workflow`. Version impact:
+MINOR.
 
 ---
 
@@ -36,42 +74,7 @@ further down.
 
 ## Phase 18 — Field Notes post: agentic workflow & context windows
 
-New MDX post dated **2026-07-21**. Drop-in — `src/lib/posts.ts` reads the
-filesystem, so the Writing app, sitemap, and OG images pick it up with no
-wiring.
-
-**Angle.** The prior art (see below) is all abstract advice — "use subagents",
-"never exceed 60% context". The differentiator here is that this repo *is* the
-harness: `context/current-feature.md`, the phase specs, branch-per-feature,
-ask-before-commit. Thesis: **the work wasn't split into features to stay
-organized — it was split because the machine forgets.** Feature boundaries are
-context boundaries. A phase that fits in one head also fits in one window.
-
-**Voice.** Calibrate against `src/content/posts/ai-in-the-loop.mdx` — short
-declaratives, second person, `##` subheads, roughly one dry aside per section
-("the edge cases nobody thinks about until 2am"), closing line that lands
-rather than summarizes. No bullet-point listicle structure, no "In today's
-fast-moving landscape."
-
-**Sub-slices:**
-
-- **18A** — English body. The real work; get the voice right before translating.
-- **18B** — ES + FR bodies (`<!-- locale:xx -->` split) and localized
-  `title`/`summary` frontmatter.
-- **18C** — slug, tags (`["ai", "engineering"]` fits the existing set),
-  `CHANGELOG.md` entry under `[Unreleased]` → Added.
-
-**Prior art surveyed (2026-07-21)** — for contrast, not citation:
-
-- <https://addyosmani.com/blog/agent-harness-engineering/>
-- <https://addyosmani.com/blog/code-agent-orchestra/>
-- <https://russpoldrack.substack.com/p/workflows-for-agentic-coding-and>
-- <https://timdeschryver.dev/blog/keep-agentic-ai-simple-a-practical-workflow-for-software-development>
-- <https://dev.to/somedood/the-mental-framework-for-unlocking-agentic-workflows-cg1>
-
-Recurring vocabulary worth engaging with in his own words: *context rot*,
-*compaction*, *subagents as context firewalls*, *the principle of least
-context*.
+**Active — loaded to the top of this file.** See Goals / Notes above.
 
 ---
 

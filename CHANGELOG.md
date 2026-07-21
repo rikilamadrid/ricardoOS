@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- New Field Notes post, "The machine forgets", on building with an AI agent and
+  why this site was developed in numbered phases: a feature that fits in one head
+  has to fit in one context window. Available in English, Spanish, and French.
+
 ## [1.2.0] - 2026-07-21
 
 ### Added
