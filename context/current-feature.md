@@ -1,52 +1,18 @@
-# Current Feature: Phase 17 — Retire Playground
-
-Loaded 2026-07-21 from the Iteration 3 track (Phases 17–20, below). Remove the
-Playground app entirely — one vertical slice, pure deletion, clears the
-registry before the new surfaces in Phases 19–20 land.
+# Current Feature
 
 ## Status
 
-In Progress on branch `fix/remove-playground`. All goals implemented; `npm run
-build` and `npm run lint` pass. Awaiting review + commit.
+None active. Phase 17 landed and shipped as **v1.2.0** on 2026-07-21. Next up
+is **Phase 18 — Field Notes post: agentic workflow & context windows** (spec
+below); `/feature load` it when ready.
 
 ## Goals
 
-- `src/data/os.ts` — delete the `playground` registry entry (L74–84), drop
-  `"playground"` from the `kind` union (L22), and fix the two stale comments
-  that name it (L6 app list, L49 desktop/dock invariant).
-- `src/components/os/WindowContent.tsx` — remove the `case "playground"` route
-  (L51–52), its `next/dynamic` import (L20–22), and the Playground mention in
-  the lazy-loading comment (L14).
-- Delete `src/components/apps/PlaygroundApp.tsx` and `src/data/playground.ts`.
-- `src/data/index.ts` — remove the `playground` export and the
-  `PlaygroundContent` / `Experiment` type exports (L28–29).
-- `src/data/terminal.ts` — drop `playground/` from the fake `ls` output in all
-  three locales (L70–72), keeping the column alignment intact.
-- `src/data/README.md` — drop the `playground.ts` table row (L35) and the
-  experiment-components note (L47).
-- `npm run build` clean, no dangling imports, dock renders without a gap.
+<!-- Populated by /feature load. -->
 
 ## Notes
 
-**`?app=playground` already degrades gracefully.** `DeepLinkOpener.tsx:27`
-gates on `apps.some((a) => a.id === id)`, so an unknown app id is silently
-ignored and the visitor lands on a plain desktop. No code change needed for
-this — which strengthens the MINOR recommendation below.
-
-**Version bump — decided 2026-07-21: MINOR.** `?app=playground` is a query
-param, not a route; nothing external links to it and the fallback is already
-clean.
-
-**Working-tree cruft — resolved 2026-07-21.** Deleted before branching: the
-five unreferenced `public/audio/*.mp3` placeholder tracks (superseded by the
-RKY playlist in 15D) and the re-added, unimported
-`src/components/ui/dropdown-menu.tsx`.
-
-**Two extras beyond the listed goals.** `src/app/globals.css` also carried a
-"Playground cards" block (`.os-play-card`, `.os-play-icon`, and its `.dark`
-override) used only by `PlaygroundApp` — removed. And the `ls` output in
-`src/data/terminal.ts` was re-laid out as 3×3 on the existing 12-column grid
-rather than leaving a hole where `playground/` was.
+<!-- Populated by /feature load. -->
 
 ---
 
@@ -61,41 +27,10 @@ further down.
 
 | Phase | Feature | Size | Why here |
 | --- | --- | --- | --- |
-| 17 | Retire Playground | XS | Pure deletion; clears the registry before new surfaces land |
+| 17 | Retire Playground | XS | ✅ **Shipped** in v1.2.0 (merge `fac0417`) |
 | 18 | Field Notes post — agentic workflow / context windows | S | Independent of all code work; dated 2026-07-21 |
 | 19 | Backdrop system + 4 new scenes | M | Refactor first, then new looks |
 | 20 | Desktop assistant (bubble mascot) | L | Biggest; benefits from 19's scene work being settled |
-
----
-
-## Phase 17 — Retire Playground
-
-Remove the Playground app entirely. One vertical slice.
-
-**Touchpoints:**
-
-- `src/data/os.ts` — delete the `playground` registry entry (L74–84) and drop
-  `"playground"` from the `kind` union; update the desktop/dock invariant
-  comment (L49).
-- `src/components/os/WindowContent.tsx` — remove the `case "playground"` route
-  and its `next/dynamic` import.
-- Delete `src/components/apps/PlaygroundApp.tsx` and `src/data/playground.ts`.
-- `src/data/index.ts` — remove the `playground` export + `PlaygroundContent` /
-  `Experiment` type exports (L28–29).
-- `src/data/terminal.ts` — the fake `ls` output lists `playground/` in all
-  three locales (L70–72); also check for a `playground` command entry.
-- `src/data/README.md` — drop the `playground.ts` table row and the
-  experiment-components note.
-
-**Open question — version bump.** Removing the app kills the `?app=playground`
-deep link, which by `ai-interaction.md`'s rules reads as MAJOR ("removing a
-deep-link"). Recommendation: treat as **MINOR** and make unknown `?app=` values
-fall back to a plain desktop rather than erroring — it's a query param, not a
-route, and nothing external links to it. **Needs Ricardo's call before the
-release.**
-
-**Verify:** `npm run build` clean, no dangling imports, `?app=playground`
-degrades gracefully, dock renders without a gap.
 
 ---
 
@@ -234,8 +169,8 @@ drag or the desktop context menu.
 - Branch per phase per the usual workflow (`fix/remove-playground`,
   `feature/field-notes-agentic-workflow`, `feature/backdrop-scenes`,
   `feature/desktop-assistant`). Ask before branching into implementation.
-- Version impact: 17 = MINOR (pending the deep-link call above), 18 = MINOR,
-  19 = MINOR, 20 = MINOR.
+- Version impact: 17 = MINOR (shipped as v1.2.0), 18 = MINOR, 19 = MINOR,
+  20 = MINOR.
 
 ---
 
@@ -469,6 +404,15 @@ Resume after Phase 15 lands. Overview retained for reference:
 ---
 
 ## Recently landed
+
+**Phase 17 — Retire Playground.** ✅ Merged to `main` (merge `fac0417`; feature
+commit `5807a12`) and shipped as **v1.2.0**. Removed the Playground app
+entirely — registry entry, window route, lazy import, component, content
+module, barrel exports, docs rows, and the dead `.os-play-*` CSS. The terminal's
+fake `ls` was re-laid out 3×3 so it doesn't show a hole. `?app=playground`
+needed no fallback work: `DeepLinkOpener` already gates on the registry.
+
+---
 
 **Project detail locale persistence.** ✅ Merged to `main` (`5d105ce`). Project
 cards now preserve the selected language when opening detail pages: Spanish and
