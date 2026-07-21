@@ -3,7 +3,7 @@ import type { Localized } from "./types";
 /**
  * The OS shell: window/app registry, dock, desktop icons, menu-bar nav, and
  * status bar. This is the chrome around the content apps (about, projects,
- * playground, terminal, music). Matches the Aqua-style mockups.
+ * writing, terminal, music). Matches the Aqua-style mockups.
  */
 
 /** Glossy app-tile color palette (maps to .os-tile--* in globals.css). */
@@ -19,7 +19,6 @@ export interface AppDefinition {
   kind:
     | "about"
     | "projects"
-    | "playground"
     | "writing"
     | "terminal"
     | "music"
@@ -46,7 +45,7 @@ export interface AppDefinition {
  * `onDesktop` and `inDock` are mutually exclusive. The desktop holds the
  * "front door" primary apps; the dock holds secondary content + easter-eggs.
  *   Desktop: about, projects, resume, contact, meditations
- *   Dock:    playground, writing, experience, music, terminal, trash
+ *   Dock:    writing, experience, music, terminal, trash
  */
 export const apps: AppDefinition[] = [
   {
@@ -69,17 +68,6 @@ export const apps: AppDefinition[] = [
     window: { x: 19, y: 24, width: 620, height: 640 },
     onDesktop: true,
     inDock: false,
-    openOnBoot: true,
-  },
-  {
-    id: "playground",
-    title: { en: "Playground", es: "Patio de Juegos", fr: "Bac à Sable" },
-    icon: "🧪",
-    tile: "green",
-    kind: "playground",
-    window: { x: 2, y: 6, width: 640, height: 760 },
-    onDesktop: false,
-    inDock: true,
     openOnBoot: true,
   },
   {

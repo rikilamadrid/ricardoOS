@@ -45,6 +45,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   page scroll, and a larger invisible tap area around the tiny minimize/close
   buttons. Desktop mouse sizing is untouched.
 
+### Removed
+- The Playground app. Its dock icon, window, and `?app=playground` deep link
+  are gone; the experiments it listed never shipped. Visiting the old deep
+  link now just lands on the desktop.
+
 ## [1.1.0] - 2026-07-03
 
 ### Added

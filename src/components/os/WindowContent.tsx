@@ -11,16 +11,12 @@ import { WritingApp } from "@/components/apps/WritingApp";
 
 /**
  * Routes a window to its app component by `kind`. Core content apps load
- * eagerly; the phase-6 easter-egg apps (Playground, Terminal, Aero Amp, Recycle
- * Bin) are lazy-loaded via `next/dynamic` so their code only ships when a user
+ * eagerly; the phase-6 easter-egg apps (Terminal, Aero Amp, Recycle Bin) are
+ * lazy-loaded via `next/dynamic` so their code only ships when a user
  * first opens them. Meditations isn't here — it's a desktop-level zen overlay.
  */
 const loading = () => <div className="os-app-loading">Opening…</div>;
 
-const PlaygroundApp = dynamic(
-  () => import("@/components/apps/PlaygroundApp").then((m) => m.PlaygroundApp),
-  { loading },
-);
 const TerminalApp = dynamic(
   () => import("@/components/apps/TerminalApp").then((m) => m.TerminalApp),
   { loading },
@@ -48,8 +44,6 @@ export function WindowContent({ app }: { app: AppDefinition }) {
       return <ContactApp />;
     case "writing":
       return <WritingApp />;
-    case "playground":
-      return <PlaygroundApp />;
     case "terminal":
       return <TerminalApp />;
     case "music":

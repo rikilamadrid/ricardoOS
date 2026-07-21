@@ -32,7 +32,6 @@ Locales live in `types.ts`: `LOCALES`, `Locale`, `DEFAULT_LOCALE`,
 | `education.ts`  | Degrees + spoken-language proficiency                               |
 | `about.ts`      | "About Me" window copy ("Hi, I'm Ricardo 👋")                       |
 | `projects.ts`   | "Projects" window (placeholders for now)                            |
-| `playground.ts` | "Playground" experiments                                            |
 | `music.ts`      | "Aero Amp" mini player                                              |
 | `terminal.ts`   | Fake-shell command registry                                         |
 | `os.ts`         | App registry, dock, desktop icons, menu bar, status bar, wallpaper  |
@@ -44,5 +43,4 @@ Locales live in `types.ts`: `LOCALES`, `Locale`, `DEFAULT_LOCALE`,
   starting guesses — tune them when the shell is built.
 - Placeholder projects have `status: "placeholder"`; flip to `building` /
   `shipped` and fill `links` as work lands.
-- Audio (`music.ts` `src`) and experiment components (`playground.ts`
-  `experiment` keys) are referenced by key but not implemented yet.
+- Audio (`music.ts` `src`) is referenced by key.

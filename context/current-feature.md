@@ -1,10 +1,250 @@
-# Current Feature: Phase 16D — Contact App Form UI
+# Current Feature: Phase 17 — Retire Playground
+
+Loaded 2026-07-21 from the Iteration 3 track (Phases 17–20, below). Remove the
+Playground app entirely — one vertical slice, pure deletion, clears the
+registry before the new surfaces in Phases 19–20 land.
 
 ## Status
 
-In Progress (on branch `feature/contact-form-ui`)
+In Progress on branch `fix/remove-playground`. All goals implemented; `npm run
+build` and `npm run lint` pass. Awaiting review + commit.
 
 ## Goals
+
+- `src/data/os.ts` — delete the `playground` registry entry (L74–84), drop
+  `"playground"` from the `kind` union (L22), and fix the two stale comments
+  that name it (L6 app list, L49 desktop/dock invariant).
+- `src/components/os/WindowContent.tsx` — remove the `case "playground"` route
+  (L51–52), its `next/dynamic` import (L20–22), and the Playground mention in
+  the lazy-loading comment (L14).
+- Delete `src/components/apps/PlaygroundApp.tsx` and `src/data/playground.ts`.
+- `src/data/index.ts` — remove the `playground` export and the
+  `PlaygroundContent` / `Experiment` type exports (L28–29).
+- `src/data/terminal.ts` — drop `playground/` from the fake `ls` output in all
+  three locales (L70–72), keeping the column alignment intact.
+- `src/data/README.md` — drop the `playground.ts` table row (L35) and the
+  experiment-components note (L47).
+- `npm run build` clean, no dangling imports, dock renders without a gap.
+
+## Notes
+
+**`?app=playground` already degrades gracefully.** `DeepLinkOpener.tsx:27`
+gates on `apps.some((a) => a.id === id)`, so an unknown app id is silently
+ignored and the visitor lands on a plain desktop. No code change needed for
+this — which strengthens the MINOR recommendation below.
+
+**Version bump — decided 2026-07-21: MINOR.** `?app=playground` is a query
+param, not a route; nothing external links to it and the fallback is already
+clean.
+
+**Working-tree cruft — resolved 2026-07-21.** Deleted before branching: the
+five unreferenced `public/audio/*.mp3` placeholder tracks (superseded by the
+RKY playlist in 15D) and the re-added, unimported
+`src/components/ui/dropdown-menu.tsx`.
+
+**Two extras beyond the listed goals.** `src/app/globals.css` also carried a
+"Playground cards" block (`.os-play-card`, `.os-play-icon`, and its `.dark`
+override) used only by `PlaygroundApp` — removed. And the `ls` output in
+`src/data/terminal.ts` was re-laid out as 3×3 on the existing 12-column grid
+rather than leaving a hole where `playground/` was.
+
+---
+
+## Iteration 3 track — Phases 17–20
+
+Planned 2026-07-21. Four independent features, ordered smallest-first so each
+one is a self-contained branch. **Phase 16 (contact form) is parked** — it's
+blocked on Hostinger/Titan support, not on code. Its notes are preserved
+further down.
+
+## Order & rationale
+
+| Phase | Feature | Size | Why here |
+| --- | --- | --- | --- |
+| 17 | Retire Playground | XS | Pure deletion; clears the registry before new surfaces land |
+| 18 | Field Notes post — agentic workflow / context windows | S | Independent of all code work; dated 2026-07-21 |
+| 19 | Backdrop system + 4 new scenes | M | Refactor first, then new looks |
+| 20 | Desktop assistant (bubble mascot) | L | Biggest; benefits from 19's scene work being settled |
+
+---
+
+## Phase 17 — Retire Playground
+
+Remove the Playground app entirely. One vertical slice.
+
+**Touchpoints:**
+
+- `src/data/os.ts` — delete the `playground` registry entry (L74–84) and drop
+  `"playground"` from the `kind` union; update the desktop/dock invariant
+  comment (L49).
+- `src/components/os/WindowContent.tsx` — remove the `case "playground"` route
+  and its `next/dynamic` import.
+- Delete `src/components/apps/PlaygroundApp.tsx` and `src/data/playground.ts`.
+- `src/data/index.ts` — remove the `playground` export + `PlaygroundContent` /
+  `Experiment` type exports (L28–29).
+- `src/data/terminal.ts` — the fake `ls` output lists `playground/` in all
+  three locales (L70–72); also check for a `playground` command entry.
+- `src/data/README.md` — drop the `playground.ts` table row and the
+  experiment-components note.
+
+**Open question — version bump.** Removing the app kills the `?app=playground`
+deep link, which by `ai-interaction.md`'s rules reads as MAJOR ("removing a
+deep-link"). Recommendation: treat as **MINOR** and make unknown `?app=` values
+fall back to a plain desktop rather than erroring — it's a query param, not a
+route, and nothing external links to it. **Needs Ricardo's call before the
+release.**
+
+**Verify:** `npm run build` clean, no dangling imports, `?app=playground`
+degrades gracefully, dock renders without a gap.
+
+---
+
+## Phase 18 — Field Notes post: agentic workflow & context windows
+
+New MDX post dated **2026-07-21**. Drop-in — `src/lib/posts.ts` reads the
+filesystem, so the Writing app, sitemap, and OG images pick it up with no
+wiring.
+
+**Angle.** The prior art (see below) is all abstract advice — "use subagents",
+"never exceed 60% context". The differentiator here is that this repo *is* the
+harness: `context/current-feature.md`, the phase specs, branch-per-feature,
+ask-before-commit. Thesis: **the work wasn't split into features to stay
+organized — it was split because the machine forgets.** Feature boundaries are
+context boundaries. A phase that fits in one head also fits in one window.
+
+**Voice.** Calibrate against `src/content/posts/ai-in-the-loop.mdx` — short
+declaratives, second person, `##` subheads, roughly one dry aside per section
+("the edge cases nobody thinks about until 2am"), closing line that lands
+rather than summarizes. No bullet-point listicle structure, no "In today's
+fast-moving landscape."
+
+**Sub-slices:**
+
+- **18A** — English body. The real work; get the voice right before translating.
+- **18B** — ES + FR bodies (`<!-- locale:xx -->` split) and localized
+  `title`/`summary` frontmatter.
+- **18C** — slug, tags (`["ai", "engineering"]` fits the existing set),
+  `CHANGELOG.md` entry under `[Unreleased]` → Added.
+
+**Prior art surveyed (2026-07-21)** — for contrast, not citation:
+
+- <https://addyosmani.com/blog/agent-harness-engineering/>
+- <https://addyosmani.com/blog/code-agent-orchestra/>
+- <https://russpoldrack.substack.com/p/workflows-for-agentic-coding-and>
+- <https://timdeschryver.dev/blog/keep-agentic-ai-simple-a-practical-workflow-for-software-development>
+- <https://dev.to/somedood/the-mental-framework-for-unlocking-agentic-workflows-cg1>
+
+Recurring vocabulary worth engaging with in his own words: *context rot*,
+*compaction*, *subagents as context firewalls*, *the principle of least
+context*.
+
+---
+
+## Phase 19 — Backdrop system + 4 new scenes
+
+**Decision:** the existing four wallpapers (Sky, Sunset, Aurora, Lavender)
+**stay**; four new ones are added → eight total.
+
+**The constraint that shapes this.** Today a wallpaper is three gradient stops
+plus a `grass` number (`src/content/wallpapers.ts`), projected onto `--wp-*` by
+`theme-store.tsx` (L99–106). The scene itself is hardcoded CSS in
+`globals.css` (L171–330): sky → sun → rays → stars → **hill** → bubbles.
+"Metallic" and "skyline" cannot be expressed as gradient stops — they need a
+scene concept. Also: every layer has explicit `.dark` (night) and `.cb`
+(colorblind-safe) overrides, so **each new backdrop costs three looks, not
+one.**
+
+**19A — Scene architecture (refactor, zero visual change).**
+
+- Extend the `Wallpaper` interface with `scene: "hill" | "skyline" | "metal" |
+  "water"` plus per-wallpaper toggles for `sun` / `rays` / `bubbles` (rays over
+  brushed metal will look wrong).
+- `Wallpaper.tsx` renders the scene layer conditionally instead of always
+  emitting `.os-hill`.
+- All four existing wallpapers keep `scene: "hill"` with every toggle on — if
+  they look byte-identical afterwards, the refactor is correct. That's the
+  acceptance test.
+
+**19B — Context menu becomes a swatch grid.** `DesktopContextMenu.tsx` maps a
+flat list of four items (L28–40); eight is too many for a flat menu. Move to a
+submenu or a small swatch grid, keeping keyboard navigation and the toast.
+
+**19C — The four new scenes.** Pure CSS/SVG, no image assets — protects the
+load-instantly feel and the Lighthouse budget.
+
+- **Brushed Metal** — chrome sweep + anisotropic banding. The most Aqua-era of
+  the set.
+- **Skyline** — glass-tower silhouette; sun glint by day, lit windows at night.
+- **Deep Water** — submerged caustics, light shafts from above.
+- **Chrome Bubble** — oversized glossy sphere, heavy specular.
+
+Each ships with day, night, and colorblind-safe treatments.
+
+**Verify:** all eight in day/night/colorblind, reduced-motion still kills
+ambient loops, persisted wallpaper ids still hydrate, no new `backdrop-filter`
+layers.
+
+---
+
+## Phase 20 — Desktop assistant (bubble mascot)
+
+**Decisions:** scripted brain first (**20C real LLM is explicitly out of scope
+for now**). Mascot is a **cute bubble character** — Frutiger Aero glass
+sphere with eyes and a smile, playing the Clippy role without being Clippy.
+Original character, not a Microsoft reproduction.
+
+Not an app window. A desktop-level floating character — sibling of
+`ZenOverlay` / `FooterCredit`, above the desktop but below open windows.
+
+**20A — Character + shell.**
+
+- SVG bubble with the existing bubble gloss language (see `.os-bubble` in
+  `globals.css`) — specular highlight, rim light, soft drop shadow — plus
+  eyes, a smile, and a small idle wobble.
+- Glass speech bubble using `os-glass`, tail pointing at the character.
+- Draggable, dismissible, position + dismissed state persisted (follow
+  `lib/desktop-icons-store.ts`).
+- Idle animation, blink, `prefers-reduced-motion` honored (drop the wobble,
+  keep the speech).
+- Decide how it's re-summoned once dismissed: dock item, menu-bar item, or
+  desktop context menu.
+
+**20B — Scripted brain.**
+
+- New `src/data/assistant.ts` — localized (`Localized<T>`) lines keyed to real
+  OS state, never a random-quote generator.
+- Triggers: first visit, app opened (per-app line), long idle, Terminal
+  opened, wallpaper changed, all windows closed.
+- Rules: never interrupt twice in a row, never repeat a line in a session,
+  never block a click. Charm depends on restraint.
+
+**20C — Real LLM (deferred, not scheduled).** Same UI, brain swapped: a
+`/api/chat` function added to the existing `contact-endpoint/` Vercel project,
+system prompt built from `src/data/*`, streaming, rate limit + spend cap.
+Revisit only if visitors should actually be able to ask about his work.
+
+**Verify:** keyboard reachable, screen-reader sane (`role="status"` /
+`aria-live` on the bubble), touch-friendly on mobile, doesn't fight window
+drag or the desktop context menu.
+
+---
+
+## Notes on this track
+
+- Branch per phase per the usual workflow (`fix/remove-playground`,
+  `feature/field-notes-agentic-workflow`, `feature/backdrop-scenes`,
+  `feature/desktop-assistant`). Ask before branching into implementation.
+- Version impact: 17 = MINOR (pending the deep-link call above), 18 = MINOR,
+  19 = MINOR, 20 = MINOR.
+
+---
+
+## Parked — Phase 16: Contact form + email
+
+Blocked on Hostinger/Titan support, not on code. Resume by checking Gmail
+filters, then contacting Hostinger. All prior findings retained below.
+
+## 16D goals (code done, on branch `feature/contact-form-ui`)
 
 - Extend `src/components/apps/ContactApp.tsx` with a minimal name/email/message
   form alongside the existing link buttons.
@@ -61,8 +301,41 @@ titan3._domainkey.ricardolamadrid.com TXT` against both
 `ns1`/`ns2.dns-parking.com` to confirm it's live before continuing with
 Titan/Porkbun forwarding setup.
 
-This is a known dangling thread — resume by re-running the `dig` checks
-before touching DNS further.
+**2026-07-14 resume, round 3:** confirmed via `dig titan3._domainkey.ricardolamadrid.com
+TXT` against both `ns1.dns-parking.com` and `ns2.dns-parking.com` that the
+corrected record is live and correct on both authoritative nameservers.
+Titan's dashboard now shows DKIM as verified for `titan3._domainkey`. DKIM
+setup is done — unblocks the rest of 16A.
+
+Next: confirm whether `ricardo@ricardolamadrid.com` is a real, actively used
+Titan mailbox or just a stale MX/SPF leftover with no real inbox behind it.
+That decides the forwarding approach (configure forwarding inside the real
+mailbox, vs. decommission Titan MX and use Porkbun's free email forwarding
+instead). Then send a test email to `ricardo@ricardolamadrid.com` and confirm
+it lands in `riki.lamadrid@gmail.com`.
+
+**2026-07-14 resume, round 4 — new blocker.** Confirmed via Hostinger's Titan
+webmail (`hostinger.titan.email/mail/`) that `ricardo@ricardolamadrid.com` is
+a real, active Titan mailbox (Hostinger-provided, empty inbox, own setup
+checklist) — not a stale leftover. Set up forwarding the low-risk way (no DNS
+changes): Titan Settings → Forwarding → "Forward emails out" →
+`riki.lamadrid@gmail.com`, with "keep a copy in Titan inbox" left on. The UI
+shows the rule as active (entry present, "Stop forwarding" + "keep a copy:
+Yes", no pending/verification state surfaced).
+
+Despite that, **two separate test emails to `ricardo@ricardolamadrid.com`
+both landed in Titan but never forwarded to Gmail** — and a broad Gmail
+search (`from:titan.email`, `in:anywhere verify`, covering all
+folders/spam/trash) turns up nothing at all, not even a verification email.
+Next self-serve check: Gmail Settings → Filters and Blocked Addresses, to
+rule out a filter silently dropping mail from `ricardolamadrid.com` /
+`titan.email`. If that's clean, this looks like a Hostinger/Titan-side
+forwarding bug (feature shows configured in the UI but isn't actually
+delivering) and needs Hostinger support, not further DNS/dashboard
+troubleshooting from here.
+
+Resume by checking Gmail filters first, then contacting Hostinger support if
+still stuck.
 
 ### Domain & DNS facts (confirmed via whois/dig, 2026-07-13)
 
@@ -86,7 +359,7 @@ static deploy) that holds the Resend key and relays form submissions. The
 main site stays 100% static on Hostinger; only this one endpoint lives
 elsewhere.
 
-## Phases
+## Phase 16 sub-phases
 
 ### 16A — Email forwarding (no code, external dashboards)
 
