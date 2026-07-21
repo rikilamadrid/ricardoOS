@@ -1,47 +1,18 @@
-# Current Feature: Phase 19 — Backdrop system + 4 new scenes
+# Current Feature
 
 ## Status
 
-In Progress. Started 2026-07-21 on branch `feature/backdrop-scenes`. Phase 18
-shipped in **v1.3.0** (`e2bedc1`). Version impact: MINOR.
+None active. Phase 19 landed on 2026-07-21 and is awaiting a release cut (v1.3.0
+covers Phase 18; Phase 19 needs its own MINOR bump). Next up is **Phase 20 —
+Desktop assistant (bubble mascot)** (spec below); `/feature load` it when ready.
 
 ## Goals
 
-- **19A — Scene architecture (refactor, zero visual change).** Extend the
-  `Wallpaper` interface in `src/content/wallpapers.ts` with `scene: "hill" |
-  "skyline" | "metal" | "water"` plus per-wallpaper `sun` / `rays` / `bubbles`
-  toggles. `Wallpaper.tsx` renders the scene layer conditionally instead of
-  always emitting `.os-hill`. All four existing wallpapers keep `scene: "hill"`
-  with every toggle on — **acceptance test: they must look byte-identical
-  afterwards.**
-- **19B — Context menu becomes a swatch grid.** `DesktopContextMenu.tsx`
-  currently maps a flat list of four items; eight is too many for a flat menu.
-  Move to a submenu or small swatch grid, keeping keyboard navigation and the
-  toast intact.
-- **19C — Four new scenes**, pure CSS/SVG, no image assets:
-  - **Brushed Metal** — chrome sweep + anisotropic banding (most Aqua-era).
-  - **Skyline** — glass-tower silhouette; sun glint by day, lit windows at night.
-  - **Deep Water** — submerged caustics, light shafts from above.
-  - **Chrome Bubble** — oversized glossy sphere, heavy specular.
-- Eight wallpapers total — the existing Sky, Sunset, Aurora, Lavender **stay**.
-- Each new backdrop ships day, night (`.dark`), and colorblind-safe (`.cb`)
-  treatments — **three looks per scene, not one.**
+<!-- Populated by /feature load. -->
 
 ## Notes
 
-**The constraint that shapes this.** Today a wallpaper is three gradient stops
-plus a `grass` number (`src/content/wallpapers.ts`), projected onto `--wp-*` by
-`theme-store.tsx` (L99–106). The scene itself is hardcoded CSS in `globals.css`
-(L171–330): sky → sun → rays → stars → **hill** → bubbles. "Metallic" and
-"skyline" cannot be expressed as gradient stops — they need a scene concept.
-Rays over brushed metal will look wrong, hence the per-wallpaper toggles.
-
-Ordering matters: 19A must land visually identical before 19C adds anything
-new, and 19B should come before eight items exist in the menu.
-
-**Verify:** all eight in day / night / colorblind, reduced-motion still kills
-ambient loops, persisted wallpaper ids still hydrate, no new `backdrop-filter`
-layers, `npm run build` passes.
+<!-- Populated by /feature load. -->
 
 ---
 
@@ -57,9 +28,9 @@ further down.
 | Phase | Feature | Size | Why here |
 | --- | --- | --- | --- |
 | 17 | Retire Playground | XS | ✅ **Shipped** in v1.2.0 (merge `fac0417`) |
-| 18 | Field Notes post — agentic workflow / context windows | S | ✅ **Merged** (`96f6836`), pending release |
-| 19 | Backdrop system + 4 new scenes | M | Refactor first, then new looks |
-| 20 | Desktop assistant (bubble mascot) | L | Biggest; benefits from 19's scene work being settled |
+| 18 | Field Notes post — agentic workflow / context windows | S | ✅ **Shipped** in v1.3.0 (merge `96f6836`) |
+| 19 | Backdrop system + 4 new scenes | M | ✅ **Merged** (`dbc8612`), pending release |
+| 20 | Desktop assistant (bubble mascot) | L | Biggest; 19's scene work is now settled |
 
 ---
 
@@ -71,47 +42,7 @@ further down.
 
 ## Phase 19 — Backdrop system + 4 new scenes
 
-**Decision:** the existing four wallpapers (Sky, Sunset, Aurora, Lavender)
-**stay**; four new ones are added → eight total.
-
-**The constraint that shapes this.** Today a wallpaper is three gradient stops
-plus a `grass` number (`src/content/wallpapers.ts`), projected onto `--wp-*` by
-`theme-store.tsx` (L99–106). The scene itself is hardcoded CSS in
-`globals.css` (L171–330): sky → sun → rays → stars → **hill** → bubbles.
-"Metallic" and "skyline" cannot be expressed as gradient stops — they need a
-scene concept. Also: every layer has explicit `.dark` (night) and `.cb`
-(colorblind-safe) overrides, so **each new backdrop costs three looks, not
-one.**
-
-**19A — Scene architecture (refactor, zero visual change).**
-
-- Extend the `Wallpaper` interface with `scene: "hill" | "skyline" | "metal" |
-  "water"` plus per-wallpaper toggles for `sun` / `rays` / `bubbles` (rays over
-  brushed metal will look wrong).
-- `Wallpaper.tsx` renders the scene layer conditionally instead of always
-  emitting `.os-hill`.
-- All four existing wallpapers keep `scene: "hill"` with every toggle on — if
-  they look byte-identical afterwards, the refactor is correct. That's the
-  acceptance test.
-
-**19B — Context menu becomes a swatch grid.** `DesktopContextMenu.tsx` maps a
-flat list of four items (L28–40); eight is too many for a flat menu. Move to a
-submenu or a small swatch grid, keeping keyboard navigation and the toast.
-
-**19C — The four new scenes.** Pure CSS/SVG, no image assets — protects the
-load-instantly feel and the Lighthouse budget.
-
-- **Brushed Metal** — chrome sweep + anisotropic banding. The most Aqua-era of
-  the set.
-- **Skyline** — glass-tower silhouette; sun glint by day, lit windows at night.
-- **Deep Water** — submerged caustics, light shafts from above.
-- **Chrome Bubble** — oversized glossy sphere, heavy specular.
-
-Each ships with day, night, and colorblind-safe treatments.
-
-**Verify:** all eight in day/night/colorblind, reduced-motion still kills
-ambient loops, persisted wallpaper ids still hydrate, no new `backdrop-filter`
-layers.
+✅ **Merged** (`dbc8612`; feature commit `72b9a86`). See "Recently landed" below.
 
 ---
 
@@ -398,6 +329,20 @@ Resume after Phase 15 lands. Overview retained for reference:
 ---
 
 ## Recently landed
+
+**Phase 19 — Backdrop system + 4 new scenes.** ✅ Merged to `main` (merge
+`dbc8612`; feature commit `72b9a86`). A wallpaper now names a `scene` and
+toggles the ambient layers it wants (`sun` / `rays` / `bubbles`), with the
+foreground layer moved into a new `WallpaperScene.tsx`. The four existing
+wallpapers keep `scene: "hill"` with every toggle on and emit the same DOM as
+before. Four new scenes in CSS/SVG: Brushed Metal, Skyline, Deep Water, Chrome
+Bubble, each with day, `.dark` and `.cb` treatments. Wallpapers moved into a
+context submenu laid out as a swatch grid. Two extensions beyond the spec: a
+fifth scene id `orb` (the spec's union was one slot short for four *new*
+wallpapers), and a `base` field for the final sky stop, which was hardcoded to
+a green haze that only made sense under the hill. **Pending a MINOR release.**
+
+---
 
 **Phase 18 — Field Notes post: "The machine forgets".** ✅ Merged to `main`
 (merge `96f6836`; feature commit `0a40e87`). New post at
