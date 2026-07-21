@@ -47,6 +47,7 @@ const COLORBLIND_WALLPAPER = {
   top: "#0072b2",
   mid: "#56b4e9",
   low: "#e6f6ff",
+  base: "#eef8f4",
   grass: "0.62",
 };
 
@@ -102,6 +103,7 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
     root.setProperty("--wp-top", colorblind ? COLORBLIND_WALLPAPER.top : wp.top);
     root.setProperty("--wp-mid", colorblind ? COLORBLIND_WALLPAPER.mid : wp.mid);
     root.setProperty("--wp-low", colorblind ? COLORBLIND_WALLPAPER.low : wp.low);
+    root.setProperty("--wp-base", colorblind ? COLORBLIND_WALLPAPER.base : wp.base);
     root.setProperty("--wp-grass", colorblind ? COLORBLIND_WALLPAPER.grass : String(wp.grass));
   }, [wallpaper, colorblind]);
 
