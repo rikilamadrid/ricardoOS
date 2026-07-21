@@ -1,18 +1,47 @@
-# Current Feature
+# Current Feature: Phase 19 — Backdrop system + 4 new scenes
 
 ## Status
 
-None active. Phase 18 landed on 2026-07-21 and is awaiting a release cut. Next
-up is **Phase 19 — Backdrop system + 4 new scenes** (spec below); `/feature load`
-it when ready.
+In Progress. Started 2026-07-21 on branch `feature/backdrop-scenes`. Phase 18
+shipped in **v1.3.0** (`e2bedc1`). Version impact: MINOR.
 
 ## Goals
 
-<!-- Populated by /feature load. -->
+- **19A — Scene architecture (refactor, zero visual change).** Extend the
+  `Wallpaper` interface in `src/content/wallpapers.ts` with `scene: "hill" |
+  "skyline" | "metal" | "water"` plus per-wallpaper `sun` / `rays` / `bubbles`
+  toggles. `Wallpaper.tsx` renders the scene layer conditionally instead of
+  always emitting `.os-hill`. All four existing wallpapers keep `scene: "hill"`
+  with every toggle on — **acceptance test: they must look byte-identical
+  afterwards.**
+- **19B — Context menu becomes a swatch grid.** `DesktopContextMenu.tsx`
+  currently maps a flat list of four items; eight is too many for a flat menu.
+  Move to a submenu or small swatch grid, keeping keyboard navigation and the
+  toast intact.
+- **19C — Four new scenes**, pure CSS/SVG, no image assets:
+  - **Brushed Metal** — chrome sweep + anisotropic banding (most Aqua-era).
+  - **Skyline** — glass-tower silhouette; sun glint by day, lit windows at night.
+  - **Deep Water** — submerged caustics, light shafts from above.
+  - **Chrome Bubble** — oversized glossy sphere, heavy specular.
+- Eight wallpapers total — the existing Sky, Sunset, Aurora, Lavender **stay**.
+- Each new backdrop ships day, night (`.dark`), and colorblind-safe (`.cb`)
+  treatments — **three looks per scene, not one.**
 
 ## Notes
 
-<!-- Populated by /feature load. -->
+**The constraint that shapes this.** Today a wallpaper is three gradient stops
+plus a `grass` number (`src/content/wallpapers.ts`), projected onto `--wp-*` by
+`theme-store.tsx` (L99–106). The scene itself is hardcoded CSS in `globals.css`
+(L171–330): sky → sun → rays → stars → **hill** → bubbles. "Metallic" and
+"skyline" cannot be expressed as gradient stops — they need a scene concept.
+Rays over brushed metal will look wrong, hence the per-wallpaper toggles.
+
+Ordering matters: 19A must land visually identical before 19C adds anything
+new, and 19B should come before eight items exist in the menu.
+
+**Verify:** all eight in day / night / colorblind, reduced-motion still kills
+ambient loops, persisted wallpaper ids still hydrate, no new `backdrop-filter`
+layers, `npm run build` passes.
 
 ---
 
@@ -373,9 +402,8 @@ Resume after Phase 15 lands. Overview retained for reference:
 **Phase 18 — Field Notes post: "The machine forgets".** ✅ Merged to `main`
 (merge `96f6836`; feature commit `0a40e87`). New post at
 `src/content/posts/the-machine-forgets.mdx`, dated 2026-07-21, EN/ES/FR.
-Drop-in as expected: only the `.mdx` and `CHANGELOG.md` changed. **Not yet
-released** — the changelog entry is still under `[Unreleased]` and wants a
-MINOR bump (v1.3.0).
+Drop-in as expected: only the `.mdx` and `CHANGELOG.md` changed. Shipped as
+**v1.3.0** (`e2bedc1`).
 
 ---
 

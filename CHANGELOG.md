@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Four new desktop backdrops, bringing the total to eight: Brushed Metal (an
+  Aqua-era chrome plate), Skyline (glass towers that catch a sun glint by day
+  and light their windows at night), Deep Water (submerged, with light shafts
+  from the surface and rising bubbles), and Chrome Bubble (one oversized glass
+  sphere). All four are drawn in CSS and SVG, so they add no images to load,
+  and each has its own day, night, and colorblind-safe treatment.
+
+### Changed
+- The desktop right-click menu now opens wallpapers in a submenu laid out as a
+  grid of preview swatches, with the active one marked, instead of a flat list
+  of names. Keyboard navigation and the confirmation toast are unchanged.
+
 ## [1.3.0] - 2026-07-21
 
 ### Added
