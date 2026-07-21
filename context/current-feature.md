@@ -1,56 +1,18 @@
-# Current Feature: Phase 18 — Field Notes post (agentic workflow & context windows)
+# Current Feature
 
 ## Status
 
-**In Progress.** Branch `feature/field-notes-agentic-workflow`. Loaded 2026-07-21
-from the Iteration 3 track spec; Phase 17 shipped as v1.2.0 immediately before
-this. Post drafted at `src/content/posts/the-machine-forgets.mdx` (EN/ES/FR) with
-the `CHANGELOG.md` entry under `[Unreleased]` → Added.
+None active. Phase 18 landed on 2026-07-21 and is awaiting a release cut. Next
+up is **Phase 19 — Backdrop system + 4 new scenes** (spec below); `/feature load`
+it when ready.
 
 ## Goals
 
-- New MDX post at `src/content/posts/*.mdx`, dated **2026-07-21**, `draft: false`.
-- **18A** — English body, in Ricardo's voice, carrying the thesis: *the work
-  wasn't split into features to stay organized — it was split because the
-  machine forgets.* Feature boundaries are context boundaries.
-- **18B** — ES + FR bodies via the `<!-- locale:xx -->` split, plus localized
-  `title` / `summary` frontmatter.
-- **18C** — final slug, `tags: ["ai", "engineering"]`, and a `CHANGELOG.md`
-  entry under `[Unreleased]` → Added.
-- Verify: `npm run build` passes and the post appears in the Field Notes app,
-  the sitemap, and its OG image in all three locales.
+<!-- Populated by /feature load. -->
 
 ## Notes
 
-**Drop-in — no wiring.** `src/lib/posts.ts` reads the filesystem, so the Writing
-app, sitemap, and OG images pick the post up automatically. The only files that
-change are the new `.mdx` and `CHANGELOG.md`.
-
-**Angle.** The prior art is all abstract advice — "use subagents", "never exceed
-60% context". The differentiator: this repo *is* the harness —
-`context/current-feature.md`, the phase specs, branch-per-feature,
-ask-before-commit. A phase that fits in one head also fits in one window.
-
-**Voice.** Calibrate against `src/content/posts/ai-in-the-loop.mdx` — short
-declaratives, second person, `##` subheads, roughly one dry aside per section
-("the edge cases nobody thinks about until 2am"), a closing line that lands
-rather than summarizes. No bullet-point listicle structure, no "In today's
-fast-moving landscape."
-
-**Prior art surveyed (2026-07-21)** — for contrast, not citation:
-
-- <https://addyosmani.com/blog/agent-harness-engineering/>
-- <https://addyosmani.com/blog/code-agent-orchestra/>
-- <https://russpoldrack.substack.com/p/workflows-for-agentic-coding-and>
-- <https://timdeschryver.dev/blog/keep-agentic-ai-simple-a-practical-workflow-for-software-development>
-- <https://dev.to/somedood/the-mental-framework-for-unlocking-agentic-workflows-cg1>
-
-Recurring vocabulary worth engaging with in his own words: *context rot*,
-*compaction*, *subagents as context firewalls*, *the principle of least
-context*.
-
-**Workflow.** Branch `feature/field-notes-agentic-workflow`. Version impact:
-MINOR.
+<!-- Populated by /feature load. -->
 
 ---
 
@@ -66,7 +28,7 @@ further down.
 | Phase | Feature | Size | Why here |
 | --- | --- | --- | --- |
 | 17 | Retire Playground | XS | ✅ **Shipped** in v1.2.0 (merge `fac0417`) |
-| 18 | Field Notes post — agentic workflow / context windows | S | Independent of all code work; dated 2026-07-21 |
+| 18 | Field Notes post — agentic workflow / context windows | S | ✅ **Merged** (`96f6836`), pending release |
 | 19 | Backdrop system + 4 new scenes | M | Refactor first, then new looks |
 | 20 | Desktop assistant (bubble mascot) | L | Biggest; benefits from 19's scene work being settled |
 
@@ -74,7 +36,7 @@ further down.
 
 ## Phase 18 — Field Notes post: agentic workflow & context windows
 
-**Active — loaded to the top of this file.** See Goals / Notes above.
+✅ **Merged** (`96f6836`; feature commit `0a40e87`). See "Recently landed" below.
 
 ---
 
@@ -407,6 +369,15 @@ Resume after Phase 15 lands. Overview retained for reference:
 ---
 
 ## Recently landed
+
+**Phase 18 — Field Notes post: "The machine forgets".** ✅ Merged to `main`
+(merge `96f6836`; feature commit `0a40e87`). New post at
+`src/content/posts/the-machine-forgets.mdx`, dated 2026-07-21, EN/ES/FR.
+Drop-in as expected: only the `.mdx` and `CHANGELOG.md` changed. **Not yet
+released** — the changelog entry is still under `[Unreleased]` and wants a
+MINOR bump (v1.3.0).
+
+---
 
 **Phase 17 — Retire Playground.** ✅ Merged to `main` (merge `fac0417`; feature
 commit `5807a12`) and shipped as **v1.2.0**. Removed the Playground app
