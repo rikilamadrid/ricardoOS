@@ -1471,31 +1471,6 @@
     font-size: 14px;
   }
 
-  /* ── Playground cards ───────────────────────────────────────── */
-  .os-play-card {
-    display: flex;
-    align-items: flex-start;
-    gap: 12px;
-    text-align: left;
-    cursor: pointer;
-  }
-  .os-play-icon {
-    flex-shrink: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 44px;
-    height: 44px;
-    border-radius: 12px;
-    font-size: 24px;
-    background: rgba(255, 255, 255, 0.55);
-    border: 1px solid rgba(255, 255, 255, 0.7);
-  }
-  .dark .os-play-icon {
-    background: rgba(40, 68, 116, 0.5);
-    border-color: rgba(120, 170, 225, 0.25);
-  }
-
   /* ── Terminal ───────────────────────────────────────────────── */
   .os-term {
     height: 100%;

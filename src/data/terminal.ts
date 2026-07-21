@@ -67,9 +67,9 @@ export const terminal: TerminalContent = {
       name: "ls",
       description: { en: "List the apps on this OS", es: "Lista las apps de este SO", fr: "Liste les apps de cet OS" },
       response: {
-        en: ["about/      projects/   playground/   writing/", "experience/ resume/     contact/      music/", "meditations/ trash/"],
-        es: ["about/      projects/   playground/   writing/", "experience/ resume/     contact/      music/", "meditations/ trash/"],
-        fr: ["about/      projects/   playground/   writing/", "experience/ resume/     contact/      music/", "meditations/ trash/"],
+        en: ["about/      projects/   writing/", "experience/ resume/     contact/", "music/      trash/      meditations/"],
+        es: ["about/      projects/   writing/", "experience/ resume/     contact/", "music/      trash/      meditations/"],
+        fr: ["about/      projects/   writing/", "experience/ resume/     contact/", "music/      trash/      meditations/"],
       },
     },
     {
