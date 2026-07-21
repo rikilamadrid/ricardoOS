@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.3.0] - 2026-07-21
+
 ### Added
 - New Field Notes post, "The machine forgets", on building with an AI agent and
   why this site was developed in numbered phases: a feature that fits in one head
@@ -98,7 +100,8 @@ Initial public release — RicardoOS goes live at https://ricardolamadrid.com.
 - Static export (`output: "export"`) and automated deployment to Hostinger via GitHub Actions.
 - On-brand bubble-R favicon.
 
-[Unreleased]: https://github.com/rikilamadrid/ricardoOS/compare/v1.2.0...HEAD
+[Unreleased]: https://github.com/rikilamadrid/ricardoOS/compare/v1.3.0...HEAD
+[1.3.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.1.0...v1.2.0
 [1.1.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.0.0...v1.1.0
 [1.0.0]: https://github.com/rikilamadrid/ricardoOS/releases/tag/v1.0.0
