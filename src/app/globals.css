@@ -2388,6 +2388,160 @@
     background: rgba(255, 255, 255, 0.2);
     transform: translateY(-1px);
   }
+
+  /* ---- Blip, the desktop assistant (phase 20) ----------------------------
+     A floating glass character built from the wallpaper's bubble language
+     (see `.os-bubble`): specular highlight, cyan rim light, soft drop shadow.
+     The holder carries the live drag transform so the idle float animation on
+     `.os-blip` never fights it. ---------------------------------------- */
+  .os-blip-holder {
+    position: relative;
+    width: 72px;
+    height: 72px;
+  }
+  .os-blip {
+    display: block;
+    width: 72px;
+    height: 72px;
+    border-radius: 50%;
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    filter: drop-shadow(0 10px 18px rgba(13, 52, 99, 0.38));
+    transition: filter 0.2s ease;
+  }
+  .os-blip:hover {
+    filter: drop-shadow(0 12px 22px rgba(13, 52, 99, 0.46));
+  }
+  .os-blip:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.95);
+    outline-offset: 3px;
+  }
+  .os-blip-holder.is-dragging .os-blip {
+    filter: drop-shadow(0 16px 26px rgba(13, 52, 99, 0.5));
+  }
+  .os-blip-svg {
+    width: 100%;
+    height: 100%;
+    display: block;
+    overflow: visible;
+  }
+
+  /* Idle: a slow buoyant float, as if the bubble is barely holding still. */
+  .os-blip--idle {
+    animation: os-blip-float 5.2s ease-in-out infinite;
+  }
+  @keyframes os-blip-float {
+    0%, 100% { transform: translateY(0) rotate(-1.5deg); }
+    50% { transform: translateY(-7px) rotate(1.5deg); }
+  }
+
+  /* Blink. `transform-box: fill-box` keeps the squash centered on the eyes. */
+  .os-blip-eyes {
+    transform-box: fill-box;
+    transform-origin: center;
+  }
+  .os-blip-eyes--blink {
+    animation: os-blip-blink 6.4s infinite;
+  }
+  @keyframes os-blip-blink {
+    0%, 92%, 100% { transform: scaleY(1); }
+    95%, 97% { transform: scaleY(0.1); }
+  }
+
+  /* Jellybean dismiss orb — same specular language as the window traffic
+     lights. Hidden until the character is hovered or keyboard-focused. */
+  .os-blip-close {
+    position: absolute;
+    top: -2px;
+    right: -2px;
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 13px;
+    line-height: 1;
+    font-weight: 700;
+    color: rgba(92, 20, 20, 0.85);
+    background:
+      radial-gradient(circle at 34% 26%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 48%),
+      linear-gradient(180deg, #ff8f88, #e04b46);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 2px 6px rgba(13, 52, 99, 0.35);
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+  .os-blip-holder:hover .os-blip-close,
+  .os-blip-holder:focus-within .os-blip-close,
+  .os-blip-close:focus-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .os-blip-close:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.95);
+    outline-offset: 2px;
+  }
+  /* Touch has no hover: keep the orb permanently visible and finger-sized. */
+  @media (pointer: coarse) {
+    .os-blip-close {
+      opacity: 1;
+      transform: scale(1);
+      width: 26px;
+      height: 26px;
+      font-size: 16px;
+      top: -4px;
+      right: -4px;
+    }
+  }
+
+  /* Speech bubble: `os-glass` with a rotated-square tail aimed at Blip. */
+  .os-blip-speech {
+    position: absolute;
+    width: max-content;
+    max-width: min(248px, 62vw);
+    padding: 9px 13px;
+    border-radius: 14px;
+    font-size: 13px;
+    line-height: 1.35;
+    font-weight: 500;
+    color: var(--color-ink);
+    text-wrap: pretty;
+  }
+  .dark .os-blip-speech {
+    color: #eaf3ff;
+    background: rgba(26, 48, 86, 0.88);
+  }
+  .os-blip-speech--above { bottom: calc(100% + 12px); }
+  .os-blip-speech--below { top: calc(100% + 12px); }
+  .os-blip-speech--left { left: 0; }
+  .os-blip-speech--right { right: 0; }
+
+  .os-blip-speech::after {
+    content: "";
+    position: absolute;
+    width: 12px;
+    height: 12px;
+    background: var(--glass-strong);
+    backdrop-filter: blur(28px) saturate(185%);
+    -webkit-backdrop-filter: blur(28px) saturate(185%);
+    transform: rotate(45deg);
+  }
+  .dark .os-blip-speech::after {
+    background: rgba(26, 48, 86, 0.88);
+  }
+  .os-blip-speech--above::after {
+    bottom: -6px;
+    border-right: 1px solid var(--glass-line);
+    border-bottom: 1px solid var(--glass-line);
+  }
+  .os-blip-speech--below::after {
+    top: -6px;
+    border-left: 1px solid var(--glass-line);
+    border-top: 1px solid var(--glass-line);
+  }
+  .os-blip-speech--left::after { left: 24px; }
+  .os-blip-speech--right::after { right: 24px; }
 }
 
 /* Toasts (sonner) — keep title + description legible. Declared *unlayered* and
@@ -2423,6 +2577,8 @@
   .os-orb,
   .os-boot-orb,
   .os-boot-bar > i,
+  .os-blip--idle,
+  .os-blip-eyes--blink,
   .os-wa-scroll.is-scrolling {
     animation: none;
   }
