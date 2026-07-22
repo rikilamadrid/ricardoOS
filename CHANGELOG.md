@@ -7,6 +7,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Blip can now answer typed questions. A small "?" toggle beside Blip's
+  dismiss orb opens a glass input where you can ask about the stack, hiring,
+  the best project, how to get in touch, background, résumé, experience, or
+  how the site itself was built. Blip matches the question against a small
+  canned-answer bank and replies in its speech bubble — some answers also
+  open the relevant app (Projects, Contact, About, Résumé, Experience).
+  Unmatched questions get a friendly fallback rather than silence. No AI
+  model involved: it's the same scripted, keyword-matched approach as Blip's
+  other lines, staying fully static.
+
 ## [1.5.0] - 2026-07-22
 
 ### Added

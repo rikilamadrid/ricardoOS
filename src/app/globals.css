@@ -2495,6 +2495,62 @@
     }
   }
 
+  /* Ask toggle — mirrors `.os-blip-close`'s reveal treatment, opposite corner. */
+  .os-blip-ask-toggle {
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    display: grid;
+    place-items: center;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    font-size: 12px;
+    line-height: 1;
+    font-weight: 700;
+    color: rgba(20, 56, 92, 0.85);
+    background:
+      radial-gradient(circle at 34% 26%, rgba(255, 255, 255, 0.95), rgba(255, 255, 255, 0) 48%),
+      linear-gradient(180deg, #a8e4ff, #3ab0e8);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 2px 6px rgba(13, 52, 99, 0.35);
+    opacity: 0;
+    transform: scale(0.7);
+    transition: opacity 0.16s ease, transform 0.16s ease;
+  }
+  .os-blip-holder:hover .os-blip-ask-toggle,
+  .os-blip-holder:focus-within .os-blip-ask-toggle,
+  .os-blip-ask-toggle:focus-visible {
+    opacity: 1;
+    transform: scale(1);
+  }
+  .os-blip-ask-toggle:focus-visible {
+    outline: 2px solid rgba(255, 255, 255, 0.95);
+    outline-offset: 2px;
+  }
+  @media (pointer: coarse) {
+    .os-blip-ask-toggle {
+      opacity: 1;
+      transform: scale(1);
+      width: 26px;
+      height: 26px;
+      font-size: 15px;
+      top: -4px;
+      left: -4px;
+    }
+  }
+
+  /* Typed-question panel (phase 21) — wider than the speech bubble to hold an input. */
+  .os-blip-ask {
+    position: absolute;
+    width: min(280px, 70vw);
+    padding: 8px;
+    border-radius: 14px;
+  }
+  .os-blip-ask-input {
+    width: 100%;
+  }
+
   /* Speech bubble: `os-glass` with a rotated-square tail aimed at Blip. */
   .os-blip-speech {
     position: absolute;

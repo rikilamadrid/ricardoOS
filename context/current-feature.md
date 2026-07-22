@@ -1,153 +1,56 @@
-# Current Feature: Phase 20 — Desktop assistant (bubble mascot)
+# Current Feature: Phase 21 — Blip FAQ (typed question → canned answer)
 
 ## Status
 
-✅ **Complete.** Merged to `main` (merge `c0bba8c`, feature commit `1c65081`)
-and shipped as **v1.5.0** on 2026-07-22. Both 20A and 20B landed in one commit;
-20C stays out of scope.
+✅ **Built and verified in the browser**, on branch `feature/blip-faq`. Not
+yet committed — awaiting confirmation to commit. `npm run build` and
+`npm run lint` both pass. Verified live against the plan's checklist
+(typed stack/hire/project/contact/etc. questions, action-opening the right
+app, gibberish fallback, keyboard flow, mobile touch target, no console
+errors) using a headless Playwright pass against the dev server. Caught and
+fixed one real bug along the way: `ask()` could force-interrupt a line that
+was still mid-display, leaving stale text visible/announced for ~450ms
+before the new answer replaced it — `display()` in `assistant-brain.ts` now
+clears the current line immediately when force-interrupting.
 
-**This completes the Iteration 3 track (phases 17–20).** There is no active
-feature — the next one needs to be chosen and loaded here before work starts.
-
-⚠️ **Carried forward: Blip was never verified in a browser by the author.** It
-shipped on a passing lint + build. The timing-dependent behavior is the untested
-part: the 18s gap between unprompted lines, pool exhaustion, the drag-then-click
-swallow, and the speech tail's placement in each corner. The checklist is
-retained below — worth walking on the live site.
-
-### Decisions taken 2026-07-22
-
-- **Name: Blip.** Proper noun, not localized. Everything else it says is
-  `Localized<T>` in `src/data/assistant.ts`.
-- **Always present by default.** `dismissed` starts `false`; Blip only goes away
-  when the user sends it away.
-- **Dismiss path: a jellybean `×` orb** at the character's top-right, revealed on
-  hover/focus (and always visible under `pointer: coarse`, since touch has no
-  hover). Same specular language as the window traffic lights.
-- **Restore path: desktop context menu.** The item toggles, reading `Hide Blip` /
-  `Show Blip`. Dismissing fires a sonner toast naming the right-click menu, so
-  the restore path is taught at the moment it's needed rather than having to be
-  discovered cold. This is what makes context-menu-only viable without a
-  permanent menu-bar toggle.
-- **⚠️ Deviation from the spec: layering.** The spec said "below open windows".
-  Blip sits at `z-[7500]` — *above* windows (z 101+), below the dock (8000) and
-  menu bar (9000). Reason: 20B's per-app lines fire when a window opens, and a
-  character hidden behind that window can't deliver them; on mobile, where
-  windows open near-fullscreen, Blip would be permanently invisible. It stays
-  small, corner-perched and draggable, so it never meaningfully covers work.
-  **Flagged for review — revert to below-windows if you disagree.**
-
-### 20A + 20B — built, not yet verified in the browser
-
-- `src/data/assistant.ts` — `AssistantContent` (name, aria labels, both toasts,
-  the placeholder greeting), EN/ES/FR. Exported from the `@/data` barrel.
-- `src/lib/assistant-store.ts` — persisted `{ pos, dismissed }` under
-  `ricardo-os:assistant`, mirroring `desktop-icons-store`.
-- `src/components/os/Assistant.tsx` — character, drag, dismiss orb, speech
-  bubble. Mounted in `Desktop.tsx` between `Hint` and `ZenOverlay`.
-- `globals.css` — `.os-blip*` block (float, blink, close orb, speech + tail),
-  plus the two animations added to the `prefers-reduced-motion` reset.
-- `DesktopContextMenu.tsx` — the Hide/Show toggle item.
-
-Notes on the build: renders `null` until hydrated + `ARRIVAL_MS` (3600ms, just
-after `BootScreen` ends at 3100ms), which also sidesteps any hydration mismatch
-from the persisted position. Speech bubble flips above/below and left/right
-based on where Blip is perched. Drag reuses the `DesktopIcons` pointer pattern
-(4px threshold, transform-based, click swallowed after a drag) so a click can
-still toggle the speech.
-
-**20B — the scripted brain.**
-
-- `src/lib/assistant-brain.ts` — `useAssistantBrain({ locale, active, wallpaper })
-  → { text, poke }`. **This is the 20C seam:** OS state in, one line out.
-  `Assistant.tsx` has no idea *why* Blip is talking, so the hook could be swapped
-  for a streaming LLM version without touching the character.
-- `src/data/assistant.ts` — `lines` (firstVisit, welcomeBack, allWindowsClosed,
-  wallpaperChanged, idle, poke) + `appLines` keyed by app id. Pools hold more
-  than one option only where a trigger can fire repeatedly.
-- Triggers: first visit vs. return (persisted `seen` flag in the store), app
-  opened (per app, so Terminal's line is just `appLines.terminal`), last window
-  closed, wallpaper changed, 75s idle, and clicking Blip.
-- Restraint rules, all three enforced: never talks over itself and holds an 18s
-  gap between unprompted lines; never repeats a line in a session (pools run dry
-  and Blip goes quiet, which makes a long visit calmer rather than noisier);
-  never blocks a click (the bubble is `pointer-events-none`).
-- Blip is silent during zen mode (`active` is gated on `!zenMode`), which also
-  clears any in-flight line.
-- Lines are held as their `Localized` source and resolved at render, so flipping
-  the language mid-sentence re-renders the line rather than stranding it.
-
-**Accessibility note:** the visual speech bubble is `aria-hidden`. The live
-region is a separate, permanently-mounted `sr-only` `role="status"` span whose
-text changes. Screen readers reliably announce *changes* inside an existing live
-region but often miss one that mounts with its text already present, which is
-exactly what an animated bubble does on every line.
-
-**Next:** browser verification (see checklist below), then commit.
-
-### Verification still owed
-
-1. Blip floats in bottom-right after boot; blinks; bobs.
-2. Drag, reload, confirm the position stuck.
-3. Hover → red `×`; click → toast naming the right-click menu.
-4. Right-click desktop → `Show Blip` restores it.
-5. Open an app → its own line. Open a second immediately → **no** second line
-   (the 18s gap). Close all windows → the quiet line.
-6. Change the wallpaper → a line. Change it twice more → third change is silent
-   (pool exhausted).
-7. Tab to Blip → focus ring + `×` reveals. Screen reader announces each line.
-8. Mobile/touch: `×` is permanently visible and finger-sized; drag doesn't fight
-   page scroll.
-9. Zen mode → Blip silent and covered.
-10. Reduced motion → no float, no blink, speech still works.
+Blip (Phase 20) shipped as v1.5.0 and was verified live — see "Recently
+landed" below. This phase extends Blip's scripted brain so it can answer a
+handful of visitor questions (stack, hire status, best project, how to reach
+Ricardo, how the site itself is built) by typing into a small input, still
+with **no LLM and no backend** — pure keyword matching against a canned
+answer bank, staying inside the static-export/no-database constraint. This is
+explicitly *not* Phase 20C (the deferred real-LLM brain); the seam kept open
+in `assistant-brain.ts` for a future LLM swap is untouched.
 
 ## Goals
 
-### 20A — Character + shell
+- `FaqEntry` type + `faq` bank in `src/data/assistant.ts`, pulling answers
+  from existing typed content (`skillGroups`, `contact`, `projects`, `about`,
+  `experience`) rather than new hardcoded facts, plus a `faqFallback` line
+  for unmatched questions.
+- `ask(question)` added to `useAssistantBrain`'s return value: normalizes the
+  input, matches the first `faq` entry whose `patterns` substring-match,
+  displays the answer through the same timing/pacing mechanism `say()` uses
+  (but bypassing the 18s cooldown, like `poke(force)` already does), and — if
+  the matched entry has `action.openApp` — opens that app after the usual
+  reaction delay.
+- A small ask toggle button on `Assistant.tsx` (mirrors the existing dismiss
+  orb, opposite corner) that reveals a `.os-glass` input panel; submitting
+  calls `ask()`, clears, and closes — the answer renders through the existing
+  `Speech` component and aria-live region, no new answer UI.
+- New `.os-blip-ask*` styles in `globals.css`, reusing `.os-input` and the
+  existing above/below/left/right speech-tail modifier classes.
 
-- SVG bubble mascot — an original cute glass sphere with eyes and a smile,
-  built in the existing bubble gloss language (`.os-bubble` in `globals.css`):
-  specular highlight, rim light, soft drop shadow. Not Clippy, not a Microsoft
-  reproduction.
-- Desktop-level floating character, **not an app window** — a sibling of
-  `ZenOverlay` / `FooterCredit`, above the desktop but below open windows.
-- Glass speech bubble using `os-glass`, with a tail pointing at the character.
-- Draggable and dismissible; position + dismissed state persisted following the
-  `lib/desktop-icons-store.ts` pattern.
-- Idle wobble + blink animation; `prefers-reduced-motion` drops the wobble and
-  keeps the speech.
-- Decide the re-summon path once dismissed: dock item, menu-bar item, or
-  desktop context menu.
-
-### 20B — Scripted brain
-
-- New `src/data/assistant.ts` with localized (`Localized<T>`) lines keyed to
-  real OS state — never a random-quote generator.
-- Triggers: first visit, app opened (per-app line), long idle, Terminal opened,
-  wallpaper changed, all windows closed.
-- Restraint rules: never interrupt twice in a row, never repeat a line in a
-  session, never block a click.
-
-### Verification
-
-- Keyboard reachable; screen-reader sane (`role="status"` / `aria-live` on the
-  speech bubble).
-- Touch-friendly on mobile.
-- Doesn't fight window drag or the desktop context menu.
-- `npm run build` passes; `CHANGELOG.md` entry under `[Unreleased]`.
+Full design detail: `/Users/ricardolamadrid/.claude/plans/i-mean-what-would-wiggly-twilight.md`.
 
 ## Notes
 
-- **20C (real LLM brain) is explicitly out of scope.** Same UI, brain swapped
-  via a `/api/chat` function on the existing `contact-endpoint/` Vercel project
-  — deferred and unscheduled. Do not build toward it beyond keeping the brain
-  behind a seam that could be swapped later.
-- Size: **L** — the biggest of the Iteration 3 track. Phase 19's scene work is
-  settled, so wallpaper/backdrop layers are stable to build on top of.
+- Size: **M**. Touches `src/data/assistant.ts`, `src/lib/assistant-brain.ts`,
+  `src/components/os/Assistant.tsx`, `src/app/globals.css`.
 - Version impact: **MINOR**.
-- Branch name: `feature/desktop-assistant`.
-- Suggested split: land 20A (character + shell, with a single placeholder line)
-  before 20B (trigger-driven scripted brain) — they're separately verifiable.
+- Branch name: `feature/blip-faq`.
+- No changes to `assistant-store.ts` or `window-store.ts` — FAQ state is
+  ephemeral, and `openApp(id)` is reused as-is.
 
 ---
 
@@ -165,7 +68,7 @@ further down.
 | 17 | Retire Playground | XS | ✅ **Shipped** in v1.2.0 (merge `fac0417`) |
 | 18 | Field Notes post — agentic workflow / context windows | S | ✅ **Shipped** in v1.3.0 (merge `96f6836`) |
 | 19 | Backdrop system + 4 new scenes | M | ✅ **Shipped** in v1.4.0 (merge `dbc8612`) |
-| 20 | Desktop assistant (bubble mascot) | L | Biggest; 19's scene work is now settled |
+| 20 | Desktop assistant (bubble mascot) | L | ✅ **Shipped** in v1.5.0 (merge `c0bba8c`) |
 
 ---
 
@@ -464,6 +367,25 @@ Resume after Phase 15 lands. Overview retained for reference:
 ---
 
 ## Recently landed
+
+**Phase 20 — Desktop assistant (bubble mascot), "Blip".** ✅ Merged to `main`
+(merge `c0bba8c`; feature commit `1c65081`) and shipped as **v1.5.0** on
+2026-07-22. Both 20A (character + shell) and 20B (scripted brain) landed in
+one commit; 20C (real LLM) stays explicitly out of scope, with the brain kept
+behind a `useAssistantBrain({ locale, active, wallpaper }) → { text, poke }`
+seam so it could later be swapped for a streaming LLM without touching the
+character. Always present by default; dismiss via a jellybean `×` orb,
+restore via a `Show Blip` desktop-context-menu item (dismissing teaches this
+path via a toast). Deviates from spec on z-layering: Blip sits at `z-[7500]`,
+*above* windows rather than below, so it can still deliver per-app lines when
+a window covers the desktop. Triggers: first visit vs. return, app opened
+(per-app line), last window closed, wallpaper changed, 75s idle, and click
+("poke"). Restraint rules: 18s gap between unprompted lines, never repeats a
+line in a session, never blocks a click. Verified live post-ship against the
+full checklist (drag persistence, dismiss/restore, trigger pacing, zen-mode
+silence, reduced motion, mobile touch targets) — all passed.
+
+---
 
 **Phase 19 — Backdrop system + 4 new scenes.** ✅ Merged to `main` (merge
 `dbc8612`; feature commit `72b9a86`). A wallpaper now names a `scene` and

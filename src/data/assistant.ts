@@ -16,6 +16,19 @@ import type { Localized } from "./types";
 /** Interchangeable lines for one trigger. Picked in order, never reused. */
 export type AssistantLinePool = Localized<string>[];
 
+/**
+ * One entry in Blip's FAQ bank (phase 21). `patterns` are lowercase
+ * substrings checked against the visitor's typed question — first match
+ * wins. `action.openApp` (an id from `src/data/os.ts`) is optional: some
+ * answers are just words, others also open the relevant app.
+ */
+export interface FaqEntry {
+  id: string;
+  patterns: string[];
+  answer: Localized<string>;
+  action?: { openApp: string };
+}
+
 export interface AssistantContent {
   /** Character name — a proper noun, so deliberately not localized. */
   name: string;
@@ -29,6 +42,10 @@ export interface AssistantContent {
   dismissToast: Localized<string>;
   /** Toast when Blip is brought back from the context menu. */
   summonToast: Localized<string>;
+  /** Accessible name for the button that reveals the ask-a-question panel. */
+  askToggleLabel: Localized<string>;
+  /** Placeholder text for the ask-a-question input. */
+  askPlaceholder: Localized<string>;
   /** Lines for OS-state triggers that aren't tied to a specific app. */
   lines: {
     firstVisit: AssistantLinePool;
@@ -41,6 +58,10 @@ export interface AssistantContent {
   };
   /** One line per app, keyed by app id from `src/data/os.ts`. */
   appLines: Record<string, AssistantLinePool>;
+  /** Keyword-matched FAQ bank for the typed-question panel (phase 21). */
+  faq: FaqEntry[];
+  /** Shown when no `faq` entry matches the typed question. */
+  faqFallback: Localized<string>;
 }
 
 export const assistant: AssistantContent = {
@@ -74,6 +95,18 @@ export const assistant: AssistantContent = {
     en: "🫧 Blip is back.",
     es: "🫧 Blip ha vuelto.",
     fr: "🫧 Blip est de retour.",
+  },
+
+  askToggleLabel: {
+    en: "Ask Blip a question",
+    es: "Pregúntale algo a Blip",
+    fr: "Poser une question à Blip",
+  },
+
+  askPlaceholder: {
+    en: "Ask me something…",
+    es: "Pregúntame algo…",
+    fr: "Demande-moi quelque chose…",
   },
 
   lines: {
@@ -205,5 +238,102 @@ export const assistant: AssistantContent = {
         fr: "Attention. L'ancien portfolio est là-dedans.",
       },
     ],
+  },
+
+  faq: [
+    {
+      id: "stack",
+      patterns: ["stack", "technolog", "tech ", "tecnolog", "technologie", "build with", "made with"],
+      answer: {
+        en: "Mostly React and Next.js, TypeScript everywhere, Node on the backend when there is one. Lately a lot of AI-augmented workflows too — Claude Code, MCP servers, context engineering.",
+        es: "Sobre todo React y Next.js, TypeScript en todas partes, Node en el backend cuando lo hay. Últimamente también muchos flujos aumentados con IA: Claude Code, servidores MCP, ingeniería de contexto.",
+        fr: "Surtout React et Next.js, TypeScript partout, Node côté serveur quand il y en a un. Ces derniers temps aussi beaucoup de workflows augmentés par l'IA : Claude Code, serveurs MCP, ingénierie de contexte.",
+      },
+    },
+    {
+      id: "hire",
+      patterns: ["hire", "available", "freelance", "contratar", "disponib", "recrutement", "embauche"],
+      answer: {
+        en: "Depends on the project, but I'm always up for interesting conversations. The Contact app is the fastest way to find out.",
+        es: "Depende del proyecto, pero siempre estoy abierto a conversaciones interesantes. La app de Contacto es la forma más rápida de averiguarlo.",
+        fr: "Ça dépend du projet, mais je suis toujours partant pour une conversation intéressante. L'app Contact est le moyen le plus rapide de le savoir.",
+      },
+      action: { openApp: "contact" },
+    },
+    {
+      id: "contact",
+      patterns: ["contact", "reach", "email", "correo", "contacto", "e-mail", "courriel"],
+      answer: {
+        en: "Go on, say hello. Every message gets read.",
+        es: "Anda, saluda. Todos los mensajes se leen.",
+        fr: "Vas-y, dis bonjour. Tous les messages sont lus.",
+      },
+      action: { openApp: "contact" },
+    },
+    {
+      id: "best-project",
+      patterns: ["best project", "favorite project", "favourite project", "mejor proyecto", "proyecto favorito", "meilleur projet", "projet préféré"],
+      answer: {
+        en: "PokéPal is the one I'm proudest of — a whole app shipped end to end. Take a look.",
+        es: "PokéPal es del que más orgulloso estoy: una app entera lanzada de principio a fin. Échale un vistazo.",
+        fr: "PokéPal est celui dont je suis le plus fier : une app entière livrée de bout en bout. Jette un œil.",
+      },
+      action: { openApp: "projects" },
+    },
+    {
+      id: "projects",
+      patterns: ["project", "portfolio work", "built", "shipped", "proyecto", "construido", "projet", "construit"],
+      answer: {
+        en: "The good stuff. Every card opens a real page.",
+        es: "Lo bueno. Cada tarjeta abre una página de verdad.",
+        fr: "Le meilleur. Chaque carte ouvre une vraie page.",
+      },
+      action: { openApp: "projects" },
+    },
+    {
+      id: "background",
+      patterns: ["who are you", "background", "about you", "quién eres", "quien eres", "qui es-tu", "qui êtes-vous"],
+      answer: {
+        en: "A software engineer who never grew out of taking things apart to see how they work. The About app has the longer version.",
+        es: "Un ingeniero de software que nunca dejó de desarmar las cosas para ver cómo funcionan. La app Sobre Mí tiene la versión larga.",
+        fr: "Un ingénieur logiciel qui n'a jamais cessé de démonter les choses pour voir comment elles marchent. L'app À Propos a la version longue.",
+      },
+      action: { openApp: "about" },
+    },
+    {
+      id: "resume",
+      patterns: ["resume", "cv", "résumé", "curriculum", "currículum"],
+      answer: {
+        en: "The formal version. It even prints.",
+        es: "La versión formal. Hasta se puede imprimir.",
+        fr: "La version formelle. Elle s'imprime même.",
+      },
+      action: { openApp: "resume" },
+    },
+    {
+      id: "experience",
+      patterns: ["experience", "work history", "worked", "experiencia", "expérience", "travaillé"],
+      answer: {
+        en: "Chapters, not a timeline. That was on purpose.",
+        es: "Capítulos, no una línea temporal. Fue a propósito.",
+        fr: "Des chapitres, pas une frise. C'était volontaire.",
+      },
+      action: { openApp: "experience" },
+    },
+    {
+      id: "how-built",
+      patterns: ["how is this site", "how was this built", "how this site", "cómo está hecho", "como esta hecho", "comment ce site"],
+      answer: {
+        en: "Next.js and Tailwind, a Zustand window manager, no backend at all — it's a fully static export. Even I have to reload the page to change my mind.",
+        es: "Next.js y Tailwind, un gestor de ventanas en Zustand, sin backend: es una exportación totalmente estática. Hasta yo tengo que recargar la página para cambiar de idea.",
+        fr: "Next.js et Tailwind, un gestionnaire de fenêtres en Zustand, aucun backend : c'est un export entièrement statique. Même moi, je dois recharger la page pour changer d'avis.",
+      },
+    },
+  ],
+
+  faqFallback: {
+    en: "I don't have an answer for that one. Try the dock, or ask me about my stack, my projects, or how to reach Ricardo.",
+    es: "No tengo respuesta para eso. Prueba el dock, o pregúntame sobre mi stack, mis proyectos, o cómo contactar a Ricardo.",
+    fr: "Je n'ai pas de réponse pour ça. Essaie le dock, ou demande-moi mon stack, mes projets, ou comment contacter Ricardo.",
   },
 };
