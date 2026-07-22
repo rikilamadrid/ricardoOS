@@ -11,6 +11,15 @@ function normalize(raw: string): string {
 }
 
 /**
+ * The endpoint already answered in the visitor's language, so the same string
+ * fills every slot. Flipping locale mid-answer can't retranslate it — the
+ * alternative would be three round-trips for one question.
+ */
+function asLocalized(text: string): Localized<string> {
+  return { en: text, es: text, fr: text };
+}
+
+/**
  * Blip's brain (phase 20B) — a scripted one.
  *
  * Deliberately a seam: OS state goes in, one line comes out. `Assistant.tsx`
@@ -31,6 +40,21 @@ const IDLE_MS = 75_000;
 const REACT_MS = 450;
 /** Re-arming the idle timer on every mousemove would be wasteful. */
 const IDLE_REARM_THROTTLE_MS = 2_000;
+
+/**
+ * Phase 22 — the LLM fallback, used only when the FAQ bank misses.
+ *
+ * Unset until the endpoint is deployed and the build-time env var is wired up,
+ * which is the point: with no endpoint the fetch is skipped entirely and Blip
+ * uses the same static fallback line it always did.
+ */
+const CHAT_ENDPOINT = process.env.NEXT_PUBLIC_CHAT_ENDPOINT;
+/** Past this Blip has looked frozen long enough — take the fallback instead. */
+const CHAT_TIMEOUT_MS = 8_000;
+/** Belt and suspenders over the server's per-IP limit: one tab can't hammer it. */
+const MAX_LLM_CALLS_PER_SESSION = 6;
+/** Matches the endpoint's own cap, so an over-long question fails here, not there. */
+const MAX_QUESTION_LENGTH = 300;
 
 /** Rough reading time for a line, floor 4s and ceiling 11s. */
 function readMs(text: string): number {
@@ -203,24 +227,76 @@ export function useAssistantBrain({ locale, active, wallpaper }: BrainInput): Br
     say("poke", lines.poke, true);
   }, [hush, say]);
 
+  /** Spent LLM calls this session, and a token identifying the newest question. */
+  const llmCalls = useRef(0);
+  const askSeq = useRef(0);
+
   /**
    * Answer a typed question. Unlike `say()`, this is an explicit user action —
    * it always answers (bypassing the cooldown and any in-flight line), and the
    * matched entry isn't tracked in `said`, since a question can be re-asked.
+   *
+   * The FAQ bank still answers instantly and for free when it matches. Only a
+   * miss reaches for the LLM (phase 22), and every failure path there — no
+   * endpoint, session cap hit, timeout, non-2xx, malformed body — lands on the
+   * same static fallback line the FAQ bank used before. The visitor never sees
+   * an error, and the fetch is fire-and-forget so `ask` stays `() => void`.
    */
   const ask = useCallback(
     (question: string) => {
       if (!activeRef.current) return;
       const normalized = normalize(question);
       if (!normalized) return;
+
+      // Stamped before anything async, so a slow answer to an abandoned
+      // question can tell it's been superseded and stay quiet.
+      const seq = ++askSeq.current;
+
       const match = assistant.faq.find((entry) =>
         entry.patterns.some((pattern) => normalized.includes(pattern)),
       );
-      display(match?.answer ?? assistant.faqFallback);
-      const openApp = match?.action?.openApp;
-      if (openApp) {
-        setTimeout(() => useWindowStore.getState().openApp(openApp), REACT_MS);
+
+      if (match) {
+        display(match.answer);
+        const openApp = match.action?.openApp;
+        if (openApp) {
+          setTimeout(() => useWindowStore.getState().openApp(openApp), REACT_MS);
+        }
+        return;
       }
+
+      if (!CHAT_ENDPOINT || llmCalls.current >= MAX_LLM_CALLS_PER_SESSION) {
+        display(assistant.faqFallback);
+        return;
+      }
+
+      llmCalls.current += 1;
+      // Something to look at during the round-trip, so Blip doesn't read as stuck.
+      const thinking = lines.thinking[0];
+      if (thinking) display(thinking);
+
+      void (async () => {
+        try {
+          const res = await fetch(CHAT_ENDPOINT, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              question: question.trim().slice(0, MAX_QUESTION_LENGTH),
+              locale: localeRef.current,
+            }),
+            signal: AbortSignal.timeout(CHAT_TIMEOUT_MS),
+          });
+          if (!res.ok) throw new Error(`Chat endpoint returned ${res.status}`);
+          const data = (await res.json()) as { answer?: unknown };
+          const answer = typeof data.answer === "string" ? data.answer.trim() : "";
+          if (!answer) throw new Error("Chat endpoint returned no answer");
+          if (seq !== askSeq.current || !activeRef.current) return;
+          display(asLocalized(answer));
+        } catch {
+          if (seq !== askSeq.current || !activeRef.current) return;
+          display(assistant.faqFallback);
+        }
+      })();
     },
     [display],
   );

@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Blip can now answer open-ended questions, not just the ones anticipated in
+  its canned bank. Familiar questions are still answered instantly from that
+  bank; anything else is passed to a real language model that has been given
+  a summary of Ricardo's background, projects, and how this site is built, and
+  is scoped to those topics only. Blip shows a brief "let me think" while it
+  waits, and replies in the language the site is set to. If the model is
+  unreachable, slow, or hasn't been configured, Blip falls back to its usual
+  friendly "I don't have an answer for that one" line, so nothing breaks.
+
 ## [1.6.0] - 2026-07-22
 
 ### Added

@@ -55,6 +55,13 @@ export interface AssistantContent {
     idle: AssistantLinePool;
     /** Said when the user clicks Blip directly. */
     poke: AssistantLinePool;
+    /**
+     * Held while a typed question is out to the LLM (phase 22). Unlike every
+     * other pool this one is a placeholder, not an answer: it's replaced the
+     * moment the fetch resolves rather than timing out normally, and it may
+     * repeat across a session since it isn't tracked in `said`.
+     */
+    thinking: AssistantLinePool;
   };
   /** One line per app, keyed by app id from `src/data/os.ts`. */
   appLines: Record<string, AssistantLinePool>;
@@ -170,6 +177,14 @@ export const assistant: AssistantContent = {
         en: "Yes? I'm mostly decorative, but I'm listening.",
         es: "¿Sí? Soy sobre todo decorativo, pero te escucho.",
         fr: "Oui ? Je suis surtout décoratif, mais j'écoute.",
+      },
+    ],
+
+    thinking: [
+      {
+        en: "Let me think…",
+        es: "Déjame pensar…",
+        fr: "Laisse-moi réfléchir…",
       },
     ],
   },

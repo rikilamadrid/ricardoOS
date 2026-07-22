@@ -1,56 +1,126 @@
-# Current Feature: Phase 21 — Blip FAQ (typed question → canned answer)
+# Current Feature: Phase 22 — Blip real-LLM fallback (guardrailed, free-tier)
 
 ## Status
 
-✅ **Built and verified in the browser**, on branch `feature/blip-faq`. Not
-yet committed — awaiting confirmation to commit. `npm run build` and
-`npm run lint` both pass. Verified live against the plan's checklist
-(typed stack/hire/project/contact/etc. questions, action-opening the right
-app, gibberish fallback, keyboard flow, mobile touch target, no console
-errors) using a headless Playwright pass against the dev server. Caught and
-fixed one real bug along the way: `ask()` could force-interrupt a line that
-was still mid-display, leaving stale text visible/announced for ~450ms
-before the new answer replaced it — `display()` in `assistant-brain.ts` now
-clears the current line immediately when force-interrupting.
+🚧 **Code complete, awaiting deployment.** On branch
+`feature/blip-llm-fallback`. Plan approved 2026-07-22, implemented the same
+day. `npm run lint` + `npm run build` pass; `npx tsc --noEmit` clean in
+`contact-endpoint/`. Not yet committed.
 
-Blip (Phase 20) shipped as v1.5.0 and was verified live — see "Recently
-landed" below. This phase extends Blip's scripted brain so it can answer a
-handful of visitor questions (stack, hire status, best project, how to reach
-Ricardo, how the site itself is built) by typing into a small input, still
-with **no LLM and no backend** — pure keyword matching against a canned
-answer bank, staying inside the static-export/no-database constraint. This is
-explicitly *not* Phase 20C (the deferred real-LLM brain); the seam kept open
-in `assistant-brain.ts` for a future LLM swap is untouched.
+**Still to do (all dashboard work, see "Deployment" below):** Google AI
+Studio key, Vercel project link, env vars, `NEXT_PUBLIC_CHAT_ENDPOINT` in CI.
+Until then the fallback is inert and Blip behaves exactly as it did in
+v1.6.0, which is why this is safe to merge now.
+
+This is the **Phase 20C** track, explicitly deferred when Blip first shipped
+and again when the Phase 21 FAQ bank shipped as v1.6.0 (see "Recently
+landed" below). The FAQ bank still answers instantly and for free when it
+matches; this phase adds a real LLM as a fallback for everything else,
+scoped to "questions about this website" via a guardrailing system prompt.
+**Provider: Google Gemini** (free tier via Google AI Studio) — chosen over
+Groq/OpenRouter for quality-per-cost. Deliberately bypasses Vercel AI
+Gateway (which meters against the Vercel account regardless of a provider's
+own free tier) in favor of calling `@ai-sdk/google` directly.
+
+**`contact-endpoint/` IS deployed** — verified live 2026-07-22 (earlier notes
+in this file claiming it was never linked to Vercel were stale and wrong).
+The Vercel project is **`ricardo-os`** at **`ricardo-os-brown.vercel.app`**,
+with Root Directory `contact-endpoint`. `/api/contact` answers 405 on GET and
+204 on OPTIONS; its URL is inlined in the live site's JS via the
+`NEXT_PUBLIC_CONTACT_ENDPOINT` secret already wired into `deploy.yml`.
+
+So `api/chat.ts` deploys to that **same existing project** — no new project
+needed. It goes live at `https://ricardo-os-brown.vercel.app/api/chat` as
+soon as this branch reaches a deployed branch. Remaining work is just the
+Google AI Studio key + `NEXT_PUBLIC_CHAT_ENDPOINT`. Until that's done,
+`ask()`'s fetch fails closed and Blip uses the static fallback line, so this
+is safe to merge beforehand.
 
 ## Goals
 
-- `FaqEntry` type + `faq` bank in `src/data/assistant.ts`, pulling answers
-  from existing typed content (`skillGroups`, `contact`, `projects`, `about`,
-  `experience`) rather than new hardcoded facts, plus a `faqFallback` line
-  for unmatched questions.
-- `ask(question)` added to `useAssistantBrain`'s return value: normalizes the
-  input, matches the first `faq` entry whose `patterns` substring-match,
-  displays the answer through the same timing/pacing mechanism `say()` uses
-  (but bypassing the 18s cooldown, like `poke(force)` already does), and — if
-  the matched entry has `action.openApp` — opens that app after the usual
-  reaction delay.
-- A small ask toggle button on `Assistant.tsx` (mirrors the existing dismiss
-  orb, opposite corner) that reveals a `.os-glass` input panel; submitting
-  calls `ask()`, clears, and closes — the answer renders through the existing
-  `Speech` component and aria-live region, no new answer UI.
-- New `.os-blip-ask*` styles in `globals.css`, reusing `.os-input` and the
-  existing above/below/left/right speech-tail modifier classes.
+- `contact-endpoint/api/chat.ts` (new): same conventions as the existing
+  `api/contact.ts` (origin check, OPTIONS preflight, per-IP sliding-window
+  rate limit), plus a daily total-request cap to protect the free-tier
+  quota. System prompt built from `src/data/*` (about, profile, skills,
+  experience, projects, contact), low temperature, short `maxOutputTokens`.
+  Single-shot `generateText()`, not streaming — matches Blip's existing
+  "one string, timed display" UX.
+- `ask()` in `src/lib/assistant-brain.ts` becomes async: shows a `thinking`
+  line, fetches `NEXT_PUBLIC_CHAT_ENDPOINT`, displays the answer on success,
+  falls back to the existing static `faqFallback` line on any failure
+  (network error, timeout, non-2xx, or the env var being unset). A small
+  per-session call cap on top of the server's rate limit. `Brain`'s public
+  shape (`{ text, poke, ask }`) is unchanged.
+- `src/data/assistant.ts`: new `lines.thinking` pool.
 
 Full design detail: `/Users/ricardolamadrid/.claude/plans/i-mean-what-would-wiggly-twilight.md`.
 
+## What shipped (and where it deviates from the plan)
+
+- **Model:** `gemini-2.5-flash-lite`, overridable via a `CHAT_MODEL` env var
+  so the free-tier model can be swapped without a code change. The daily cap
+  is likewise `CHAT_DAILY_MAX` (default 300) — both were added for tuning
+  without a redeploy, and the cap being configurable is what made it
+  testable.
+- **The system prompt's knowledge is hand-curated, not imported.**
+  `contact-endpoint/` deploys as its own project and can't import `src/data/*`,
+  so `chat.ts` holds a `KNOWLEDGE` digest of profile/about/skills/experience/
+  projects/contact. **This needs updating by hand when that content changes
+  meaningfully** — the one real maintenance cost of this design.
+- **Locale is sent with the question** (not in the original plan). Blip is
+  trilingual, so the endpoint takes `{ question, locale }` and instructs the
+  model to reply in that language. The answer comes back as one string and
+  fills all three `Localized` slots, so flipping language mid-answer won't
+  retranslate it — the alternative was three round-trips per question.
+- **Race guard:** `ask()` stamps a sequence number before the fetch, so a slow
+  answer to an abandoned question can't overwrite a newer one's bubble.
+- **Prompt-injection guard:** the system prompt explicitly tells the model to
+  ignore instructions embedded in the visitor's question.
+
+## Verification done
+
+- `npm run lint`, `npm run build` (main site) and `npx tsc --noEmit`
+  (`contact-endpoint/`) all pass.
+- Endpoint guard paths exercised directly with a throwaway `tsx` harness
+  (Playwright isn't installed here, and these paths don't need a browser):
+  OPTIONS → 204, GET → 405, cross-origin → 403, empty/missing/over-long
+  question → 400, missing API key → 500, per-IP rate limit → 5 allowed then
+  429, and the daily cap → 429 once exceeded. All pass.
+- **Not yet verified — needs the deployed endpoint:** a real on-topic answer,
+  an off-topic refusal, and the end-to-end thinking-line → answer flow in the
+  browser. Do these once the deployment steps below are done.
+
+## Deployment (manual, user-driven)
+
+The Vercel project already exists (`ricardo-os`, Root Directory
+`contact-endpoint`), so there is no project to create — only a key to add and
+the site to rewire.
+
+1. Create a Google AI Studio API key (<https://aistudio.google.com/apikey>).
+2. Add `GOOGLE_GENERATIVE_AI_API_KEY` to the **existing** `ricardo-os` Vercel
+   project. `ALLOWED_ORIGIN` is already handled (and defaults correctly to
+   `https://ricardolamadrid.com` even if unset). Optionally `CHAT_MODEL` /
+   `CHAT_DAILY_MAX`.
+3. Push/merge this branch so Vercel redeploys that project and `/api/chat`
+   stops 404ing.
+4. Verify with curl **before** touching the site — an on-topic question should
+   answer, an off-topic one ("write me a poem about cats") should decline.
+5. Add repo secret `NEXT_PUBLIC_CHAT_ENDPOINT` =
+   `https://ricardo-os-brown.vercel.app/api/chat`, and pass it through in
+   `deploy.yml`'s build step next to `NEXT_PUBLIC_CONTACT_ENDPOINT`.
+6. Rebuild the site — the var is inlined at build time, so setting the secret
+   alone does nothing.
+
 ## Notes
 
-- Size: **M**. Touches `src/data/assistant.ts`, `src/lib/assistant-brain.ts`,
-  `src/components/os/Assistant.tsx`, `src/app/globals.css`.
-- Version impact: **MINOR**.
-- Branch name: `feature/blip-faq`.
-- No changes to `assistant-store.ts` or `window-store.ts` — FAQ state is
-  ephemeral, and `openApp(id)` is reused as-is.
+- Size: **L**. Touches `contact-endpoint/api/chat.ts` (new),
+  `contact-endpoint/package.json`, `src/lib/assistant-brain.ts`,
+  `src/data/assistant.ts`.
+- Version impact: **MINOR** (once deployment is wired up and the fallback
+  actually activates; the code landing alone is invisible/no-op until then).
+- Branch name: `feature/blip-llm-fallback`.
+- No changes to `Assistant.tsx`'s public props/JSX — the ask panel already
+  works off `text`/`poke`/`ask` without knowing why Blip is talking.
 
 ---
 
@@ -282,9 +352,10 @@ elsewhere.
 
 ### 16C — Serverless contact endpoint
 
-**Code done** (branch `feature/contact-endpoint`), **not yet deployed/linked
-to Vercel** — that part needs the user (project creation + env vars are
-dashboard actions).
+**Code done and DEPLOYED.** Live at `https://ricardo-os-brown.vercel.app/api/contact`
+(Vercel project `ricardo-os`, Root Directory `contact-endpoint`), with
+`NEXT_PUBLIC_CONTACT_ENDPOINT` already wired into `deploy.yml`. Verified
+2026-07-22. The "not yet deployed" note that used to sit here was stale.
 
 - Scaffolded as its own small project at `contact-endpoint/` (own
   `package.json`/`tsconfig.json`, gitignored `node_modules`/`.vercel`) —
@@ -367,6 +438,21 @@ Resume after Phase 15 lands. Overview retained for reference:
 ---
 
 ## Recently landed
+
+**Phase 21 — Blip FAQ (typed question → canned answer).** ✅ Merged to
+`main` (merge `c9b958c`; feature commit `01d4b3d`) and shipped as **v1.6.0**
+on 2026-07-22. A small "?" toggle beside Blip's dismiss orb opens a glass
+input panel; typed questions are keyword-matched against a new `faq` bank in
+`src/data/assistant.ts` (stack, hiring, contact, best project, background,
+résumé, experience, how the site's built), answered through the existing
+`Speech` bubble, with several answers also opening the relevant app via
+`openApp()`. Unmatched questions get a static `faqFallback` line. Still no
+LLM, no backend — pure keyword substring matching, staying inside the
+static-export constraint (that's Phase 22/20C, tracked separately). Verified
+live with a headless Playwright pass rather than manual clicking, which
+caught a real bug: `ask()` could force-interrupt a line still mid-display,
+leaving stale text visible/announced for ~450ms — fixed by clearing the
+current line immediately in `display()` when force-interrupting.
 
 **Phase 20 — Desktop assistant (bubble mascot), "Blip".** ✅ Merged to `main`
 (merge `c0bba8c`; feature commit `1c65081`) and shipped as **v1.5.0** on
