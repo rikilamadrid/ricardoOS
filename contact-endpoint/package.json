@@ -4,6 +4,8 @@
   "private": true,
   "description": "Standalone Vercel Function that relays RicardoOS contact form submissions via Resend.",
   "dependencies": {
+    "@ai-sdk/google": "^3.0.99",
+    "ai": "^6.0.234",
     "resend": "^6.17.2"
   },
   "devDependencies": {

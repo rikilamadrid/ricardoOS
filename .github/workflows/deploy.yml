@@ -37,6 +37,9 @@ jobs:
         run: npm run build
         env:
           NEXT_PUBLIC_CONTACT_ENDPOINT: ${{ secrets.NEXT_PUBLIC_CONTACT_ENDPOINT }}
+          # Unset until the Google AI Studio key is live; an empty value just
+          # means Blip keeps using its static fallback line.
+          NEXT_PUBLIC_CHAT_ENDPOINT: ${{ secrets.NEXT_PUBLIC_CHAT_ENDPOINT }}
 
       - name: Add server config (.htaccess)
         run: cp deploy/.htaccess out/.htaccess
