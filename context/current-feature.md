@@ -57,7 +57,7 @@ Full design detail: `/Users/ricardolamadrid/.claude/plans/i-mean-what-would-wigg
 
 ## What shipped (and where it deviates from the plan)
 
-- **Model:** `gemini-2.5-flash-lite`, overridable via a `CHAT_MODEL` env var
+- **Model:** `gemini-3-flash-preview`, overridable via a `CHAT_MODEL` env var
   so the free-tier model can be swapped without a code change. The daily cap
   is likewise `CHAT_DAILY_MAX` (default 300) — both were added for tuning
   without a redeploy, and the cap being configurable is what made it
