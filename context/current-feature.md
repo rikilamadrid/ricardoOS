@@ -1,18 +1,62 @@
-# Current Feature
+# Current Feature: Phase 20 — Desktop assistant (bubble mascot)
 
 ## Status
 
-None active. Phase 19 landed on 2026-07-21 and is awaiting a release cut (v1.3.0
-covers Phase 18; Phase 19 needs its own MINOR bump). Next up is **Phase 20 —
-Desktop assistant (bubble mascot)** (spec below); `/feature load` it when ready.
+Not Started. Loaded 2026-07-21 from the inline Phase 20 spec below (there is no
+`context/features/phase-20-*.md`). Branch `feature/desktop-assistant` not yet
+created — ask before branching into implementation.
+
+⚠️ Outstanding: Phase 19 is merged to `main` but **still needs its own MINOR
+release cut** (v1.3.0 only covers Phase 18). Cut that before or alongside this
+phase so the changelog doesn't stack two features under one bump.
 
 ## Goals
 
-<!-- Populated by /feature load. -->
+### 20A — Character + shell
+
+- SVG bubble mascot — an original cute glass sphere with eyes and a smile,
+  built in the existing bubble gloss language (`.os-bubble` in `globals.css`):
+  specular highlight, rim light, soft drop shadow. Not Clippy, not a Microsoft
+  reproduction.
+- Desktop-level floating character, **not an app window** — a sibling of
+  `ZenOverlay` / `FooterCredit`, above the desktop but below open windows.
+- Glass speech bubble using `os-glass`, with a tail pointing at the character.
+- Draggable and dismissible; position + dismissed state persisted following the
+  `lib/desktop-icons-store.ts` pattern.
+- Idle wobble + blink animation; `prefers-reduced-motion` drops the wobble and
+  keeps the speech.
+- Decide the re-summon path once dismissed: dock item, menu-bar item, or
+  desktop context menu.
+
+### 20B — Scripted brain
+
+- New `src/data/assistant.ts` with localized (`Localized<T>`) lines keyed to
+  real OS state — never a random-quote generator.
+- Triggers: first visit, app opened (per-app line), long idle, Terminal opened,
+  wallpaper changed, all windows closed.
+- Restraint rules: never interrupt twice in a row, never repeat a line in a
+  session, never block a click.
+
+### Verification
+
+- Keyboard reachable; screen-reader sane (`role="status"` / `aria-live` on the
+  speech bubble).
+- Touch-friendly on mobile.
+- Doesn't fight window drag or the desktop context menu.
+- `npm run build` passes; `CHANGELOG.md` entry under `[Unreleased]`.
 
 ## Notes
 
-<!-- Populated by /feature load. -->
+- **20C (real LLM brain) is explicitly out of scope.** Same UI, brain swapped
+  via a `/api/chat` function on the existing `contact-endpoint/` Vercel project
+  — deferred and unscheduled. Do not build toward it beyond keeping the brain
+  behind a seam that could be swapped later.
+- Size: **L** — the biggest of the Iteration 3 track. Phase 19's scene work is
+  settled, so wallpaper/backdrop layers are stable to build on top of.
+- Version impact: **MINOR**.
+- Branch name: `feature/desktop-assistant`.
+- Suggested split: land 20A (character + shell, with a single placeholder line)
+  before 20B (trigger-driven scripted brain) — they're separately verifiable.
 
 ---
 
