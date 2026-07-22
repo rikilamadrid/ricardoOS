@@ -2,13 +2,99 @@
 
 ## Status
 
-Not Started. Loaded 2026-07-21 from the inline Phase 20 spec below (there is no
-`context/features/phase-20-*.md`). Branch `feature/desktop-assistant` not yet
-created — ask before branching into implementation.
+**In Progress** — 20A built, awaiting browser verification. Branch
+`feature/desktop-assistant` created 2026-07-22 off `main` (v1.4.0). Not yet
+committed.
 
 Phase 19 shipped as **v1.4.0** on 2026-07-22 and is live, so this phase starts
 from a clean release boundary — its changelog entries go under a fresh
 `[Unreleased]`.
+
+### Decisions taken 2026-07-22
+
+- **Name: Blip.** Proper noun, not localized. Everything else it says is
+  `Localized<T>` in `src/data/assistant.ts`.
+- **Always present by default.** `dismissed` starts `false`; Blip only goes away
+  when the user sends it away.
+- **Dismiss path: a jellybean `×` orb** at the character's top-right, revealed on
+  hover/focus (and always visible under `pointer: coarse`, since touch has no
+  hover). Same specular language as the window traffic lights.
+- **Restore path: desktop context menu.** The item toggles, reading `Hide Blip` /
+  `Show Blip`. Dismissing fires a sonner toast naming the right-click menu, so
+  the restore path is taught at the moment it's needed rather than having to be
+  discovered cold. This is what makes context-menu-only viable without a
+  permanent menu-bar toggle.
+- **⚠️ Deviation from the spec: layering.** The spec said "below open windows".
+  Blip sits at `z-[7500]` — *above* windows (z 101+), below the dock (8000) and
+  menu bar (9000). Reason: 20B's per-app lines fire when a window opens, and a
+  character hidden behind that window can't deliver them; on mobile, where
+  windows open near-fullscreen, Blip would be permanently invisible. It stays
+  small, corner-perched and draggable, so it never meaningfully covers work.
+  **Flagged for review — revert to below-windows if you disagree.**
+
+### 20A + 20B — built, not yet verified in the browser
+
+- `src/data/assistant.ts` — `AssistantContent` (name, aria labels, both toasts,
+  the placeholder greeting), EN/ES/FR. Exported from the `@/data` barrel.
+- `src/lib/assistant-store.ts` — persisted `{ pos, dismissed }` under
+  `ricardo-os:assistant`, mirroring `desktop-icons-store`.
+- `src/components/os/Assistant.tsx` — character, drag, dismiss orb, speech
+  bubble. Mounted in `Desktop.tsx` between `Hint` and `ZenOverlay`.
+- `globals.css` — `.os-blip*` block (float, blink, close orb, speech + tail),
+  plus the two animations added to the `prefers-reduced-motion` reset.
+- `DesktopContextMenu.tsx` — the Hide/Show toggle item.
+
+Notes on the build: renders `null` until hydrated + `ARRIVAL_MS` (3600ms, just
+after `BootScreen` ends at 3100ms), which also sidesteps any hydration mismatch
+from the persisted position. Speech bubble flips above/below and left/right
+based on where Blip is perched. Drag reuses the `DesktopIcons` pointer pattern
+(4px threshold, transform-based, click swallowed after a drag) so a click can
+still toggle the speech.
+
+**20B — the scripted brain.**
+
+- `src/lib/assistant-brain.ts` — `useAssistantBrain({ locale, active, wallpaper })
+  → { text, poke }`. **This is the 20C seam:** OS state in, one line out.
+  `Assistant.tsx` has no idea *why* Blip is talking, so the hook could be swapped
+  for a streaming LLM version without touching the character.
+- `src/data/assistant.ts` — `lines` (firstVisit, welcomeBack, allWindowsClosed,
+  wallpaperChanged, idle, poke) + `appLines` keyed by app id. Pools hold more
+  than one option only where a trigger can fire repeatedly.
+- Triggers: first visit vs. return (persisted `seen` flag in the store), app
+  opened (per app, so Terminal's line is just `appLines.terminal`), last window
+  closed, wallpaper changed, 75s idle, and clicking Blip.
+- Restraint rules, all three enforced: never talks over itself and holds an 18s
+  gap between unprompted lines; never repeats a line in a session (pools run dry
+  and Blip goes quiet, which makes a long visit calmer rather than noisier);
+  never blocks a click (the bubble is `pointer-events-none`).
+- Blip is silent during zen mode (`active` is gated on `!zenMode`), which also
+  clears any in-flight line.
+- Lines are held as their `Localized` source and resolved at render, so flipping
+  the language mid-sentence re-renders the line rather than stranding it.
+
+**Accessibility note:** the visual speech bubble is `aria-hidden`. The live
+region is a separate, permanently-mounted `sr-only` `role="status"` span whose
+text changes. Screen readers reliably announce *changes* inside an existing live
+region but often miss one that mounts with its text already present, which is
+exactly what an animated bubble does on every line.
+
+**Next:** browser verification (see checklist below), then commit.
+
+### Verification still owed
+
+1. Blip floats in bottom-right after boot; blinks; bobs.
+2. Drag, reload, confirm the position stuck.
+3. Hover → red `×`; click → toast naming the right-click menu.
+4. Right-click desktop → `Show Blip` restores it.
+5. Open an app → its own line. Open a second immediately → **no** second line
+   (the 18s gap). Close all windows → the quiet line.
+6. Change the wallpaper → a line. Change it twice more → third change is silent
+   (pool exhausted).
+7. Tab to Blip → focus ring + `×` reveals. Screen reader announces each line.
+8. Mobile/touch: `×` is permanently visible and finger-sized; drag doesn't fight
+   page scroll.
+9. Zen mode → Blip silent and covered.
+10. Reduced motion → no float, no blink, speech still works.
 
 ## Goals
 

@@ -7,6 +7,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- Blip, a desktop assistant. A small glass bubble character with eyes and a
+  smile drifts on the desktop and speaks through a frosted speech bubble. Blip
+  can be dragged anywhere, and both the position and whether it has been sent
+  away are remembered between visits. Clicking Blip toggles its speech; the
+  little red orb sends it away, and the desktop right-click menu brings it back.
+  Available in English, Spanish, and French, with the idle float and blink
+  dropped for anyone who prefers reduced motion.
+- Blip reacts to what's actually happening on the desktop rather than reciting
+  random quotes: a different hello on a first visit than on a return, a line of
+  its own for each app you open, a nudge when the wallpaper changes, a remark
+  when the last window closes, and a gentle prompt after a long idle stretch.
+  It never talks over itself, leaves a real gap between remarks, and never
+  repeats a line in the same visit, so it gets quieter the longer you stay.
+
 ## [1.4.0] - 2026-07-22
 
 ### Added

@@ -13,6 +13,7 @@ import { WindowManager } from "./WindowManager";
 import { ZenOverlay } from "./ZenOverlay";
 import { DeepLinkOpener } from "./DeepLinkOpener";
 import { Hint } from "./Hint";
+import { Assistant } from "./Assistant";
 import { Toaster } from "@/components/ui/sonner";
 
 /**
@@ -35,6 +36,7 @@ export function Desktop({ posts = [] }: { posts?: PostMeta[] }) {
             <Dock />
             <FooterCredit className="fixed bottom-[92px] left-1/2 z-[7000] -translate-x-1/2 sm:bottom-4 sm:left-auto sm:right-4 sm:translate-x-0" />
             <Hint />
+            <Assistant />
             <ZenOverlay />
           </main>
         </DesktopContextMenu>

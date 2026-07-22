@@ -35,5 +35,7 @@ export { meditations } from "./meditations";
 export type { MeditationsContent } from "./meditations";
 export { trash } from "./trash";
 export type { TrashContent, TrashItem } from "./trash";
+export { assistant } from "./assistant";
+export type { AssistantContent, AssistantLinePool } from "./assistant";
 export { apps, menuBar, statusBar, branding, desktop } from "./os";
 export type { AppDefinition, TilePalette } from "./os";

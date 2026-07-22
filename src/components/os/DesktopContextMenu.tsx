@@ -3,11 +3,12 @@
 import { type ReactNode } from "react";
 import { ContextMenu } from "radix-ui";
 import { toast } from "sonner";
-import { t } from "@/data";
+import { assistant, t } from "@/data";
 import { wallpaperList, wallpapers } from "@/content/wallpapers";
 import { useTheme } from "./theme-store";
 import { useLocale } from "./locale-store";
 import { useDesktopIconsStore } from "@/lib/desktop-icons-store";
+import { useAssistantStore } from "@/lib/assistant-store";
 
 /**
  * Right-click anywhere on the desktop for the aqua context menu: pick a
@@ -17,6 +18,8 @@ export function DesktopContextMenu({ children }: { children: ReactNode }) {
   const { theme, setTheme, wallpaper, setWallpaper, colorblind, toggleColorblind } = useTheme();
   const { locale } = useLocale();
   const cleanUpIcons = useDesktopIconsStore((s) => s.cleanUp);
+  const blipDismissed = useAssistantStore((s) => s.dismissed);
+  const setBlipDismissed = useAssistantStore((s) => s.setDismissed);
   const active = wallpapers[wallpaper];
 
   return (
@@ -83,6 +86,19 @@ export function DesktopContextMenu({ children }: { children: ReactNode }) {
             }}
           >
             Clean Up Icons
+          </ContextMenu.Item>
+          <ContextMenu.Item
+            className="os-menu-item"
+            onSelect={() => {
+              setBlipDismissed(!blipDismissed);
+              toast(
+                t(blipDismissed ? assistant.summonToast : assistant.dismissToast, locale),
+              );
+            }}
+          >
+            {blipDismissed
+              ? t(assistant.summonLabel, locale)
+              : t(assistant.dismissLabel, locale)}
           </ContextMenu.Item>
         </ContextMenu.Content>
       </ContextMenu.Portal>
