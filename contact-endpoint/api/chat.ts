@@ -195,7 +195,15 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       system: buildSystemPrompt(typeof locale === "string" ? locale : "en"),
       prompt: question.trim(),
       temperature: 0.3,
-      maxOutputTokens: 160,
+      // Gemini 3 spends output tokens on reasoning before it writes anything,
+      // and those count against this ceiling — at 160 the visible answer was
+      // being truncated mid-sentence. Keep reasoning minimal (these are one-
+      // liners, not problems) and leave real headroom. Answer length is held
+      // down by the system prompt's ~40-word rule, not by this number.
+      maxOutputTokens: 600,
+      providerOptions: {
+        google: { thinkingConfig: { thinkingLevel: "minimal" } },
+      },
     });
 
     const answer = text.trim();
