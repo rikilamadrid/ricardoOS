@@ -2,13 +2,18 @@
 
 ## Status
 
-**In Progress** — 20A built, awaiting browser verification. Branch
-`feature/desktop-assistant` created 2026-07-22 off `main` (v1.4.0). Not yet
-committed.
+✅ **Complete.** Merged to `main` (merge `c0bba8c`, feature commit `1c65081`)
+and shipped as **v1.5.0** on 2026-07-22. Both 20A and 20B landed in one commit;
+20C stays out of scope.
 
-Phase 19 shipped as **v1.4.0** on 2026-07-22 and is live, so this phase starts
-from a clean release boundary — its changelog entries go under a fresh
-`[Unreleased]`.
+**This completes the Iteration 3 track (phases 17–20).** There is no active
+feature — the next one needs to be chosen and loaded here before work starts.
+
+⚠️ **Carried forward: Blip was never verified in a browser by the author.** It
+shipped on a passing lint + build. The timing-dependent behavior is the untested
+part: the 18s gap between unprompted lines, pool exhaustion, the drag-then-click
+swallow, and the speech tail's placement in each corner. The checklist is
+retained below — worth walking on the live site.
 
 ### Decisions taken 2026-07-22
 

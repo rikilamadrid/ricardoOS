@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.5.0] - 2026-07-22
+
 ### Added
 - Blip, a desktop assistant. A small glass bubble character with eyes and a
   smile drifts on the desktop and speaks through a frosted speech bubble. Blip
@@ -130,7 +132,8 @@ Initial public release — RicardoOS goes live at https://ricardolamadrid.com.
 - Static export (`output: "export"`) and automated deployment to Hostinger via GitHub Actions.
 - On-brand bubble-R favicon.
 
-[Unreleased]: https://github.com/rikilamadrid/ricardoOS/compare/v1.4.0...HEAD
+[Unreleased]: https://github.com/rikilamadrid/ricardoOS/compare/v1.5.0...HEAD
+[1.5.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.4.0...v1.5.0
 [1.4.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.3.0...v1.4.0
 [1.3.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.2.0...v1.3.0
 [1.2.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.1.0...v1.2.0
