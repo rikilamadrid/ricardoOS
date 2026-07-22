@@ -3,8 +3,9 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { generateText } from "ai";
 
 const ALLOWED_ORIGIN = process.env.ALLOWED_ORIGIN ?? "https://ricardolamadrid.com";
-// Overridable so the free-tier model can be swapped without a code change.
-const MODEL_ID = process.env.CHAT_MODEL ?? "gemini-2.5-flash-lite";
+// Overridable so the free-tier model can be swapped without a code change —
+// which is how this got fixed once already: 2.5-flash-lite threw on every call.
+const MODEL_ID = process.env.CHAT_MODEL ?? "gemini-3-flash-preview";
 
 const MAX_QUESTION_LENGTH = 300;
 const RATE_LIMIT_WINDOW_MS = 60_000;
