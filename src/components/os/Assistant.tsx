@@ -72,14 +72,26 @@ export function Assistant() {
   // and the first client render identical (no hydration mismatch).
   const [pos, setLocalPos] = useState<AssistantPos | null>(null);
   const [arrived, setArrived] = useState(false);
+  const [asking, setAsking] = useState(false);
+  const [question, setQuestion] = useState("");
 
   // What Blip says is entirely the brain's business — see `assistant-brain.ts`.
   // Zen mode covers the desktop, so Blip stays quiet behind it.
-  const { text, poke } = useAssistantBrain({
+  const { text, poke, ask } = useAssistantBrain({
     locale,
     active: arrived && !dismissed && !zenMode,
     wallpaper,
   });
+
+  const toggleAsking = useCallback(() => setAsking((a) => !a), []);
+  const closeAsking = useCallback(() => setAsking(false), []);
+  const submitQuestion = useCallback(() => {
+    const q = question.trim();
+    if (!q) return;
+    ask(q);
+    setAsking(false);
+    setQuestion("");
+  }, [ask, question]);
 
   // Resolve the starting position, then let Blip float in after the boot screen.
   useEffect(() => {
@@ -144,18 +156,33 @@ export function Assistant() {
             <Character
               label={t(assistant.ariaLabel, locale)}
               dismissLabel={t(assistant.dismissLabel, locale)}
+              askLabel={t(assistant.askToggleLabel, locale)}
               basePos={pos}
               reduceMotion={Boolean(reduceMotion)}
               onCommit={commit}
               onPoke={poke}
               onDismiss={onDismiss}
+              onToggleAsk={toggleAsking}
             />
-            <Speech
-              text={text}
-              below={speechBelow}
-              alignRight={speechRight}
-              reduceMotion={Boolean(reduceMotion)}
-            />
+            {asking ? (
+              <AskPanel
+                value={question}
+                onChange={setQuestion}
+                onSubmit={submitQuestion}
+                onClose={closeAsking}
+                placeholder={t(assistant.askPlaceholder, locale)}
+                below={speechBelow}
+                alignRight={speechRight}
+                reduceMotion={Boolean(reduceMotion)}
+              />
+            ) : (
+              <Speech
+                text={text}
+                below={speechBelow}
+                alignRight={speechRight}
+                reduceMotion={Boolean(reduceMotion)}
+              />
+            )}
           </motion.div>
         )}
       </AnimatePresence>
@@ -167,19 +194,23 @@ export function Assistant() {
 function Character({
   label,
   dismissLabel,
+  askLabel,
   basePos,
   reduceMotion,
   onCommit,
   onPoke,
   onDismiss,
+  onToggleAsk,
 }: {
   label: string;
   dismissLabel: string;
+  askLabel: string;
   basePos: AssistantPos;
   reduceMotion: boolean;
   onCommit: (pos: AssistantPos) => void;
   onPoke: () => void;
   onDismiss: () => void;
+  onToggleAsk: () => void;
 }) {
   const start = useRef<{ px: number; py: number } | null>(null);
   const dragged = useRef(false);
@@ -256,6 +287,15 @@ function Character({
         className="os-blip-close pointer-events-auto"
       >
         <span aria-hidden="true">×</span>
+      </button>
+      <button
+        type="button"
+        aria-label={askLabel}
+        title={askLabel}
+        onClick={onToggleAsk}
+        className="os-blip-ask-toggle pointer-events-auto"
+      >
+        <span aria-hidden="true">?</span>
       </button>
     </div>
   );
@@ -357,5 +397,66 @@ function Speech({
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+/** Typed-question panel (phase 21) — reuses Speech's tail-flip positioning. */
+function AskPanel({
+  value,
+  onChange,
+  onSubmit,
+  onClose,
+  placeholder,
+  below,
+  alignRight,
+  reduceMotion,
+}: {
+  value: string;
+  onChange: (value: string) => void;
+  onSubmit: () => void;
+  onClose: () => void;
+  placeholder: string;
+  below: boolean;
+  alignRight: boolean;
+  reduceMotion: boolean;
+}) {
+  const inputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    inputRef.current?.focus();
+  }, []);
+
+  return (
+    <motion.form
+      onSubmit={(e) => {
+        e.preventDefault();
+        onSubmit();
+      }}
+      className={cn(
+        "os-blip-ask os-glass pointer-events-auto",
+        below ? "os-blip-speech--below" : "os-blip-speech--above",
+        alignRight ? "os-blip-speech--right" : "os-blip-speech--left",
+      )}
+      initial={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.88, y: below ? -6 : 6 }}
+      animate={reduceMotion ? { opacity: 1 } : { opacity: 1, scale: 1, y: 0 }}
+      exit={reduceMotion ? { opacity: 0 } : { opacity: 0, scale: 0.9 }}
+      transition={{ type: "spring", stiffness: 300, damping: 24 }}
+    >
+      <input
+        ref={inputRef}
+        type="text"
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        onKeyDown={(e) => {
+          if (e.key === "Escape") onClose();
+        }}
+        placeholder={placeholder}
+        autoComplete="off"
+        autoCapitalize="off"
+        autoCorrect="off"
+        spellCheck={false}
+        className="os-input os-blip-ask-input"
+      />
+    </motion.form>
   );
 }
