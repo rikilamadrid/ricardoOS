@@ -6,9 +6,9 @@ Not Started. Loaded 2026-07-21 from the inline Phase 20 spec below (there is no
 `context/features/phase-20-*.md`). Branch `feature/desktop-assistant` not yet
 created — ask before branching into implementation.
 
-⚠️ Outstanding: Phase 19 is merged to `main` but **still needs its own MINOR
-release cut** (v1.3.0 only covers Phase 18). Cut that before or alongside this
-phase so the changelog doesn't stack two features under one bump.
+Phase 19 shipped as **v1.4.0** on 2026-07-22 and is live, so this phase starts
+from a clean release boundary — its changelog entries go under a fresh
+`[Unreleased]`.
 
 ## Goals
 
@@ -73,7 +73,7 @@ further down.
 | --- | --- | --- | --- |
 | 17 | Retire Playground | XS | ✅ **Shipped** in v1.2.0 (merge `fac0417`) |
 | 18 | Field Notes post — agentic workflow / context windows | S | ✅ **Shipped** in v1.3.0 (merge `96f6836`) |
-| 19 | Backdrop system + 4 new scenes | M | ✅ **Merged** (`dbc8612`), pending release |
+| 19 | Backdrop system + 4 new scenes | M | ✅ **Shipped** in v1.4.0 (merge `dbc8612`) |
 | 20 | Desktop assistant (bubble mascot) | L | Biggest; 19's scene work is now settled |
 
 ---
@@ -384,7 +384,8 @@ Bubble, each with day, `.dark` and `.cb` treatments. Wallpapers moved into a
 context submenu laid out as a swatch grid. Two extensions beyond the spec: a
 fifth scene id `orb` (the spec's union was one slot short for four *new*
 wallpapers), and a `base` field for the final sky stop, which was hardcoded to
-a green haze that only made sense under the hill. **Pending a MINOR release.**
+a green haze that only made sense under the hill. Shipped as **v1.4.0**
+(`3f6203e`).
 
 ---
 
