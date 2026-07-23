@@ -104,8 +104,21 @@ Full design detail: `/Users/ricardolamadrid/.claude/plans/i-mean-what-would-wigg
   retired with little notice — which is exactly failure (1) above. If a stable
   `gemini-flash-latest` is available, prefer it; switching is just a
   `CHAT_MODEL` env var on the Vercel project, no redeploy.
-- **Not yet verified:** the end-to-end thinking-line → answer flow in the
-  browser, which needs `NEXT_PUBLIC_CHAT_ENDPOINT` set and the site rebuilt.
+- **Wired up and reached from the browser 2026-07-23**, which surfaced two UX
+  bugs (fixed in the same session, post-v1.7.0):
+  1. **Answers silently fell back.** Measured production latency for
+     `gemini-3-flash-preview` swings ~8s–30s (cold start + variable reasoning),
+     but the client timeout was 8s, so most real answers aborted and Blip
+     showed the static fallback. Raised `CHAT_TIMEOUT_MS` to 22s.
+  2. **The thinking line looked frozen.** It was shown via `display()`, which
+     auto-hides after ~4.6s (`readMs`), so the bubble blanked mid-wait. The
+     LLM wait now has its own persistent `thinking` state with animated dots
+     (`.os-blip-dot`, reduced-motion aware), held until the answer or fallback
+     replaces it. `Brain` gained a `thinking: boolean`.
+- **Latency is the real remaining wart.** 22s of dots is functional but not
+  delightful. The durable fix is a faster, stable model — set `CHAT_MODEL` to
+  `gemini-flash-latest` (or another fast stable id) on the Vercel project, no
+  redeploy. This also retires the preview-model risk noted above.
 
 ## Deployment (manual, user-driven)
 

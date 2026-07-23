@@ -182,9 +182,9 @@ export const assistant: AssistantContent = {
 
     thinking: [
       {
-        en: "Let me think…",
-        es: "Déjame pensar…",
-        fr: "Laisse-moi réfléchir…",
+        en: "Let me think",
+        es: "Déjame pensar",
+        fr: "Laisse-moi réfléchir",
       },
     ],
   },

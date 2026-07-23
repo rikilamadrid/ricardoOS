@@ -2598,6 +2598,31 @@
   }
   .os-blip-speech--left::after { left: 24px; }
   .os-blip-speech--right::after { right: 24px; }
+
+  /* Animated "thinking" dots, shown in the bubble while an LLM answer is in
+     flight so a slow round-trip reads as busy rather than frozen. */
+  .os-blip-dots {
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    margin-left: 5px;
+    vertical-align: baseline;
+  }
+  .os-blip-dot {
+    width: 4px;
+    height: 4px;
+    border-radius: 50%;
+    background: currentColor;
+    opacity: 0.35;
+    animation: os-blip-dot 1.1s ease-in-out infinite;
+  }
+  @keyframes os-blip-dot {
+    0%, 80%, 100% { opacity: 0.3; transform: translateY(0); }
+    40% { opacity: 0.9; transform: translateY(-2px); }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .os-blip-dot { animation: none; opacity: 0.55; }
+  }
 }
 
 /* Toasts (sonner) — keep title + description legible. Declared *unlayered* and
