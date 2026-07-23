@@ -77,7 +77,7 @@ export function Assistant() {
 
   // What Blip says is entirely the brain's business — see `assistant-brain.ts`.
   // Zen mode covers the desktop, so Blip stays quiet behind it.
-  const { text, poke, ask } = useAssistantBrain({
+  const { text, thinking, poke, ask } = useAssistantBrain({
     locale,
     active: arrived && !dismissed && !zenMode,
     wallpaper,
@@ -178,6 +178,7 @@ export function Assistant() {
             ) : (
               <Speech
                 text={text}
+                thinking={thinking}
                 below={speechBelow}
                 alignRight={speechRight}
                 reduceMotion={Boolean(reduceMotion)}
@@ -365,11 +366,13 @@ function BubbleFace({ animate }: { animate: boolean }) {
 /** Glass speech bubble with a tail pointing back at the character. */
 function Speech({
   text,
+  thinking,
   below,
   alignRight,
   reduceMotion,
 }: {
   text: string | null;
+  thinking: boolean;
   below: boolean;
   alignRight: boolean;
   reduceMotion: boolean;
@@ -380,7 +383,9 @@ function Speech({
     <AnimatePresence mode="wait">
       {text && (
         <motion.div
-          key={text}
+          // Keyed so the answer swapping in for the thinking line animates,
+          // but the dots don't re-mount the bubble every pulse.
+          key={thinking ? "__thinking__" : text}
           // Announced by the persistent live region above, not from here.
           aria-hidden="true"
           className={cn(
@@ -394,9 +399,30 @@ function Speech({
           transition={{ type: "spring", stiffness: 300, damping: 24 }}
         >
           {text}
+          {thinking && <ThinkingDots reduceMotion={reduceMotion} />}
         </motion.div>
       )}
     </AnimatePresence>
+  );
+}
+
+/**
+ * Three dots that pulse in sequence while an LLM answer is in flight, so a slow
+ * round-trip reads as "Blip is thinking" rather than a frozen bubble. Under
+ * reduced motion the dots are shown static (still a clear "working" affordance,
+ * just not animated).
+ */
+function ThinkingDots({ reduceMotion }: { reduceMotion: boolean }) {
+  return (
+    <span className="os-blip-dots" aria-hidden="true">
+      {[0, 1, 2].map((i) => (
+        <span
+          key={i}
+          className="os-blip-dot"
+          style={reduceMotion ? undefined : { animationDelay: `${i * 180}ms` }}
+        />
+      ))}
+    </span>
   );
 }
 

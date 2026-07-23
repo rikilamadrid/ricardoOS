@@ -49,8 +49,14 @@ const IDLE_REARM_THROTTLE_MS = 2_000;
  * uses the same static fallback line it always did.
  */
 const CHAT_ENDPOINT = process.env.NEXT_PUBLIC_CHAT_ENDPOINT;
-/** Past this Blip has looked frozen long enough — take the fallback instead. */
-const CHAT_TIMEOUT_MS = 8_000;
+/**
+ * Past this Blip has looked frozen long enough — take the fallback instead.
+ * Measured Gemini-3-Flash latency in production swings from ~8s to ~30s (cold
+ * starts + variable reasoning time), so 8s here silently fell back on most real
+ * answers. 22s catches the common case; a rare true outlier still falls back
+ * gracefully, which is the designed behavior, not a bug.
+ */
+const CHAT_TIMEOUT_MS = 22_000;
 /** Belt and suspenders over the server's per-IP limit: one tab can't hammer it. */
 const MAX_LLM_CALLS_PER_SESSION = 6;
 /** Matches the endpoint's own cap, so an over-long question fails here, not there. */
@@ -74,6 +80,8 @@ export interface BrainInput {
 export interface Brain {
   /** The line Blip is currently saying, or null when quiet. */
   text: string | null;
+  /** True while an LLM answer is in flight — the bubble shows animated dots. */
+  thinking: boolean;
   /** Click handler for the character: hush if talking, else say something. */
   poke: () => void;
   /** Answer a typed question from the FAQ bank (phase 21). Always answers. */
@@ -84,6 +92,16 @@ export function useAssistantBrain({ locale, active, wallpaper }: BrainInput): Br
   // The chosen line is held as its `Localized` source, not resolved text, so
   // flipping the language mid-sentence re-renders it in the new locale.
   const [line, setLine] = useState<Localized<string> | null>(null);
+  // True only while an LLM answer is in flight. Drives the animated "thinking"
+  // dots in the bubble, so a slow (up to ~20s) round-trip reads as busy, not
+  // frozen. Separate from `line` because the thinking line must NOT auto-hide.
+  const [thinking, setThinking] = useState(false);
+
+  // Spent LLM calls this session, and a token identifying the newest question.
+  // Declared up here (not beside `ask`) so `hush` can invalidate an in-flight
+  // answer by bumping the sequence.
+  const llmCalls = useRef(0);
+  const askSeq = useRef(0);
 
   const said = useRef<Set<string>>(new Set());
   const quietSince = useRef(0);
@@ -109,6 +127,9 @@ export function useAssistantBrain({ locale, active, wallpaper }: BrainInput): Br
     hideAt.current = null;
     speaking.current = false;
     quietSince.current = Date.now();
+    // Invalidate any in-flight LLM answer so it can't pop up after a hush.
+    askSeq.current += 1;
+    setThinking(false);
     setLine(null);
   }, []);
 
@@ -227,10 +248,6 @@ export function useAssistantBrain({ locale, active, wallpaper }: BrainInput): Br
     say("poke", lines.poke, true);
   }, [hush, say]);
 
-  /** Spent LLM calls this session, and a token identifying the newest question. */
-  const llmCalls = useRef(0);
-  const askSeq = useRef(0);
-
   /**
    * Answer a typed question. Unlike `say()`, this is an explicit user action —
    * it always answers (bypassing the cooldown and any in-flight line), and the
@@ -271,11 +288,25 @@ export function useAssistantBrain({ locale, active, wallpaper }: BrainInput): Br
       }
 
       llmCalls.current += 1;
-      // Something to look at during the round-trip, so Blip doesn't read as stuck.
-      const thinking = lines.thinking[0];
-      if (thinking) display(thinking);
+      // Persistently show the "thinking" line for the whole round-trip — no
+      // auto-hide timer, unlike `display()`, so it can't vanish mid-wait and
+      // leave Blip looking frozen. `thinking` drives the animated dots in the
+      // bubble. `speaking` stays true so idle/app triggers don't talk over it.
+      if (pending.current) clearTimeout(pending.current);
+      if (hideAt.current) clearTimeout(hideAt.current);
+      pending.current = null;
+      hideAt.current = null;
+      speaking.current = true;
+      setThinking(true);
+      setLine(lines.thinking[0] ?? null);
 
       void (async () => {
+        // Whichever way this resolves, the thinking phase is over first.
+        const settle = (chosen: Localized<string>) => {
+          if (seq !== askSeq.current || !activeRef.current) return;
+          setThinking(false);
+          display(chosen);
+        };
         try {
           const res = await fetch(CHAT_ENDPOINT, {
             method: "POST",
@@ -290,16 +321,14 @@ export function useAssistantBrain({ locale, active, wallpaper }: BrainInput): Br
           const data = (await res.json()) as { answer?: unknown };
           const answer = typeof data.answer === "string" ? data.answer.trim() : "";
           if (!answer) throw new Error("Chat endpoint returned no answer");
-          if (seq !== askSeq.current || !activeRef.current) return;
-          display(asLocalized(answer));
+          settle(asLocalized(answer));
         } catch {
-          if (seq !== askSeq.current || !activeRef.current) return;
-          display(assistant.faqFallback);
+          settle(assistant.faqFallback);
         }
       })();
     },
     [display],
   );
 
-  return { text: line ? t(line, locale) : null, poke, ask };
+  return { text: line ? t(line, locale) : null, thinking, poke, ask };
 }

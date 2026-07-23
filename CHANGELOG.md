@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Fixed
+- Blip's typed-question answers now actually reach you. The wait for a real
+  answer can run longer than the old cut-off allowed, which was making Blip
+  fall back to its canned line even when a good answer was on the way; the
+  wait window is now generous enough to let the answer land. While it waits,
+  Blip shows an animated "thinking" indicator instead of a line that could
+  quietly disappear, so it reads as busy rather than stuck.
+
 ## [1.7.0] - 2026-07-23
 
 ### Added
