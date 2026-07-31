@@ -469,6 +469,13 @@ Resume after Phase 15 lands. Overview retained for reference:
 
 ## Recently landed
 
+**Phone contact update.** ✅ Merged to `main` (feature commit `571693e`). The
+phone contact entry now shows both numbers with flags — 🇺🇸 +1
+323-977-0070 / 🇪🇸 +34 624 442 572 (new Spanish number) — instead of a bare
+"+1 / +34" prefix. The 3 résumé PDFs in `public/resume/` still have the old
+number baked into the document (they're static uploads, not generated from
+`src/data`); updating them was explicitly deferred by the user.
+
 **Phase 21 — Blip FAQ (typed question → canned answer).** ✅ Merged to
 `main` (merge `c9b958c`; feature commit `01d4b3d`) and shipped as **v1.6.0**
 on 2026-07-22. A small "?" toggle beside Blip's dismiss orb opens a glass
