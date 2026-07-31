@@ -33,7 +33,7 @@ export const profile: Profile = {
     {
       id: "phone",
       label: { en: "Phone", es: "Teléfono", fr: "Téléphone" },
-      value: "+1 / +34 323-977-0070",
+      value: "🇺🇸 +1 323-977-0070 / 🇪🇸 +34 624 442 572",
       href: "tel:+13239770070",
       icon: "☎️",
     },
