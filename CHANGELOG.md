@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- New Field Notes post, "You can't retrain the model", on treating the
+  instruction files around an AI agent as the part you actually get to improve,
+  why every rule in this repo's `CLAUDE.md` is really an incident report, and
+  why a scaffold that only ever grows eventually turns back into noise.
+  Available in English, Spanish, and French.
+
 ### Changed
 - The phone contact entry now shows both numbers with country flags
   (🇺🇸 +1 / 🇪🇸 +34) and the Spanish number is updated to +34 624 442 572.
