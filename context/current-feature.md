@@ -469,6 +469,22 @@ Resume after Phase 15 lands. Overview retained for reference:
 
 ## Recently landed
 
+**Field Notes post — "You can't retrain the model".** ✅ Merged to `main`
+(merge `e195670`; feature commit `919d805`), branch deleted. New post
+`src/content/posts/you-cant-retrain-the-model.mdx`, dated 2026-08-11,
+`tags: ["ai", "engineering"]`, EN/ES/FR via the `<!-- locale:xx -->` split.
+Inspired by the *Recursive Harness Self-Improvement* paper
+(arXiv:2607.15524): you can't change the weights, so you iterate the scaffold
+instead. Sections: the harness is already plain text (`CLAUDE.md`,
+`context/*`), every rule in it is a scar (the `tailwind.config.js` ban, the
+`force-static` gotcha, the section overriding the stale Prisma/Server Actions
+docs), the cost argument (a good line deletes a whole discovery loop), and the
+half people skip (harnesses rot by growing, so prune). Follows
+`the-machine-forgets` thematically. No em dashes anywhere. Drop-in: `posts.ts`
+reads the filesystem, so nothing else needed wiring. `npm run build` +
+`npm run lint` pass; all four routes prerender plus the OG image. Version
+impact: **MINOR**.
+
 **Phone contact update.** ✅ Merged to `main` (feature commit `571693e`). The
 phone contact entry now shows both numbers with flags — 🇺🇸 +1
 323-977-0070 / 🇪🇸 +34 624 442 572 (new Spanish number) — instead of a bare
