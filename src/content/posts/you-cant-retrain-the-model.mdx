@@ -1,0 +1,235 @@
+---
+title:
+  en: You can't retrain the model
+  es: No puedes reentrenar el modelo
+  fr: Tu ne peux pas réentraîner le modèle
+summary:
+  en: The model isn't the part you get to change. The scaffolding around it is, and it's just text files you own. Here's what happens when you let it rewrite itself.
+  es: El modelo no es la parte que puedes cambiar. El andamiaje que lo rodea sí, y son archivos de texto tuyos. Esto es lo que pasa cuando dejas que se reescriba solo.
+  fr: Le modèle n'est pas la partie que tu peux changer. L'échafaudage autour, si, et ce ne sont que des fichiers texte qui t'appartiennent. Voilà ce qui arrive quand tu le laisses se réécrire.
+date: "2026-08-11"
+tags: ["ai", "engineering"]
+draft: false
+---
+
+<!-- locale:en -->
+
+There's a paper going around about recursive harness self-improvement. The idea
+in one line: you can't touch the weights, but the scaffolding around the model
+is yours, so improve that instead, over and over, using what went wrong last
+time as the input. They ran it across thirty research tasks. Cheaper agents
+started beating expensive ones, and inference cost dropped by more than half.
+The gain didn't come from more thinking. It came from better information moving
+between the pieces.
+
+I read it and recognized my own repo.
+
+## The scaffolding is already text
+
+Nothing about that is exotic once you notice what a harness actually is here.
+It's `CLAUDE.md`. It's the files in `context/`. It's the workflow doc that says
+branch first, build before commit, ask before you push anything anywhere. Plain
+markdown, version controlled, sitting three inches from the code.
+
+Which means the loop the paper describes is available to anyone with a text
+editor and a bad afternoon.
+
+## Every rule in there is a scar
+
+Read this project's `CLAUDE.md` and you're really reading an incident log.
+
+There's a line that says never create a `tailwind.config.js`. There's a warning
+that metadata routes need `force-static` or the export build dies. There's a
+whole section marked as superseding the older context docs, because those docs
+describe a Prisma backend and Server Actions that this site has never had, and
+something confidently built against them once.
+
+None of that was foresight. Each line is the residue of a session that went
+sideways, written down so the next session skips the discovery. That's the
+recursion, minus the formalism: the harness gets edited by the thing the harness
+is for.
+
+## Cheap in a way that surprised me
+
+The paper's cost result reads like an optimization footnote. In practice it's
+the whole point.
+
+A sharp line in the instructions file doesn't just save you a correction. It
+deletes an entire loop: the wrong approach, the failing build, the reading of
+the error, the backtrack, the retry. Ten minutes and a lot of tokens, gone,
+replaced by one sentence that was already in the window before the work started.
+I have gotten more out of a well-placed warning than out of any model upgrade.
+
+## The part nobody warns you about
+
+Harnesses rot, and they rot by growing.
+
+The `context/` docs in this repo drifted far enough from reality that
+`CLAUDE.md` needed a section explicitly overriding them. That's the failure mode
+of a self-improving scaffold: every incident wants to add a rule, nothing wants
+to remove one, and eventually you're spending half the window on instructions
+that describe a version of the project that no longer exists.
+
+So the loop has a second half people skip. Add the rule when it bites you.
+Delete it when it stops being true. A harness you never prune is a harness
+slowly turning back into noise.
+
+## What it actually feels like
+
+You don't get a better model on a Tuesday because you asked nicely.
+
+You get a better harness the moment you notice something, and you get it by
+writing one sentence in a file that will still be there next month. The model
+forgets. The file doesn't. That asymmetry is most of the job now, and the
+strange part is how ordinary the work is: notice, write it down, prune later.
+
+<!-- locale:es -->
+
+Anda circulando un paper sobre auto-mejora recursiva del arnés. La idea en una
+línea: no puedes tocar los pesos, pero el andamiaje alrededor del modelo es
+tuyo, así que mejora eso, una y otra vez, usando lo que salió mal la última vez
+como entrada. Lo probaron en treinta tareas de investigación. Agentes baratos
+empezaron a ganarle a los caros y el coste de inferencia cayó más de la mitad.
+La mejora no vino de pensar más. Vino de mover mejor la información entre las
+piezas.
+
+Lo leí y reconocí mi propio repo.
+
+## El andamiaje ya es texto
+
+Nada de esto es exótico en cuanto ves qué es un arnés aquí. Es `CLAUDE.md`. Son
+los archivos de `context/`. Es el documento de workflow que dice rama primero,
+build antes de commitear, preguntar antes de subir nada a ningún sitio. Markdown
+plano, versionado, a tres centímetros del código.
+
+O sea que el bucle que describe el paper está al alcance de cualquiera con un
+editor de texto y una mala tarde.
+
+## Cada regla ahí dentro es una cicatriz
+
+Lee el `CLAUDE.md` de este proyecto y en realidad estás leyendo un registro de
+incidentes.
+
+Hay una línea que dice que nunca se cree un `tailwind.config.js`. Hay un aviso
+de que las rutas de metadata necesitan `force-static` o el build de export se
+muere. Hay una sección entera marcada como que sustituye a los docs viejos de
+contexto, porque esos docs describen un backend con Prisma y Server Actions que
+este sitio no ha tenido nunca, y algo construyó contra ellos con toda la
+confianza del mundo.
+
+Nada de eso fue previsión. Cada línea es el residuo de una sesión que se torció,
+escrito para que la siguiente sesión se salte el descubrimiento. Eso es la
+recursión, sin el formalismo: el arnés lo edita aquello para lo que existe el
+arnés.
+
+## Barato de una forma que me sorprendió
+
+El resultado de coste del paper se lee como una nota al pie de optimización. En
+la práctica es lo importante.
+
+Una línea afilada en el archivo de instrucciones no te ahorra solo una
+corrección. Borra un bucle entero: el enfoque equivocado, el build que falla, la
+lectura del error, el retroceso, el reintento. Diez minutos y un montón de
+tokens, fuera, sustituidos por una frase que ya estaba en la ventana antes de
+empezar. He sacado más de un aviso bien puesto que de cualquier subida de
+modelo.
+
+## La parte de la que nadie te avisa
+
+Los arneses se pudren, y se pudren creciendo.
+
+Los docs de `context/` de este repo se alejaron tanto de la realidad que
+`CLAUDE.md` necesitó una sección que los anulara explícitamente. Ese es el modo
+de fallo de un andamiaje que se auto-mejora: cada incidente quiere añadir una
+regla, nada quiere quitar ninguna, y acabas gastando media ventana en
+instrucciones que describen una versión del proyecto que ya no existe.
+
+Así que el bucle tiene una segunda mitad que la gente se salta. Añade la regla
+cuando te muerda. Bórrala cuando deje de ser verdad. Un arnés que nunca podas es
+un arnés que vuelve poco a poco a ser ruido.
+
+## Cómo se siente en realidad
+
+No consigues un modelo mejor un martes por pedirlo con educación.
+
+Consigues un arnés mejor en el momento en que te das cuenta de algo, y lo
+consigues escribiendo una frase en un archivo que seguirá ahí el mes que viene.
+El modelo olvida. El archivo no. Esa asimetría es casi todo el trabajo ahora, y
+lo raro es lo corriente que resulta: date cuenta, escríbelo, poda después.
+
+<!-- locale:fr -->
+
+Il y a un papier qui circule sur l'auto-amélioration récursive du harnais.
+L'idée en une ligne : tu ne peux pas toucher aux poids, mais l'échafaudage
+autour du modèle t'appartient, alors améliore ça, encore et encore, en te
+servant de ce qui a foiré la fois d'avant. Ils l'ont testé sur trente tâches de
+recherche. Des agents bon marché se sont mis à battre les chers, et le coût
+d'inférence a chuté de plus de moitié. Le gain ne venait pas de plus de
+réflexion. Il venait d'une meilleure circulation de l'information entre les
+pièces.
+
+Je l'ai lu et j'ai reconnu mon propre dépôt.
+
+## L'échafaudage, c'est déjà du texte
+
+Rien là-dedans n'est exotique dès qu'on voit ce qu'est vraiment un harnais ici.
+C'est `CLAUDE.md`. Ce sont les fichiers de `context/`. C'est le document de
+workflow qui dit : branche d'abord, build avant le commit, demander avant de
+pousser quoi que ce soit où que ce soit. Du markdown brut, versionné, à trois
+centimètres du code.
+
+Ce qui veut dire que la boucle décrite par le papier est accessible à quiconque
+possède un éditeur de texte et un mauvais après-midi.
+
+## Chaque règle là-dedans est une cicatrice
+
+Lis le `CLAUDE.md` de ce projet et tu lis en fait un journal d'incidents.
+
+Il y a une ligne qui dit de ne jamais créer de `tailwind.config.js`. Il y a un
+avertissement disant que les routes de metadata ont besoin de `force-static`
+sinon le build d'export meurt. Il y a une section entière marquée comme
+remplaçant les vieux docs de contexte, parce que ces docs décrivent un backend
+Prisma et des Server Actions que ce site n'a jamais eus, et que quelque chose a
+construit dessus avec beaucoup d'assurance.
+
+Rien de tout ça n'était de la prévoyance. Chaque ligne est le résidu d'une
+session qui a dérapé, écrite pour que la session suivante saute la phase de
+découverte. C'est ça, la récursion, sans le formalisme : le harnais est édité
+par ce pour quoi le harnais existe.
+
+## Bon marché d'une façon qui m'a surpris
+
+Le résultat de coût du papier se lit comme une note d'optimisation en bas de
+page. En pratique, c'est tout l'intérêt.
+
+Une ligne bien affûtée dans le fichier d'instructions ne t'épargne pas
+seulement une correction. Elle supprime une boucle entière : la mauvaise
+approche, le build qui casse, la lecture de l'erreur, le retour en arrière, le
+nouvel essai. Dix minutes et beaucoup de tokens, disparus, remplacés par une
+phrase déjà présente dans la fenêtre avant même le début du travail. J'ai tiré
+plus d'un avertissement bien placé que de n'importe quelle montée de version de
+modèle.
+
+## La partie dont personne ne te prévient
+
+Les harnais pourrissent, et ils pourrissent en grossissant.
+
+Les docs de `context/` de ce dépôt ont tellement dérivé du réel que `CLAUDE.md`
+a eu besoin d'une section qui les annule explicitement. C'est le mode de
+défaillance d'un échafaudage qui s'auto-améliore : chaque incident veut ajouter
+une règle, rien ne veut en retirer, et tu finis par dépenser la moitié de ta
+fenêtre en instructions qui décrivent une version du projet qui n'existe plus.
+
+La boucle a donc une seconde moitié que les gens sautent. Ajoute la règle quand
+elle te mord. Supprime-la quand elle cesse d'être vraie. Un harnais que tu
+n'élagues jamais est un harnais qui redevient lentement du bruit.
+
+## Ce que ça fait vraiment
+
+Tu n'obtiens pas un meilleur modèle un mardi parce que tu as demandé gentiment.
+
+Tu obtiens un meilleur harnais à l'instant où tu remarques quelque chose, et tu
+l'obtiens en écrivant une phrase dans un fichier qui sera encore là le mois
+prochain. Le modèle oublie. Le fichier, non. Cette asymétrie, c'est presque tout
+le boulot aujourd'hui, et l'étrange, c'est à quel point le travail est
+ordinaire : remarquer, noter, élaguer plus tard.
