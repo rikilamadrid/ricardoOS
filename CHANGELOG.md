@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.8.0] - 2026-08-11
+
 ### Added
 - New Field Notes post, "You can't retrain the model", on treating the
   instruction files around an AI agent as the part you actually get to improve,
@@ -176,7 +178,8 @@ Initial public release — RicardoOS goes live at https://ricardolamadrid.com.
 - Static export (`output: "export"`) and automated deployment to Hostinger via GitHub Actions.
 - On-brand bubble-R favicon.
 
-[Unreleased]: https://github.com/rikilamadrid/ricardoOS/compare/v1.7.0...HEAD
+[Unreleased]: https://github.com/rikilamadrid/ricardoOS/compare/v1.8.0...HEAD
+[1.8.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.7.0...v1.8.0
 [1.7.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.6.0...v1.7.0
 [1.6.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.5.0...v1.6.0
 [1.5.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.4.0...v1.5.0
