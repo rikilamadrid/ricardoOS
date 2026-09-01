@@ -1,0 +1,445 @@
+---
+title:
+  en: I built a second brain for AI agents. Then I made it prove it worked.
+  es: Construí un segundo cerebro para agentes de IA. Después le pedí que demostrara que funcionaba.
+  fr: J'ai construit un second cerveau pour des agents IA. Puis je lui ai demandé de prouver qu'il fonctionnait.
+summary:
+  en: My Obsidian vault was supposed to stop AI agents from rediscovering the same decisions. Lorekeeper gave me a real task to test whether that idea actually worked.
+  es: Mi vault de Obsidian debía evitar que los agentes de IA redescubrieran las mismas decisiones. Lorekeeper me dio una tarea real para comprobar si la idea funcionaba de verdad.
+  fr: Mon vault Obsidian devait empêcher les agents IA de redécouvrir les mêmes décisions. Lorekeeper m'a donné une vraie tâche pour vérifier si l'idée fonctionnait vraiment.
+date: "2026-08-14"
+tags: ["ai", "engineering", "second-brain", "lorekeeper"]
+draft: false
+---
+
+<!-- locale:en -->
+
+I've been building a second brain in Obsidian for my engineering work.
+
+That sentence is dangerously close to productivity theater.
+
+So I wanted evidence.
+
+The idea is simple: AI coding agents are very good at reading a repository, but every new session starts with a memory problem. Decisions made last week, traps already discovered, verification techniques that worked, architectural boundaries that took an hour to understand. If none of that survives outside the conversation, the next agent pays for it again.
+
+My second brain is supposed to change that.
+
+Then Lorekeeper gave me a real test.
+
+## Not a benchmark
+
+I deliberately didn't invent a retrieval benchmark.
+
+I took the next actual piece of work in Lorekeeper: ticket 04.4. The problem was subtle. Lorekeeper generates stable IDs for captured URLs. If a future domain-specific identity rule claims a host that used to use the generic rule, an existing source could silently get a different ID.
+
+That's the kind of problem where old reasoning should matter.
+
+So the agent started from the Second Brain index instead of loading everything.
+
+The relevant corpus was **181 files, 45,431 words, about 360 KB**.
+
+It retrieved seven files.
+
+**3,254 words. 28,984 bytes.**
+
+That's roughly **8% of the corpus by bytes**, meaning about **92% of the plausible context never entered the working set**.
+
+That was the first result I cared about.
+
+## The interesting part wasn't the 92%
+
+Context reduction sounds good, but deleting useful context is easy.
+
+The real question was: did the retrieved knowledge change the work?
+
+It did.
+
+One old Lorekeeper note already contained the three policy options for evolving URL identity rules. Those became the actual options presented for the ticket instead of being rediscovered from scratch.
+
+Another note recorded the principle that normalization should split identities rather than merge them because over-normalization can be unrecoverable. That directly shaped the argument against the highest-blast-radius migration option.
+
+Another pointed directly to the frozen identity contract in the project documentation. The agent read thirteen lines instead of searching a 200-line document or grepping the whole repository.
+
+And one general engineering note said that a guard test should be proven capable of failing.
+
+That one caused an actual verification step.
+
+The agent deliberately mutated the rule set, adding a fake third rule, and confirmed that the new guard test failed. Then it restored the code and confirmed green.
+
+That's what I wanted the brain to do. Not answer trivia. Change an engineering action.
+
+## It also knew what not to reopen
+
+This part might be even more useful.
+
+A previous risk note said that three neighboring questions around digest stability, fragments and credentials had already been resolved in the previous ticket.
+
+So the agent didn't investigate them again.
+
+That is a boring win, which is exactly why I like it.
+
+A lot of AI-assisted engineering waste isn't the model getting an answer wrong. It's the model spending context and time proving something the project already proved.
+
+Memory should eliminate that tax.
+
+## Then the repo beat the brain
+
+This is where the test got useful.
+
+The Second Brain did not have the most important implementation fact.
+
+The retrieved notes framed the policy problem well, but none of them recorded that the existing `RULE_PREFIX` mapping already encoded which rule minted an ID.
+
+The agent only learned that by opening `url.ts`.
+
+That changed the decision. One of the options suggested by the stored knowledge would have duplicated information the ID already carried.
+
+So the brain did not replace the repository.
+
+Good.
+
+I don't want an AI system that trusts its memory more than current evidence. The brain should shorten orientation and preserve reasoning. The repository still gets the final vote on what the code actually does.
+
+One of the notes was also partly stale. Again, good to know.
+
+## The router is already becoming the next problem
+
+The project index itself was 17,691 bytes.
+
+That was **61% of everything retrieved**.
+
+So the index-first pattern worked, but it exposed its next scaling problem: the router is getting expensive as the vault grows.
+
+That's the kind of result I want from testing this system. Not "Second Brain works!" followed by a victory lap.
+
+The honest result was a **B**.
+
+Moderately strong evidence. Useful, not decisive.
+
+The task was also unusually favorable because notes already existed about almost this exact deferred risk. On a completely novel task, the advantage could be much smaller.
+
+## What it actually saved
+
+The field test ended with a pretty concrete ledger:
+
+Seven Second Brain files read.
+
+Zero repo-wide searches.
+
+Two repository files opened before a confident implementation decision.
+
+A pre-analyzed option space reused.
+
+A direct pointer to an architectural contract reused.
+
+A known verification technique reused.
+
+And roughly 92% of the plausible Second Brain corpus kept out of context.
+
+The implementation still required reading the code. It should.
+
+That's the architecture I'm converging on:
+
+**Index first. Retrieve narrowly. Treat memory as evidence, not truth. Read the current code. Verify the real effect.**
+
+There is a funny loop here.
+
+I'm building **Lorekeeper** because I want durable, provenance-aware knowledge.
+
+I'm also using the Second Brain as evidence for what Lorekeeper should eventually become.
+
+And now the project itself is generating the field tests that tell me whether the memory system is any good.
+
+That's much more interesting to me than having an AI that "remembers everything."
+
+I don't need everything.
+
+I need the right seven files.
+
+<!-- locale:es -->
+
+Llevo un tiempo construyendo un segundo cerebro en Obsidian para mi trabajo de ingeniería.
+
+Esa frase está peligrosamente cerca del teatro de productividad.
+
+Así que quería evidencia.
+
+La idea es simple: los agentes de código con IA son muy buenos leyendo un repositorio, pero cada sesión nueva empieza con un problema de memoria. Decisiones de la semana pasada, trampas que ya encontramos, técnicas de verificación que funcionaron, límites arquitectónicos que costaron una hora entender. Si nada de eso sobrevive fuera de la conversación, el siguiente agente vuelve a pagarlo.
+
+Mi segundo cerebro debería cambiar eso.
+
+Entonces Lorekeeper me dio una prueba real.
+
+## No era un benchmark
+
+A propósito, no inventé un benchmark de retrieval.
+
+Tomé la siguiente unidad real de trabajo en Lorekeeper: el ticket 04.4. El problema era sutil. Lorekeeper genera IDs estables para URLs capturadas. Si en el futuro una regla de identidad específica para un dominio reclama un host que antes usaba la regla genérica, una fuente existente podría terminar silenciosamente con otro ID.
+
+Ese es exactamente el tipo de problema donde el razonamiento anterior debería importar.
+
+Así que el agente empezó por el índice del Second Brain en vez de cargarlo todo.
+
+El corpus relevante tenía **181 archivos, 45,431 palabras y unos 360 KB**.
+
+Recuperó siete archivos.
+
+**3,254 palabras. 28,984 bytes.**
+
+Eso es aproximadamente **8% del corpus por bytes**, así que cerca del **92% del contexto plausible nunca entró en el working set**.
+
+Ese fue el primer resultado que me importó.
+
+## Lo interesante no era el 92%
+
+Reducir contexto suena bien, pero eliminar contexto útil es facilísimo.
+
+La pregunta real era: ¿el conocimiento recuperado cambió el trabajo?
+
+Sí.
+
+Una nota vieja de Lorekeeper ya contenía las tres opciones de política para evolucionar las reglas de identidad de URLs. Esas se convirtieron en las opciones reales del ticket en lugar de volver a diseñarlas desde cero.
+
+Otra nota guardaba el principio de que la normalización debe separar identidades, no fusionarlas, porque normalizar de más puede ser irrecuperable. Eso influyó directamente en el argumento contra la opción de migración con mayor blast radius.
+
+Otra apuntaba directamente al contrato de identidad congelado en la documentación del proyecto. El agente leyó trece líneas en vez de buscar por un documento de 200 líneas o hacer grep por todo el repo.
+
+Y una nota general de ingeniería decía que un guard test debe demostrar que realmente es capaz de fallar.
+
+Esa provocó una acción de verificación real.
+
+El agente mutó deliberadamente el rule set, añadió una tercera regla falsa y confirmó que el nuevo guard test fallaba. Después restauró el código y confirmó que todo volvía a verde.
+
+Eso es lo que quiero que haga el cerebro. No responder trivia. Cambiar una acción de ingeniería.
+
+## También sabía qué no volver a investigar
+
+Esta parte puede ser todavía más útil.
+
+Una nota de riesgos anterior decía que tres preguntas vecinas sobre estabilidad del digest, fragments y credentials ya se habían resuelto en el ticket anterior.
+
+Así que el agente no las investigó otra vez.
+
+Es una victoria aburrida, y precisamente por eso me gusta.
+
+Mucho del desperdicio en ingeniería asistida por IA no viene de que el modelo responda mal. Viene de gastar contexto y tiempo demostrando algo que el proyecto ya demostró.
+
+La memoria debería eliminar ese impuesto.
+
+## Entonces el repo le ganó al cerebro
+
+Aquí es donde la prueba se puso interesante.
+
+El Second Brain no tenía el dato de implementación más importante.
+
+Las notas recuperadas planteaban bien el problema de política, pero ninguna registraba que el mapping existente `RULE_PREFIX` ya codificaba qué regla había creado cada ID.
+
+El agente solo descubrió eso abriendo `url.ts`.
+
+Y eso cambió la decisión. Una de las opciones sugeridas por el conocimiento almacenado habría duplicado información que el ID ya contenía.
+
+Así que el cerebro no reemplazó al repositorio.
+
+Bien.
+
+No quiero un sistema de IA que confíe más en su memoria que en la evidencia actual. El cerebro debe acortar la orientación y conservar el razonamiento. El repositorio sigue teniendo la última palabra sobre lo que el código hace hoy.
+
+Además, una de las notas estaba parcialmente desactualizada. Otra cosa útil que descubrir.
+
+## El router ya se está convirtiendo en el próximo problema
+
+El propio índice del proyecto pesaba 17,691 bytes.
+
+Eso era **61% de todo lo recuperado**.
+
+Así que el patrón index-first funcionó, pero reveló su próximo problema de escala: el router se está haciendo caro a medida que crece el vault.
+
+Este es el tipo de resultado que quiero cuando pruebo el sistema. No "¡Second Brain funciona!" y una vuelta de victoria.
+
+El resultado fue un **B**.
+
+Evidencia moderadamente fuerte. Útil, pero todavía no decisiva.
+
+Además, la tarea era especialmente favorable porque ya existían notas sobre casi exactamente ese riesgo diferido. En una tarea completamente nueva, la ventaja podría ser mucho menor.
+
+## Lo que realmente ahorró
+
+El field test terminó con un ledger bastante concreto:
+
+Siete archivos del Second Brain leídos.
+
+Cero búsquedas por todo el repositorio.
+
+Dos archivos del repo abiertos antes de llegar a un plan de implementación con confianza.
+
+Un espacio de opciones ya analizado y reutilizado.
+
+Un enlace directo a un contrato arquitectónico reutilizado.
+
+Una técnica de verificación conocida reutilizada.
+
+Y aproximadamente 92% del corpus plausible del Second Brain fuera del contexto.
+
+La implementación todavía necesitó leer el código. Como debe ser.
+
+Esta es la arquitectura hacia la que estoy convergiendo:
+
+**Índice primero. Retrieval estrecho. Tratar la memoria como evidencia, no como verdad. Leer el código actual. Verificar el efecto real.**
+
+Hay un loop curioso aquí.
+
+Estoy construyendo **Lorekeeper** porque quiero conocimiento durable y con provenance.
+
+También estoy usando el Second Brain como evidencia de lo que Lorekeeper debería llegar a ser.
+
+Y ahora el propio proyecto está generando los field tests que me dicen si el sistema de memoria sirve de verdad.
+
+Eso me parece mucho más interesante que tener una IA que "lo recuerde todo".
+
+No necesito todo.
+
+Necesito los siete archivos correctos.
+
+<!-- locale:fr -->
+
+Depuis quelque temps, je construis un second cerveau dans Obsidian pour mon travail d'ingénierie.
+
+Cette phrase est dangereusement proche du théâtre de productivité.
+
+Alors je voulais des preuves.
+
+L'idée est simple : les agents de code IA sont très bons pour lire un dépôt, mais chaque nouvelle session commence avec un problème de mémoire. Les décisions prises la semaine dernière, les pièges déjà découverts, les techniques de vérification qui ont marché, les limites architecturales qui ont demandé une heure pour être comprises. Si rien de tout ça ne survit en dehors de la conversation, l'agent suivant paie le même prix.
+
+Mon second cerveau est censé changer ça.
+
+Puis Lorekeeper m'a donné un vrai test.
+
+## Pas un benchmark
+
+Je n'ai volontairement pas inventé un benchmark de retrieval.
+
+J'ai pris la prochaine vraie unité de travail dans Lorekeeper : le ticket 04.4. Le problème était subtil. Lorekeeper génère des IDs stables pour les URLs capturées. Si, plus tard, une règle d'identité spécifique à un domaine revendique un host qui utilisait auparavant la règle générique, une source existante pourrait silencieusement recevoir un nouvel ID.
+
+C'est exactement le genre de problème où le raisonnement passé devrait compter.
+
+L'agent a donc commencé par l'index du Second Brain au lieu de tout charger.
+
+Le corpus pertinent contenait **181 fichiers, 45 431 mots et environ 360 Ko**.
+
+Il en a récupéré sept.
+
+**3 254 mots. 28 984 octets.**
+
+C'est environ **8 % du corpus en octets**, donc près de **92 % du contexte plausible n'est jamais entré dans le working set**.
+
+C'est le premier résultat qui m'a intéressé.
+
+## Le plus intéressant n'était pas les 92 %
+
+Réduire le contexte, ça sonne bien. Supprimer du contexte utile est aussi très facile.
+
+La vraie question était : est-ce que la connaissance récupérée a changé le travail ?
+
+Oui.
+
+Une ancienne note Lorekeeper contenait déjà les trois options de politique pour faire évoluer les règles d'identité des URLs. Ce sont devenues les vraies options proposées pour le ticket, au lieu de redécouvrir l'espace de décision depuis zéro.
+
+Une autre note conservait le principe selon lequel la normalisation doit séparer les identités plutôt que les fusionner, parce qu'une sur-normalisation peut être irrécupérable. Cela a directement influencé l'argument contre l'option de migration au plus grand blast radius.
+
+Une autre pointait directement vers le contrat d'identité figé dans la documentation du projet. L'agent a lu treize lignes au lieu de chercher dans un document de 200 lignes ou dans tout le dépôt.
+
+Et une note générale d'ingénierie disait qu'un guard test devait prouver qu'il était réellement capable d'échouer.
+
+Celle-là a provoqué une vraie étape de vérification.
+
+L'agent a volontairement muté le rule set, ajouté une fausse troisième règle et confirmé que le nouveau guard test échouait. Ensuite, il a restauré le code et confirmé que tout repassait au vert.
+
+C'est ce que je veux que le cerveau fasse. Pas répondre à des questions de trivia. Modifier une action d'ingénierie.
+
+## Il savait aussi quoi ne pas rouvrir
+
+Cette partie est peut-être encore plus utile.
+
+Une ancienne note de risque indiquait que trois questions voisines autour de la stabilité du digest, des fragments et des credentials avaient déjà été résolues dans le ticket précédent.
+
+L'agent ne les a donc pas réinvestiguées.
+
+C'est une victoire ennuyeuse, et c'est précisément pour ça que je l'aime.
+
+Une grande partie du gaspillage en ingénierie assistée par IA ne vient pas d'une mauvaise réponse du modèle. Elle vient du temps et du contexte dépensés à prouver quelque chose que le projet a déjà prouvé.
+
+La mémoire devrait supprimer cette taxe.
+
+## Puis le dépôt a battu le cerveau
+
+C'est là que le test est devenu vraiment utile.
+
+Le Second Brain ne contenait pas le fait d'implémentation le plus important.
+
+Les notes récupérées cadraient bien le problème de politique, mais aucune n'indiquait que le mapping `RULE_PREFIX` existant encodait déjà quelle règle avait créé un ID.
+
+L'agent ne l'a découvert qu'en ouvrant `url.ts`.
+
+Et cela a changé la décision. Une des options suggérées par la connaissance stockée aurait dupliqué une information déjà présente dans l'ID.
+
+Le cerveau n'a donc pas remplacé le dépôt.
+
+Très bien.
+
+Je ne veux pas d'un système IA qui fait davantage confiance à sa mémoire qu'aux preuves actuelles. Le cerveau doit raccourcir l'orientation et préserver le raisonnement. Le dépôt garde le dernier mot sur ce que fait réellement le code aujourd'hui.
+
+Une des notes était aussi partiellement périmée. Là encore, c'est utile de le savoir.
+
+## Le routeur devient déjà le prochain problème
+
+L'index du projet faisait à lui seul 17 691 octets.
+
+C'était **61 % de tout ce qui avait été récupéré**.
+
+Le pattern index-first a donc fonctionné, mais il a révélé son prochain problème d'échelle : le routeur devient coûteux à mesure que le vault grandit.
+
+C'est exactement le genre de résultat que je veux obtenir en testant ce système. Pas « le Second Brain marche ! » suivi d'un tour de victoire.
+
+Le résultat honnête était un **B**.
+
+Des preuves modérément solides. Utile, mais pas encore décisif.
+
+La tâche était aussi particulièrement favorable parce que des notes existaient déjà sur presque exactement ce risque différé. Sur une tâche totalement nouvelle, l'avantage pourrait être beaucoup plus faible.
+
+## Ce qu'il a réellement économisé
+
+Le field test s'est terminé avec un ledger assez concret :
+
+Sept fichiers du Second Brain lus.
+
+Zéro recherche à l'échelle du dépôt.
+
+Deux fichiers du repo ouverts avant d'arriver à un plan d'implémentation solide.
+
+Un espace d'options déjà analysé et réutilisé.
+
+Un pointeur direct vers un contrat architectural réutilisé.
+
+Une technique de vérification connue réutilisée.
+
+Et environ 92 % du corpus plausible du Second Brain maintenu hors contexte.
+
+L'implémentation a quand même nécessité de lire le code. C'est normal.
+
+Voilà l'architecture vers laquelle je converge :
+
+**Index d'abord. Retrieval étroit. Traiter la mémoire comme une preuve, pas comme la vérité. Lire le code actuel. Vérifier l'effet réel.**
+
+Il y a une boucle assez amusante ici.
+
+Je construis **Lorekeeper** parce que je veux une connaissance durable, avec sa provenance.
+
+J'utilise aussi le Second Brain comme preuve de ce que Lorekeeper devrait devenir.
+
+Et maintenant, le projet lui-même génère les field tests qui me disent si le système de mémoire est réellement bon.
+
+Ça m'intéresse beaucoup plus qu'une IA qui « se souvient de tout ».
+
+Je n'ai pas besoin de tout.
+
+J'ai besoin des sept bons fichiers.
