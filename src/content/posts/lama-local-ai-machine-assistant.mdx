@@ -1,0 +1,331 @@
+---
+title:
+  en: I turned an old Mac into my own AI server
+  es: Convertí un Mac viejo en mi propio servidor de IA
+  fr: J'ai transformé un vieux Mac en mon propre serveur d'IA
+summary:
+  en: LAMA started as a weekend experiment with an M1 Pro. It ended with a local model, a real network service, and a much better understanding of what "local AI" actually means.
+  es: LAMA empezó como un experimento de fin de semana con un M1 Pro. Terminó con un modelo local, un servicio de red real y una idea mucho más clara de lo que significa realmente "IA local".
+  fr: LAMA a commencé comme une expérience de week-end avec un M1 Pro. Elle s'est terminée avec un modèle local, un vrai service réseau et une bien meilleure compréhension de ce que veut vraiment dire « IA locale ».
+date: "2026-09-01"
+tags: ["ai", "engineering", "local-ai"]
+draft: false
+---
+
+<!-- locale:en -->
+
+I had an M1 Pro MacBook sitting around and one question: how much AI can I actually run on this thing?
+
+Not through an API. Not by sending a prompt to somebody else's data center. On the Mac, in my apartment, using its own memory and GPU.
+
+That question turned into **LAMA: Local AI Machine Assistant**.
+
+Running locally. Built by Lamadrid.
+
+## First, I had to stop treating "AI" as one thing
+
+This was the useful part.
+
+Before touching local models, words like model, runtime, agent, context and inference had a tendency to collapse into one big blob called AI. Building the stack myself forced the pieces apart.
+
+The model is the brain. Right now that's Qwen 3.5 9B.
+
+Ollama is the runtime. It loads the model and exposes an API.
+
+The M1 Pro is the machine doing the compute.
+
+And LAMA is becoming the system around all of that. The interface, configuration, local network access and, eventually, the useful stuff on top.
+
+That distinction sounds obvious once you know it. I didn't really know it until I could point at every layer running on my desk.
+
+## The little M1 did better than I expected
+
+The machine is a 2021 M1 Pro with 16 GB of unified memory and a 16-core GPU. Nothing exotic.
+
+I loaded Qwen 3.5 9B in Q4_K_M quantization, roughly a 6.6 GB model package, through Ollama. Generation landed around **21.7 tokens per second** with the model running on the GPU.
+
+Then I started changing one thing at a time.
+
+At a 4K context, Ollama reported a runtime footprint around 5.5 GB. At 16K it was about 6.0 GB. At 32K, 6.6 GB. At 64K, 7.8 GB. No swap during those tests.
+
+That made context windows real for me. "Supports 262K context" is a capability on a spec sheet. "How much context is sensible on this machine?" is an engineering question.
+
+Same with reasoning. With thinking enabled, one test generated 4,064 tokens and took a little over three minutes. With thinking disabled, the comparable answer generated 299 tokens and finished in about 19 seconds including a cold load. The raw generation rate barely changed.
+
+The model wasn't suddenly slow because it was thinking. It was doing a lot more work.
+
+## Then localhost stopped being enough
+
+Running a model in Terminal is cool for about ten minutes.
+
+I wanted the M1 to behave like a server and my M5 Air to behave like a client.
+
+So the architecture became:
+
+M5 Air → Wi-Fi → M1 Pro → Ollama → Qwen → Metal GPU → response.
+
+The first request from the M5 failed.
+
+Good.
+
+That failure taught me more than another successful `ollama run` would have. Ollama was listening on localhost, which meant the service existed only from the M1's point of view. Binding it to `0.0.0.0:11434` made it reachable on the local network.
+
+A `curl` from the M5 returned the model metadata. Then another request generated a response on the M1 and sent it back across the room.
+
+Tiny thing. Very satisfying.
+
+## The annoying bug was the best lesson
+
+I wanted the server to survive a reboot without me opening Terminal.
+
+The first setup looked correct. macOS started Ollama. A LaunchAgent set `OLLAMA_HOST=0.0.0.0:11434`. The variable existed. The job had run successfully.
+
+And after a reboot, the M5 still couldn't connect.
+
+The problem was timing.
+
+Ollama had already started before the environment variable was set. Processes inherit their environment when they start. Changing the environment afterward does not travel backward in time and mutate an already-running process.
+
+Restart Ollama after setting the variable and everything worked.
+
+There was the bug.
+
+The final design is simpler. macOS `launchd` directly owns `ollama serve`, and the `OLLAMA_HOST` variable belongs to that job. `RunAtLoad` starts it. `KeepAlive` keeps it alive.
+
+Then came the test that mattered: reboot the M1, don't open Terminal, don't manually start Ollama, wait, and call the API from the M5.
+
+Qwen came back.
+
+That was the moment the experiment became infrastructure.
+
+## So what is LAMA now?
+
+Right now, LAMA is small.
+
+It is an M1 Pro acting as a persistent local AI server, an Ollama runtime, a Qwen model, and another Mac successfully talking to it over my LAN.
+
+The next layer is the fun one: give it a face.
+
+I want to build a simple LAMA web interface so the M5, an iPhone or another device can talk to the server without living in `curl`. After that come the interesting questions around models, memory, files, tools and agents.
+
+But I don't want to skip the boring layers to get there.
+
+That's kind of the point of this project.
+
+I could have installed a polished UI and called it done. Instead I now know what the model is, what the runtime is, where the memory goes, what a token costs, what localhost means, why a port matters, how a macOS service starts, and exactly why my first persistence setup failed.
+
+The local AI server is useful.
+
+Understanding the machine underneath it might be the more valuable thing I built.
+
+<!-- locale:es -->
+
+Tenía un MacBook Pro con M1 Pro por ahí y una pregunta: ¿cuánta IA puedo correr de verdad en esta cosa?
+
+No a través de una API. No mandando un prompt al centro de datos de otra compañía. En el Mac, en mi casa, usando su propia memoria y su propia GPU.
+
+Esa pregunta terminó convirtiéndose en **LAMA: Local AI Machine Assistant**.
+
+Running locally. Built by Lamadrid.
+
+## Primero tuve que dejar de tratar "IA" como si fuera una sola cosa
+
+Esta fue la parte útil.
+
+Antes de meterme con modelos locales, palabras como modelo, runtime, agente, contexto e inferencia tenían la mala costumbre de mezclarse en una sola masa llamada IA. Montar el stack yo mismo me obligó a separar las piezas.
+
+El modelo es el cerebro. Ahora mismo es Qwen 3.5 9B.
+
+Ollama es el runtime. Carga el modelo y expone una API.
+
+El M1 Pro es la máquina que hace el cómputo.
+
+Y LAMA se está convirtiendo en el sistema alrededor de todo eso. La interfaz, la configuración, el acceso por la red local y, eventualmente, las cosas útiles que irán encima.
+
+La distinción parece obvia cuando ya la entiendes. Yo no la entendía de verdad hasta que pude señalar cada capa funcionando encima de mi escritorio.
+
+## El pequeño M1 rindió mejor de lo que esperaba
+
+La máquina es un M1 Pro de 2021 con 16 GB de memoria unificada y una GPU de 16 núcleos. Nada exótico.
+
+Cargué Qwen 3.5 9B con cuantización Q4_K_M, un paquete de unos 6.6 GB, usando Ollama. La generación quedó alrededor de **21.7 tokens por segundo** con el modelo corriendo en la GPU.
+
+Después empecé a cambiar una sola cosa cada vez.
+
+Con 4K de contexto, Ollama reportaba un footprint de runtime de unos 5.5 GB. Con 16K, unos 6.0 GB. Con 32K, 6.6 GB. Con 64K, 7.8 GB. Sin swap durante esas pruebas.
+
+Ahí las ventanas de contexto dejaron de ser una cifra abstracta. "Soporta 262K de contexto" es una capacidad en una ficha técnica. "¿Cuánto contexto tiene sentido en esta máquina?" es una pregunta de ingeniería.
+
+Lo mismo pasó con el razonamiento. Con thinking activado, una prueba generó 4,064 tokens y tardó algo más de tres minutos. Con thinking desactivado, la respuesta comparable generó 299 tokens y terminó en unos 19 segundos incluyendo la carga en frío. La velocidad bruta de generación casi no cambió.
+
+El modelo no se había vuelto lento por pensar. Simplemente estaba haciendo muchísimo más trabajo.
+
+## Después localhost dejó de ser suficiente
+
+Correr un modelo en Terminal es divertido durante unos diez minutos.
+
+Yo quería que el M1 se comportara como un servidor y que mi M5 Air fuera el cliente.
+
+Así que la arquitectura pasó a ser:
+
+M5 Air → Wi-Fi → M1 Pro → Ollama → Qwen → GPU Metal → respuesta.
+
+La primera petición desde el M5 falló.
+
+Bien.
+
+Ese fallo me enseñó más que otro `ollama run` exitoso. Ollama estaba escuchando en localhost, así que el servicio solo existía desde el punto de vista del M1. Hacer bind a `0.0.0.0:11434` permitió acceder desde la red local.
+
+Un `curl` desde el M5 devolvió los metadatos del modelo. Otra petición hizo que el M1 generara una respuesta y la enviara al otro lado de la habitación.
+
+Una tontería pequeña. Muy satisfactoria.
+
+## El bug molesto fue la mejor lección
+
+Quería que el servidor sobreviviera un reinicio sin tener que abrir Terminal.
+
+La primera configuración parecía correcta. macOS arrancaba Ollama. Un LaunchAgent configuraba `OLLAMA_HOST=0.0.0.0:11434`. La variable existía. El job había terminado correctamente.
+
+Y después de reiniciar, el M5 seguía sin poder conectar.
+
+El problema era el timing.
+
+Ollama ya había arrancado antes de que se configurara la variable. Los procesos heredan su entorno cuando arrancan. Cambiar el entorno después no viaja hacia atrás en el tiempo para modificar un proceso que ya está corriendo.
+
+Reiniciar Ollama después de configurar la variable hacía que todo funcionara.
+
+Ahí estaba el bug.
+
+El diseño final es más simple. `launchd` de macOS controla directamente `ollama serve`, y la variable `OLLAMA_HOST` pertenece a ese job. `RunAtLoad` lo arranca. `KeepAlive` lo mantiene vivo.
+
+Entonces llegó la prueba que importaba: reiniciar el M1, no abrir Terminal, no arrancar Ollama manualmente, esperar y llamar a la API desde el M5.
+
+Qwen respondió.
+
+Ahí el experimento se convirtió en infraestructura.
+
+## Entonces, ¿qué es LAMA ahora?
+
+Ahora mismo, LAMA es pequeño.
+
+Es un M1 Pro funcionando como servidor persistente de IA local, un runtime de Ollama, un modelo Qwen y otro Mac hablando con él correctamente por mi LAN.
+
+La siguiente capa es la divertida: darle una cara.
+
+Quiero construir una interfaz web sencilla para LAMA, para que el M5, un iPhone u otro dispositivo pueda hablar con el servidor sin vivir dentro de `curl`. Después vendrán las preguntas interesantes sobre modelos, memoria, archivos, herramientas y agentes.
+
+Pero no quiero saltarme las capas aburridas para llegar ahí.
+
+Ese es un poco el sentido del proyecto.
+
+Podría haber instalado una interfaz bonita y darlo por terminado. En cambio, ahora sé qué es el modelo, qué hace el runtime, dónde se va la memoria, qué cuesta un token, qué significa localhost, por qué importa un puerto, cómo arranca un servicio en macOS y exactamente por qué falló mi primera configuración persistente.
+
+El servidor local de IA es útil.
+
+Entender la máquina que hay debajo puede que sea lo más valioso que construí.
+
+<!-- locale:fr -->
+
+J'avais un MacBook Pro M1 Pro qui traînait et une question : jusqu'où est-ce que je peux vraiment pousser l'IA sur cette machine ?
+
+Pas via une API. Pas en envoyant un prompt dans le data center de quelqu'un d'autre. Sur le Mac, chez moi, avec sa propre mémoire et son propre GPU.
+
+Cette question est devenue **LAMA : Local AI Machine Assistant**.
+
+Running locally. Built by Lamadrid.
+
+## D'abord, j'ai dû arrêter de traiter « l'IA » comme une seule chose
+
+C'est là que ça devient intéressant.
+
+Avant de toucher aux modèles locaux, des mots comme modèle, runtime, agent, contexte et inférence avaient tendance à se fondre dans un seul gros bloc appelé IA. Monter la stack moi-même m'a obligé à séparer les pièces.
+
+Le modèle, c'est le cerveau. Pour l'instant, Qwen 3.5 9B.
+
+Ollama, c'est le runtime. Il charge le modèle et expose une API.
+
+Le M1 Pro, c'est la machine qui fait le calcul.
+
+Et LAMA devient le système autour de tout ça. L'interface, la configuration, l'accès sur le réseau local et, plus tard, les choses utiles construites au-dessus.
+
+Cette distinction paraît évidente une fois qu'on l'a comprise. Moi, je ne l'avais pas vraiment comprise avant de pouvoir montrer chaque couche en train de tourner sur mon bureau.
+
+## Le petit M1 s'en est mieux sorti que prévu
+
+La machine est un M1 Pro de 2021 avec 16 Go de mémoire unifiée et un GPU 16 cœurs. Rien d'exotique.
+
+J'ai chargé Qwen 3.5 9B en quantification Q4_K_M, un package d'environ 6,6 Go, avec Ollama. La génération tournait autour de **21,7 tokens par seconde** avec le modèle sur le GPU.
+
+Ensuite, j'ai changé une seule variable à la fois.
+
+Avec 4K de contexte, Ollama rapportait une empreinte runtime d'environ 5,5 Go. À 16K, environ 6,0 Go. À 32K, 6,6 Go. À 64K, 7,8 Go. Aucun swap pendant ces tests.
+
+C'est là que les fenêtres de contexte sont devenues concrètes. « Supporte 262K de contexte » est une capacité sur une fiche technique. « Quelle taille de contexte est raisonnable sur cette machine ? » est une question d'ingénierie.
+
+Même chose pour le raisonnement. Avec thinking activé, un test a généré 4 064 tokens et pris un peu plus de trois minutes. Sans thinking, la réponse comparable a généré 299 tokens et fini en environ 19 secondes, chargement à froid compris. Le débit brut de génération a à peine changé.
+
+Le modèle n'était pas soudainement lent parce qu'il réfléchissait. Il faisait simplement beaucoup plus de travail.
+
+## Ensuite, localhost ne suffisait plus
+
+Faire tourner un modèle dans le Terminal, c'est cool pendant dix minutes.
+
+Je voulais que le M1 se comporte comme un serveur et que mon M5 Air soit le client.
+
+L'architecture est donc devenue :
+
+M5 Air → Wi-Fi → M1 Pro → Ollama → Qwen → GPU Metal → réponse.
+
+La première requête depuis le M5 a échoué.
+
+Parfait.
+
+Cet échec m'a appris plus qu'un autre `ollama run` réussi. Ollama écoutait sur localhost, donc le service n'existait que du point de vue du M1. Le binder sur `0.0.0.0:11434` l'a rendu accessible sur le réseau local.
+
+Un `curl` depuis le M5 a renvoyé les métadonnées du modèle. Une autre requête a fait générer la réponse par le M1 avant de la renvoyer de l'autre côté de la pièce.
+
+Petit détail. Très satisfaisant.
+
+## Le bug pénible a été la meilleure leçon
+
+Je voulais que le serveur survive à un redémarrage sans que j'ouvre le Terminal.
+
+La première configuration semblait correcte. macOS lançait Ollama. Un LaunchAgent définissait `OLLAMA_HOST=0.0.0.0:11434`. La variable existait. Le job s'était exécuté correctement.
+
+Et après un redémarrage, le M5 n'arrivait toujours pas à se connecter.
+
+Le problème, c'était le timing.
+
+Ollama avait déjà démarré avant que la variable d'environnement soit définie. Les processus héritent de leur environnement au démarrage. Modifier l'environnement ensuite ne remonte pas dans le temps pour changer un processus déjà lancé.
+
+Redémarrer Ollama après avoir défini la variable faisait immédiatement fonctionner le tout.
+
+Voilà le bug.
+
+Le design final est plus simple. `launchd` sur macOS possède directement `ollama serve`, et la variable `OLLAMA_HOST` appartient à ce job. `RunAtLoad` le démarre. `KeepAlive` le garde en vie.
+
+Puis est arrivé le test qui comptait : redémarrer le M1, ne pas ouvrir le Terminal, ne pas lancer Ollama manuellement, attendre, puis appeler l'API depuis le M5.
+
+Qwen a répondu.
+
+C'est là que l'expérience est devenue une infrastructure.
+
+## Alors, LAMA, c'est quoi aujourd'hui ?
+
+Pour l'instant, LAMA est petit.
+
+C'est un M1 Pro qui agit comme serveur d'IA local persistant, un runtime Ollama, un modèle Qwen et un autre Mac qui lui parle correctement sur mon réseau local.
+
+La prochaine couche est la plus amusante : lui donner un visage.
+
+Je veux construire une interface web LAMA simple pour que le M5, un iPhone ou un autre appareil puisse parler au serveur sans vivre dans `curl`. Ensuite viendront les questions intéressantes sur les modèles, la mémoire, les fichiers, les outils et les agents.
+
+Mais je ne veux pas sauter les couches ennuyeuses pour y arriver.
+
+C'est un peu tout l'intérêt du projet.
+
+J'aurais pu installer une interface bien finie et considérer le travail terminé. À la place, je sais maintenant ce qu'est le modèle, ce que fait le runtime, où part la mémoire, ce que coûte un token, ce que signifie localhost, pourquoi un port compte, comment un service macOS démarre et exactement pourquoi ma première configuration persistante a échoué.
+
+Le serveur d'IA local est utile.
+
+Comprendre la machine qui se trouve dessous est peut-être la chose la plus précieuse que j'ai construite.

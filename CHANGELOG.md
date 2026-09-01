@@ -7,6 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- New Field Notes post, "I built a second brain for AI agents. Then I made it
+  prove it worked.", on field-testing an Obsidian knowledge vault against a real
+  ticket: what index-first retrieval actually saved, where stored notes changed
+  an engineering decision, and where the repository still beat the memory.
+  Available in English, Spanish, and French.
+- New Field Notes post, "I turned an old Mac into my own AI server", on building
+  LAMA — a local AI server on a 2021 M1 Pro — and what pulling the model,
+  runtime, and machine apart taught about context windows, network binding, and
+  why the first persistent setup failed. Available in English, Spanish, and
+  French.
+
 ## [1.8.0] - 2026-08-11
 
 ### Added
