@@ -3,6 +3,7 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { t, type Locale, type Localized } from "@/data";
 import type { Post } from "@/lib/posts";
 import { ContentPage } from "./ContentPage";
+import { ShareActions } from "./ShareActions";
 
 const COPY: Record<string, Localized<string>> = {
   back: {
@@ -52,6 +53,12 @@ export function WritingPostContent({ post, locale }: { post: Post; locale: Local
               {tag}
             </span>
           ))}
+          <ShareActions
+            locale={locale}
+            slug={meta.slug}
+            title={t(meta.title, locale)}
+            caption={t(meta.shareCaption, locale)}
+          />
         </div>
 
         <h1 className="content-title">{t(meta.title, locale)}</h1>

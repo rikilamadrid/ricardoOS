@@ -28,6 +28,7 @@ export async function generateMetadata({
   const title = `${t(post.meta.title, rawLocale)} · RicardoOS`;
   const description = t(post.meta.summary, rawLocale);
   const url = rawLocale === "en" ? `/writing/${slug}` : `/writing/${slug}/${rawLocale}`;
+  const image = `/writing/${slug}/opengraph-image`;
 
   return {
     title,
@@ -40,8 +41,9 @@ export async function generateMetadata({
       type: "article",
       publishedTime: post.meta.date,
       tags: post.meta.tags,
+      images: [{ url: image, alt: "Field Notes · RicardoOS" }],
     },
-    twitter: { card: "summary_large_image", title, description },
+    twitter: { card: "summary_large_image", title, description, images: [image] },
   };
 }
 

@@ -1303,6 +1303,127 @@
     color: var(--color-ink-soft, #41607e);
   }
 
+  /* Field Notes share control — one quiet metadata pill, with the established
+     Aero glass menu language for its progressive-enhancement fallbacks. */
+  .os-share-actions {
+    margin-left: auto;
+  }
+  .os-share-trigger {
+    display: inline-flex;
+    min-height: 32px;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 11px;
+    border: 1px solid var(--glass-edge);
+    border-radius: 999px;
+    color: var(--color-aqua-deep);
+    background: rgba(255, 255, 255, 0.46);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.8),
+      0 3px 9px rgba(20, 80, 140, 0.12);
+    font-size: 12.5px;
+    font-weight: 700;
+    transition: background 0.15s, transform 0.1s, box-shadow 0.15s;
+  }
+  .os-share-trigger:hover,
+  .os-share-trigger[data-state="open"] {
+    background: rgba(255, 255, 255, 0.76);
+    box-shadow:
+      inset 0 1px 0 rgba(255, 255, 255, 0.9),
+      0 5px 13px rgba(20, 80, 140, 0.18);
+  }
+  .os-share-trigger:active { transform: scale(0.97); }
+  .dark .os-share-trigger {
+    color: var(--color-aqua);
+    background: rgba(52, 86, 136, 0.5);
+  }
+  .dark .os-share-trigger:hover,
+  .dark .os-share-trigger[data-state="open"] {
+    background: rgba(72, 112, 174, 0.62);
+  }
+  .os-share-popover {
+    width: min(290px, calc(100vw - 32px));
+    gap: 0;
+    border: 1px solid var(--glass-line);
+    border-radius: 15px;
+    padding: 7px;
+    background: var(--glass-strong);
+    box-shadow: var(--os-shadow);
+    backdrop-filter: blur(18px) saturate(1.2);
+    -webkit-backdrop-filter: blur(18px) saturate(1.2);
+  }
+  .os-share-title {
+    padding: 6px 9px 8px;
+    font-family: var(--font-brand), sans-serif;
+    font-size: 14px;
+    font-weight: 700;
+  }
+  .os-share-menu {
+    display: grid;
+    gap: 2px;
+  }
+  .os-share-option {
+    display: flex;
+    min-height: 40px;
+    align-items: center;
+    gap: 9px;
+    border-radius: 10px;
+    padding: 8px 10px;
+    color: var(--color-ink);
+    font-size: 13.5px;
+    font-weight: 600;
+    text-align: left;
+    text-decoration: none;
+    transition: background 0.12s, color 0.12s;
+  }
+  .os-share-option:hover {
+    color: #fff;
+    background: linear-gradient(180deg, var(--color-aqua), var(--color-aqua-deep));
+  }
+  .os-share-feedback:not(:empty) {
+    margin: 5px 3px 2px;
+    padding: 7px;
+    border-top: 1px solid var(--glass-edge);
+    color: var(--color-ink-soft);
+    font-size: 12px;
+    line-height: 1.4;
+  }
+  .os-share-manual {
+    display: grid;
+    gap: 5px;
+    margin-top: 7px;
+    font-weight: 600;
+  }
+  .os-share-manual input,
+  .os-share-manual textarea {
+    width: 100%;
+    border: 1px solid var(--glass-edge);
+    border-radius: 8px;
+    padding: 7px 8px;
+    color: var(--color-ink);
+    background: rgba(255, 255, 255, 0.52);
+    font: 11px/1.3 ui-monospace, SFMono-Regular, Menlo, monospace;
+  }
+  .os-share-manual textarea {
+    resize: vertical;
+  }
+  .dark .os-share-manual input,
+  .dark .os-share-manual textarea {
+    background: rgba(20, 42, 78, 0.58);
+  }
+  @media (pointer: coarse) {
+    .os-share-trigger,
+    .os-share-option { min-height: 44px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .os-share-trigger,
+    .os-share-option,
+    .os-share-popover {
+      animation: none !important;
+      transition: none !important;
+    }
+  }
+
   /* Chapter / list rows */
   .os-row {
     display: flex;
