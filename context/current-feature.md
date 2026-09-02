@@ -16,7 +16,7 @@ newsletter while RicardoOS remains the canonical publication.
 
 ## Active delivery
 
-- `23.1 — Share Localized Field Notes`: In Progress.
+- `23.1 — Share Localized Field Notes`: Complete.
 - `23.2 — Subscribe to English Field Notes`: Proposed; not started.
 
 The current implementation and review cycle is limited to ticket 23.1.
