@@ -13,6 +13,7 @@ export interface PostMeta {
   slug: string;
   title: Localized<string>;
   summary: Localized<string>;
+  shareCaption: Localized<string>;
   /** ISO date string. */
   date: string;
   tags: string[];
@@ -85,10 +86,16 @@ function normalizeLocalizedContent(content: string): Localized<string> {
 }
 
 function normalizeMeta(slug: string, data: Record<string, unknown>): PostMeta {
+  const summary = normalizeLocalizedString(data.summary, "");
+
   return {
     slug,
     title: normalizeLocalizedString(data.title, slug),
-    summary: normalizeLocalizedString(data.summary, ""),
+    summary,
+    shareCaption:
+      data.shareCaption === undefined
+        ? summary
+        : normalizeLocalizedString(data.shareCaption, summary.en),
     date: normalizeDate(data.date),
     tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
     draft: data.draft === true,
