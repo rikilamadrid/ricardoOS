@@ -7,6 +7,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- New Field Notes post, "I turned part of LAMA into a public npm package", on
+  extracting Forge — the layer between an application and a local Ollama
+  runtime — out of LAMA and publishing it as `forge-local-ai-kit`, plus why the
+  real milestone was the boundary, not the npm release. Available in English,
+  Spanish, and French.
+
 ## [1.10.0] - 2026-09-02
 
 ### Added

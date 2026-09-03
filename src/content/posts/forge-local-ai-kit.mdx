@@ -1,0 +1,404 @@
+---
+title:
+  en: I turned part of LAMA into a public npm package
+  es: Convertí una parte de LAMA en un paquete npm público
+  fr: J'ai transformé une partie de LAMA en package npm public
+summary:
+  en: Forge started as the plumbing between my applications and local models. Now it's a small open-source TypeScript library and CLI that anyone can install.
+  es: Forge empezó como la capa que conectaba mis aplicaciones con modelos locales. Ahora es una pequeña librería open source de TypeScript y una CLI que cualquiera puede instalar.
+  fr: Forge a commencé comme la couche reliant mes applications à mes modèles locaux. C'est maintenant une petite bibliothèque TypeScript open source et une CLI que tout le monde peut installer.
+shareCaption:
+  en: Forge is public. 🔥 I pulled the local-AI plumbing out of LAMA and shipped it as an installable npm package.
+  es: Forge ya es público. 🔥 Saqué la infraestructura de IA local de LAMA y la publiqué como un paquete npm instalable.
+  fr: Forge est public. 🔥 J'ai extrait l'infrastructure d'IA locale de LAMA pour en faire un package npm installable.
+date: "2026-09-03"
+tags: ["ai", "engineering", "local-ai", "open-source", "typescript"]
+draft: false
+---
+
+<!-- locale:en -->
+
+A few days ago, LAMA was mostly a machine.
+
+An M1 Pro running Ollama. A Qwen model loaded into memory. Another Mac calling it across my local network.
+
+Once that worked, the next problem appeared pretty quickly: **how should an application actually talk to it?**
+
+Calling an Ollama endpoint isn't difficult. But a real application needs more than a `fetch`.
+
+It needs configuration validation. Timeouts. Cancellation. Useful errors. Token counts. Latency measurements. A distinction between "the server is unreachable" and "the model returned nothing."
+
+And if I built another application, I was going to need all of that again.
+
+So I pulled that layer out of LAMA.
+
+I called it **Forge**.
+
+## The layer in the middle
+
+The architecture is intentionally boring:
+
+`Application → Forge → local AI runtime → model`
+
+Forge doesn't try to be the model.
+
+It isn't an agent framework, a memory system or a prompt library either.
+
+It's the reusable boundary in the middle.
+
+An application gives Forge a host, a model and a prompt. Forge handles the conversation with the local runtime and gives the application back a predictable result, or a predictable failure.
+
+Right now the supported runtime is **Ollama**.
+
+That narrow scope is deliberate.
+
+I'd rather understand one small piece properly than immediately turn it into a framework.
+
+## Then it became a real package
+
+Until now, Forge was infrastructure for my own local AI experiments.
+
+This week it crossed a line that matters to me: **someone else can install it.**
+
+```bash
+npm install forge-local-ai-kit
+```
+
+It works as a TypeScript library, but it also installs a `forge` command.
+
+With Ollama running and a model already available:
+
+```bash
+export OLLAMA_HOST="http://localhost:11434"
+export FORGE_MODEL="qwen3:8b"
+
+npx forge ask "Explain why local AI is interesting."
+```
+
+Forge is ESM-only, requires Node.js 22 or newer, and has **zero production dependencies**.
+
+The package doesn't install Ollama, download models or decide how an application should use AI. Those boundaries belong somewhere else.
+
+Forge just makes the connection reliable.
+
+## The milestone isn't really npm
+
+Publishing a package is not particularly exotic.
+
+What matters to me is what changed in the architecture.
+
+LAMA started as:
+
+`Mac → Ollama → Qwen`
+
+Then another machine became a client.
+
+Then applications needed a stable way to reach the model.
+
+Now one of those pieces has become independent enough to live outside LAMA itself.
+
+That's the part I like.
+
+Something that began because **my machine needed it** is now small enough, documented enough and isolated enough that **another developer can use it without knowing anything about my setup**.
+
+That feels like a much better test of an abstraction than drawing another box on an architecture diagram.
+
+## Local should still mean local
+
+Forge doesn't send prompts anywhere except the host you configure.
+
+There is no analytics service, telemetry pipeline or hosted Forge backend sitting in the middle.
+
+If Ollama is running on the same computer, the request stays there.
+
+If it's running on another machine on your LAN, it travels there.
+
+That's it.
+
+The application still decides what the model is for. Forge only provides the road to get there.
+
+## What's next
+
+I'm still building LAMA from the bottom up.
+
+Forge is one piece of that system, not the system itself.
+
+There are plenty of interesting layers still ahead: interfaces, model selection, files, memory, tools and eventually agents.
+
+But I don't want to jump straight to the flashy parts.
+
+One of the things I'm enjoying about building local AI this way is being forced to understand where every boundary actually belongs.
+
+First the machine became a server.
+
+Now the connection to that server became a package.
+
+Small step.
+
+Pretty satisfying milestone.
+
+**Forge on GitHub:** https://github.com/rikilamadrid/forge
+
+**Forge on npm:** https://www.npmjs.com/package/forge-local-ai-kit
+
+Forge is open source under the MIT license.
+
+🔥 **Running locally. Built by Lamadrid.**
+
+<!-- locale:es -->
+
+Hace unos días, LAMA era principalmente una máquina.
+
+Un M1 Pro corriendo Ollama. Un modelo Qwen cargado en memoria. Otro Mac llamándolo a través de mi red local.
+
+Cuando conseguí que eso funcionara, apareció bastante rápido el siguiente problema: **¿cómo debería hablar una aplicación con todo esto?**
+
+Llamar a un endpoint de Ollama no es complicado. Pero una aplicación real necesita algo más que un `fetch`.
+
+Necesita validar configuración. Timeouts. Cancelación. Errores útiles. Conteo de tokens. Mediciones de latencia. Una forma de distinguir entre "el servidor no responde" y "el modelo no devolvió nada".
+
+Y si construía otra aplicación, iba a necesitar exactamente lo mismo otra vez.
+
+Así que saqué esa capa de LAMA.
+
+La llamé **Forge**.
+
+## La capa del medio
+
+La arquitectura es intencionalmente aburrida:
+
+`Aplicación → Forge → runtime local de IA → modelo`
+
+Forge no intenta ser el modelo.
+
+Tampoco es un framework de agentes, un sistema de memoria ni una librería de prompts.
+
+Es la capa reutilizable del medio.
+
+Una aplicación le da a Forge un host, un modelo y un prompt. Forge se encarga de hablar con el runtime local y devuelve a la aplicación un resultado predecible, o un error predecible.
+
+Ahora mismo el runtime soportado es **Ollama**.
+
+Ese alcance limitado es intencional.
+
+Prefiero entender bien una pieza pequeña antes de convertirla inmediatamente en un framework.
+
+## Después se convirtió en un paquete de verdad
+
+Hasta ahora, Forge era infraestructura para mis propios experimentos con IA local.
+
+Esta semana cruzó una línea que para mí importa: **otra persona puede instalarlo.**
+
+```bash
+npm install forge-local-ai-kit
+```
+
+Funciona como librería de TypeScript, pero también instala un comando `forge`.
+
+Con Ollama corriendo y un modelo ya disponible:
+
+```bash
+export OLLAMA_HOST="http://localhost:11434"
+export FORGE_MODEL="qwen3:8b"
+
+npx forge ask "Explica por qué es interesante la IA local."
+```
+
+Forge es ESM-only, requiere Node.js 22 o superior y tiene **cero dependencias de producción**.
+
+El paquete no instala Ollama, no descarga modelos y no decide para qué debe usar IA una aplicación. Esas responsabilidades pertenecen a otras capas.
+
+Forge simplemente hace que la conexión sea fiable.
+
+## El hito en realidad no es npm
+
+Publicar un paquete no tiene nada especialmente exótico.
+
+Lo que me importa es lo que cambió en la arquitectura.
+
+LAMA empezó siendo:
+
+`Mac → Ollama → Qwen`
+
+Después otra máquina se convirtió en cliente.
+
+Después las aplicaciones necesitaron una forma estable de llegar al modelo.
+
+Y ahora una de esas piezas es lo suficientemente independiente como para existir fuera de LAMA.
+
+Eso es lo que me gusta.
+
+Algo que nació porque **mi máquina lo necesitaba** ahora es lo suficientemente pequeño, documentado y aislado como para que **otro desarrollador pueda usarlo sin saber absolutamente nada sobre mi setup**.
+
+Me parece una prueba mucho mejor de una abstracción que añadir otra caja a un diagrama de arquitectura.
+
+## Local debería seguir significando local
+
+Forge no manda prompts a ningún sitio excepto al host que tú configures.
+
+No hay un servicio de analytics, un pipeline de telemetría ni un backend de Forge alojado en Internet esperando en el medio.
+
+Si Ollama corre en el mismo ordenador, la petición se queda ahí.
+
+Si corre en otra máquina de tu LAN, viaja hasta ella.
+
+Y ya está.
+
+La aplicación sigue decidiendo para qué sirve el modelo. Forge simplemente proporciona el camino para llegar hasta él.
+
+## Lo siguiente
+
+Sigo construyendo LAMA desde abajo hacia arriba.
+
+Forge es una pieza de ese sistema, no el sistema completo.
+
+Todavía quedan muchas capas interesantes: interfaces, selección de modelos, archivos, memoria, herramientas y, eventualmente, agentes.
+
+Pero no quiero saltar directamente a las partes vistosas.
+
+Una de las cosas que más estoy disfrutando de construir IA local de esta manera es que me obliga a entender dónde pertenece realmente cada frontera.
+
+Primero la máquina se convirtió en servidor.
+
+Ahora la conexión con ese servidor se convirtió en un paquete.
+
+Un paso pequeño.
+
+Un hito bastante satisfactorio.
+
+**Forge en GitHub:** https://github.com/rikilamadrid/forge
+
+**Forge en npm:** https://www.npmjs.com/package/forge-local-ai-kit
+
+Forge es open source bajo licencia MIT.
+
+🔥 **Running locally. Built by Lamadrid.**
+
+<!-- locale:fr -->
+
+Il y a quelques jours, LAMA était avant tout une machine.
+
+Un M1 Pro faisant tourner Ollama. Un modèle Qwen chargé en mémoire. Un autre Mac l'appelant à travers mon réseau local.
+
+Une fois cela fonctionnel, le problème suivant est apparu assez vite : **comment une application doit-elle réellement communiquer avec tout ça ?**
+
+Appeler un endpoint Ollama n'est pas compliqué. Mais une vraie application a besoin de plus qu'un simple `fetch`.
+
+Elle a besoin de validation de configuration. De timeouts. D'annulation. D'erreurs utiles. Du nombre de tokens. De mesures de latence. D'une distinction entre « le serveur est inaccessible » et « le modèle n'a rien renvoyé ».
+
+Et si je construisais une autre application, j'allais devoir refaire exactement la même chose.
+
+J'ai donc extrait cette couche de LAMA.
+
+Je l'ai appelée **Forge**.
+
+## La couche intermédiaire
+
+L'architecture est volontairement simple :
+
+`Application → Forge → runtime IA local → modèle`
+
+Forge n'essaie pas d'être le modèle.
+
+Ce n'est pas non plus un framework d'agents, un système de mémoire ou une bibliothèque de prompts.
+
+C'est la couche réutilisable au milieu.
+
+Une application fournit à Forge un hôte, un modèle et un prompt. Forge gère la communication avec le runtime local et renvoie à l'application un résultat prévisible, ou une erreur prévisible.
+
+Pour le moment, le runtime pris en charge est **Ollama**.
+
+Ce périmètre réduit est volontaire.
+
+Je préfère comprendre correctement une petite pièce avant d'en faire immédiatement un framework.
+
+## Puis c'est devenu un vrai package
+
+Jusqu'à présent, Forge était une infrastructure destinée à mes propres expériences d'IA locale.
+
+Cette semaine, il a franchi une étape qui compte pour moi : **quelqu'un d'autre peut maintenant l'installer.**
+
+```bash
+npm install forge-local-ai-kit
+```
+
+Il fonctionne comme bibliothèque TypeScript, mais installe également une commande `forge`.
+
+Avec Ollama en cours d'exécution et un modèle déjà disponible :
+
+```bash
+export OLLAMA_HOST="http://localhost:11434"
+export FORGE_MODEL="qwen3:8b"
+
+npx forge ask "Explique pourquoi l'IA locale est intéressante."
+```
+
+Forge est ESM-only, nécessite Node.js 22 ou plus récent et possède **zéro dépendance de production**.
+
+Le package n'installe pas Ollama, ne télécharge pas de modèles et ne décide pas de la manière dont une application doit utiliser l'IA. Ces responsabilités appartiennent à d'autres couches.
+
+Forge rend simplement la connexion fiable.
+
+## Le vrai jalon n'est pas npm
+
+Publier un package n'a rien de particulièrement extraordinaire.
+
+Ce qui m'intéresse, c'est ce qui a changé dans l'architecture.
+
+LAMA a commencé comme ceci :
+
+`Mac → Ollama → Qwen`
+
+Puis une autre machine est devenue cliente.
+
+Ensuite, les applications ont eu besoin d'un moyen stable d'accéder au modèle.
+
+Et maintenant, l'une de ces pièces est suffisamment indépendante pour exister en dehors de LAMA.
+
+C'est cette partie que j'aime.
+
+Quelque chose qui a commencé parce que **ma machine en avait besoin** est maintenant suffisamment petit, documenté et isolé pour qu'**un autre développeur puisse l'utiliser sans rien connaître de mon installation**.
+
+Pour moi, c'est un bien meilleur test d'une abstraction que d'ajouter une nouvelle boîte sur un diagramme d'architecture.
+
+## Local devrait toujours vouloir dire local
+
+Forge n'envoie les prompts nulle part ailleurs que vers l'hôte que vous configurez.
+
+Il n'y a pas de service d'analytics, de pipeline de télémétrie ou de backend Forge hébergé quelque part entre les deux.
+
+Si Ollama tourne sur le même ordinateur, la requête reste sur cet ordinateur.
+
+S'il tourne sur une autre machine de votre réseau local, elle se rend jusqu'à cette machine.
+
+C'est tout.
+
+L'application décide toujours à quoi sert le modèle. Forge fournit simplement la route pour y accéder.
+
+## La suite
+
+Je continue à construire LAMA de bas en haut.
+
+Forge est une pièce de ce système, pas le système lui-même.
+
+Il reste encore beaucoup de couches intéressantes : interfaces, sélection des modèles, fichiers, mémoire, outils et, éventuellement, agents.
+
+Mais je ne veux pas sauter directement aux parties les plus spectaculaires.
+
+L'une des choses que j'apprécie le plus dans cette manière de construire de l'IA locale, c'est qu'elle m'oblige à comprendre où chaque frontière doit réellement se trouver.
+
+D'abord, la machine est devenue un serveur.
+
+Maintenant, la connexion à ce serveur est devenue un package.
+
+Un petit pas.
+
+Un jalon plutôt satisfaisant.
+
+**Forge sur GitHub :** https://github.com/rikilamadrid/forge
+
+**Forge sur npm :** https://www.npmjs.com/package/forge-local-ai-kit
+
+Forge est open source sous licence MIT.
+
+🔥 **Running locally. Built by Lamadrid.**
