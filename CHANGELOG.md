@@ -7,6 +7,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- The Pathfinder orchestration and Lorekeeper retrieval Field Notes posts are
+  tightened for length and rewritten without em dashes, in English, Spanish,
+  and French.
+
 ## [1.12.0] - 2026-09-18
 
 ### Added
@@ -17,8 +22,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   that survived its own workers running out of quota. Available in English,
   Spanish, and French.
 - New Field Notes post, "Lorekeeper doesn't retrieve notes. It retrieves
-  spans.", on the structure Lorekeeper distilled for retrieval — span-level
-  addressing, BM25 with multi-wording fusion, no relevance cutoff — plus the
+  spans.", on the structure Lorekeeper distilled for retrieval (span-level
+  addressing, BM25 with multi-wording fusion, no relevance cutoff), plus the
   measured query timings and the honest, modest context saving behind it.
   Available in English, Spanish, and French.
 

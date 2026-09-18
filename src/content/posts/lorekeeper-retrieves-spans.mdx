@@ -8,9 +8,9 @@ summary:
   es: La estructura que destilé para la recuperación acabó importando más que el ranking. Esta es la forma en la que Lorekeeper se ha asentado, y lo que cuesta de verdad hacerle una pregunta.
   fr: La structure que j'ai distillée pour la recherche a fini par compter plus que le classement. Voici la forme sur laquelle Lorekeeper s'est arrêté, et ce que coûte réellement une question.
 shareCaption:
-  en: A file is the wrong unit of memory. 📜 Lorekeeper addresses spans — file, heading anchor, line range — and answers a fused three-wording search in single-digit milliseconds.
-  es: Un fichero es la unidad de memoria equivocada. 📜 Lorekeeper direcciona fragmentos — fichero, ancla de encabezado, rango de líneas — y responde a una búsqueda fusionada de tres formulaciones en milisegundos de un solo dígito.
-  fr: Un fichier est la mauvaise unité de mémoire. 📜 Lorekeeper adresse des fragments — fichier, ancre de titre, plage de lignes — et répond à une recherche fusionnée de trois formulations en quelques millisecondes.
+  en: A file is the wrong unit of memory. 📜 Lorekeeper addresses spans by file, heading anchor and line range, and answers a fused three-wording search in single-digit milliseconds.
+  es: Un fichero es la unidad de memoria equivocada. 📜 Lorekeeper direcciona fragmentos por fichero, ancla de encabezado y rango de líneas, y responde a una búsqueda fusionada de tres formulaciones en milisegundos de un solo dígito.
+  fr: Un fichier est la mauvaise unité de mémoire. 📜 Lorekeeper adresse des fragments par fichier, ancre de titre et plage de lignes, et répond à une recherche fusionnée de trois formulations en quelques millisecondes.
 date: "2026-09-11"
 tags: ["ai", "engineering", "second-brain", "lorekeeper", "retrieval"]
 draft: false
@@ -34,7 +34,7 @@ The first thing I threw out was numbered PARA folders.
 
 Numeric prefixes exist to force sort order in a file browser. Encoding a viewer's concern as architecture is how a knowledge base becomes unmovable.
 
-So the folders are thin and carry only an epistemic role — where a thing sits in the chain from raw artifact to synthesized knowledge:
+So the folders are thin and carry only an epistemic role: where a thing sits in the chain from raw artifact to synthesized knowledge:
 
 ```text
 external artifact → sources/ → notes/ → entities/
@@ -44,19 +44,15 @@ And frontmatter is authoritative for everything that matters: type, status, prov
 
 That single split is what lets me reorganize my vault on a Sunday afternoon without breaking retrieval.
 
-One contract is frozen: provenance edges always point from the derived artifact to its origin. Inverse edges are never stored. Backlinks are computed, never written. A note that says where it came from stays true no matter what gets added later; a note holding a list of everything that points at it is wrong the moment it isn't updated.
+One contract is frozen: provenance edges always point from the derived artifact to its origin. Inverse edges are never stored. Backlinks are computed, never written. A note that says where it came from stays true no matter what gets added later.
 
 ## A file is the wrong unit
 
-Here's the part that changed everything.
-
 The index doesn't address files. It addresses **spans**: a path, a heading anchor, and a 1-based line range.
 
-A three-thousand-word note about deployment isn't one fact. It's forty. Retrieving the whole thing to answer one question is the same mistake as pasting a repository into a prompt — you get the answer, and you also get thirty-nine irrelevant things competing with it for attention.
+A three-thousand-word note about deployment isn't one fact. It's forty. Retrieving the whole thing to answer one question is the same mistake as pasting a repository into a prompt. You get the answer, and thirty-nine irrelevant things competing with it for attention.
 
-Ranking is BM25 over the span text plus a weighted metadata document. That wasn't a design debate; a prototype settled it early, and I deliberately stopped treating ranking as a Feature that needed inventing.
-
-The layer above it is the one I care about.
+Ranking is BM25 over the span text plus a weighted metadata document. A prototype settled that early, and I deliberately stopped treating ranking as a Feature that needed inventing.
 
 A question rarely arrives in the wording the note was written in. So a search takes several alternate phrasings in one call and fuses the ranked lists with Reciprocal Rank Fusion:
 
@@ -72,19 +68,19 @@ Every result carries path, anchor, line range, score and the span text itself. F
 
 There is no relevance cutoff. Anywhere.
 
-A low score never withholds a result, and no "nothing found" verdict is ever derived from a number. This one matters more than it looks: **a retrieval score cannot prove that knowledge is absent.** It is a documented limitation of the current version, not a defect waiting for a fix, and the agent-facing instructions say so explicitly. The agent treats results as evidence to assess, may reformulate and search again, and may conclude the evidence is insufficient — which is a very different sentence from "there is nothing."
+A low score never withholds a result, and no "nothing found" verdict is ever derived from a number. This matters more than it looks: **a retrieval score cannot prove that knowledge is absent.** It's a documented limitation, not a defect waiting for a fix, and the agent-facing instructions say so explicitly. The agent treats results as evidence, may search again, and may conclude the evidence is insufficient, which is a very different sentence from "there is nothing."
 
 And correctness never depends on the metadata being good. A file with no frontmatter, or with frontmatter nobody recognizes, indexes as ordinary knowledge. Ranking reads neither `type` nor `about` as structure.
 
 That's deliberate. The moment retrieval quality depends on perfect tagging, the system only works for the version of me that has time to tag perfectly.
 
-Reading and indexing also never write to your notes. Indexing a vault leaves every file byte-identical. It's your vault; the tool is a guest in it.
+Reading and indexing never write to your notes either. Indexing a vault leaves every file byte-identical.
 
 ## What it costs to ask
 
-I don't want to claim a system is fast. I want to measure it and publish the number.
+I'd rather measure than claim.
 
-Over a deterministic synthetic corpus of 3,000 notes — 10,537 spans, about 3.2 MB, with 907 paragraphs deliberately duplicated across files:
+Over a deterministic synthetic corpus of 3,000 notes (10,537 spans, about 3.2 MB, with 907 paragraphs deliberately duplicated across files):
 
 | Measure | Value |
 | --- | --- |
@@ -98,15 +94,15 @@ Measured on an M5 with Node 26, query rows as medians of 20 runs.
 
 The index is built in memory on every single command and never persisted. That looks wasteful until you read the table: persisting it would save roughly 150 ms and cost a managed file that can drift, go stale, and need invalidating.
 
-At this size, that trade is obviously bad. When the walk and index phases — the two that scale with the vault — start approaching the interactive reading, I'll revisit it. Not before.
+At this size that trade is obviously bad. When the walk and index phases, the two that scale with the vault, start approaching the interactive reading, I'll revisit it. Not before.
 
-There are no embeddings, no vectors, no vector database, and no LLM call anywhere in the CLI. It runs offline with no credentials and no vendor. For a few thousand Markdown files, lexical retrieval is not a compromise; it's the correct amount of machinery.
+There are no embeddings, no vectors, and no LLM call anywhere in the CLI. It runs offline with no credentials and no vendor. For a few thousand Markdown files, lexical retrieval isn't a compromise. It's the correct amount of machinery.
 
 ## The agent has to be told, and told correctly
 
 None of this helps if a coding agent doesn't know the brain exists.
 
-So initializing a brain generates an `AGENTS.md` at its root — a manifest-owned file that states what the brain is, the exact command including how to pass several wordings, the five result fields, and the absence limitation.
+So initializing a brain generates an `AGENTS.md` at its root: a manifest-owned file stating what the brain is, the exact command including how to pass several wordings, the five result fields, and the absence limitation.
 
 Regenerating it over a copy you've edited reports drift instead of overwriting. Your edits win.
 
@@ -114,7 +110,7 @@ The instruction to issue multiple wordings lives in that file deliberately. It i
 
 ## And the number I didn't get to choose
 
-The whole premise is that span retrieval is cheaper than reading notes. I measured that too, against the same corpus, using the exact call the artifact teaches.
+The whole premise is that span retrieval is cheaper than reading notes. I measured that too, using the exact call the artifact teaches.
 
 Five results, from five distinct files.
 
@@ -122,19 +118,19 @@ The whole notes those spans live in: **5,604 bytes.** The JSON payload the agent
 
 Roughly **2.0x**. Modest.
 
-I'm reporting it as measured rather than as improved, and three things bound it — all of which I could have tuned away and didn't.
+I'm reporting it as measured rather than as improved, and three things bound it. All three I could have tuned away and didn't.
 
 The baseline is deliberately generous. It charges only for the files the returned spans came from, as if the agent had already known which five notes to open. Without span retrieval it wouldn't have known, so 2.0x is a floor, not a best case.
 
 The synthetic notes average about a kilobyte, so a span can only be around 3.4 times smaller than the note holding it. A vault of longer notes would show a bigger saving. I didn't lengthen the corpus to produce one.
 
-And the payload is pretty-printed, which is 12% of its bytes. Compact JSON would read 2.2x — but the output format is a contract other things depend on, and changing a contract to improve a benchmark is exactly the kind of thing this project exists to avoid.
+And the payload is pretty-printed, which is 12% of its bytes. Compact JSON would read 2.2x, but the output format is a contract other things depend on, and changing a contract to improve a benchmark is exactly the kind of thing this project exists to avoid.
 
-Bytes are a labelled proxy for token cost, not a token count. Counting real tokens means shipping a tokenizer and picking a vendor, and the CLI makes zero LLM calls by design. A stated proxy is more honest than a borrowed precision.
+Bytes are a labelled proxy for token cost, not a token count. Counting real tokens means shipping a tokenizer and picking a vendor, and the CLI makes zero LLM calls by design.
 
 ## The thing that made me laugh
 
-`AGENTS.md` — the file that teaches an agent how to search — is itself indexed by the search.
+`AGENTS.md`, the file that teaches an agent how to search, is itself indexed by the search.
 
 On its own illustrative example query it outranks the note it was trying to demonstrate. 0.0492 against 0.0484.
 
@@ -142,13 +138,13 @@ I could exclude it by filename. That would mean retrieval deriving meaning from 
 
 There is no small correct fix, so there isn't one. It's written down as a known behavior instead of quietly patched.
 
-Across four realistic questions the intended note ranked first every time, with the artifact appearing only lower down at about a third of the winning score. Exactly like the starter READMEs already do.
+Across four realistic questions the intended note ranked first every time, with the artifact appearing only lower down at about a third of the winning score.
 
 ## Where this is going
 
 Pathfinder finds the way. Lorekeeper remembers the journey.
 
-The retrieval spine is the part I wanted to get right first, because everything later — capability sync, an MCP adapter, mobile capture — is a transport question over the same core. MCP is a transport, not an architecture, and a CLI is testable without an agent in the loop.
+The retrieval spine is the part I wanted to get right first, because everything later (capability sync, an MCP adapter, mobile capture) is a transport question over the same core.
 
 I still don't need an AI that remembers everything.
 
@@ -176,7 +172,7 @@ Lo primero que descarté fueron las carpetas PARA numeradas.
 
 Los prefijos numéricos existen para forzar el orden en un explorador de ficheros. Codificar la preocupación de un visor como arquitectura es la forma de convertir una base de conocimiento en algo inamovible.
 
-Así que las carpetas son finas y solo llevan un rol epistémico — dónde está algo en la cadena que va del artefacto en bruto al conocimiento sintetizado:
+Así que las carpetas son finas y solo llevan un rol epistémico: dónde está algo en la cadena que va del artefacto en bruto al conocimiento sintetizado:
 
 ```text
 artefacto externo → sources/ → notes/ → entities/
@@ -186,19 +182,15 @@ Y el frontmatter es autoritativo para todo lo que importa: tipo, estado, procede
 
 Esa única separación es lo que me permite reorganizar mi vault un domingo por la tarde sin romper la recuperación.
 
-Hay un contrato congelado: las aristas de procedencia siempre apuntan del artefacto derivado a su origen. Las aristas inversas nunca se almacenan. Los backlinks se calculan, nunca se escriben. Una nota que dice de dónde viene sigue siendo cierta pase lo que pase después; una nota que guarda una lista de todo lo que le apunta es falsa en cuanto no se actualiza.
+Hay un contrato congelado: las aristas de procedencia siempre apuntan del artefacto derivado a su origen. Las aristas inversas nunca se almacenan. Los backlinks se calculan, nunca se escriben. Una nota que dice de dónde viene sigue siendo cierta pase lo que pase después.
 
 ## Un fichero es la unidad equivocada
 
-Aquí está la parte que lo cambió todo.
-
 El índice no direcciona ficheros. Direcciona **fragmentos**: una ruta, un ancla de encabezado y un rango de líneas empezando en 1.
 
-Una nota de tres mil palabras sobre despliegues no es un hecho. Son cuarenta. Recuperarla entera para responder a una pregunta es el mismo error que pegar un repositorio en un prompt — obtienes la respuesta, y también treinta y nueve cosas irrelevantes compitiendo con ella por la atención.
+Una nota de tres mil palabras sobre despliegues no es un hecho. Son cuarenta. Recuperarla entera para responder a una pregunta es el mismo error que pegar un repositorio en un prompt. Obtienes la respuesta, y treinta y nueve cosas irrelevantes compitiendo con ella por la atención.
 
-El ranking es BM25 sobre el texto del fragmento más un documento de metadatos ponderado. Eso no fue un debate de diseño; un prototipo lo resolvió pronto, y dejé deliberadamente de tratar el ranking como una Feature que hubiera que inventar.
-
-La capa de encima es la que me importa.
+El ranking es BM25 sobre el texto del fragmento más un documento de metadatos ponderado. Un prototipo lo resolvió pronto, y dejé deliberadamente de tratar el ranking como una Feature que hubiera que inventar.
 
 Una pregunta casi nunca llega con las palabras con las que se escribió la nota. Así que una búsqueda acepta varias formulaciones alternativas en una sola llamada y fusiona las listas ordenadas con Reciprocal Rank Fusion:
 
@@ -214,19 +206,19 @@ Cada resultado lleva ruta, ancla, rango de líneas, puntuación y el propio text
 
 No hay umbral de relevancia. En ninguna parte.
 
-Una puntuación baja nunca retiene un resultado, y ningún veredicto de "no hay nada" se deriva jamás de un número. Esto importa más de lo que parece: **una puntuación de recuperación no puede demostrar que un conocimiento esté ausente.** Es una limitación documentada de la versión actual, no un defecto esperando arreglo, y las instrucciones para el agente lo dicen explícitamente. El agente trata los resultados como evidencia a valorar, puede reformular y volver a buscar, y puede concluir que la evidencia es insuficiente — que es una frase muy distinta de "no hay nada".
+Una puntuación baja nunca retiene un resultado, y ningún veredicto de "no hay nada" se deriva jamás de un número. Esto importa más de lo que parece: **una puntuación de recuperación no puede demostrar que un conocimiento esté ausente.** Es una limitación documentada, no un defecto esperando arreglo, y las instrucciones para el agente lo dicen explícitamente. El agente trata los resultados como evidencia, puede volver a buscar, y puede concluir que la evidencia es insuficiente, que es una frase muy distinta de "no hay nada".
 
 Y la corrección nunca depende de que los metadatos sean buenos. Un fichero sin frontmatter, o con frontmatter que nadie reconoce, se indexa como conocimiento ordinario. El ranking no lee ni `type` ni `about` como estructura.
 
 Es deliberado. En el momento en que la calidad de la recuperación depende de un etiquetado perfecto, el sistema solo funciona para la versión de mí que tiene tiempo de etiquetar perfectamente.
 
-Leer e indexar tampoco escriben nunca en tus notas. Indexar un vault deja cada fichero byte a byte idéntico. Es tu vault; la herramienta es una invitada.
+Leer e indexar tampoco escriben nunca en tus notas. Indexar un vault deja cada fichero byte a byte idéntico.
 
 ## Lo que cuesta preguntar
 
-No quiero afirmar que un sistema es rápido. Quiero medirlo y publicar el número.
+Prefiero medir a afirmar.
 
-Sobre un corpus sintético determinista de 3.000 notas — 10.537 fragmentos, unos 3,2 MB, con 907 párrafos duplicados a propósito entre ficheros:
+Sobre un corpus sintético determinista de 3.000 notas (10.537 fragmentos, unos 3,2 MB, con 907 párrafos duplicados a propósito entre ficheros):
 
 | Medida | Valor |
 | --- | --- |
@@ -240,15 +232,15 @@ Medido en un M5 con Node 26; las filas de consulta son medianas de 20 ejecucione
 
 El índice se construye en memoria en cada comando y nunca se persiste. Parece un desperdicio hasta que lees la tabla: persistirlo ahorraría unos 150 ms y costaría un fichero gestionado que puede desviarse, quedarse obsoleto y necesitar invalidación.
 
-A este tamaño, ese intercambio es malo de forma evidente. Cuando las fases de recorrido e indexado — las dos que escalan con el vault — empiecen a acercarse a la lectura interactiva, lo revisaré. Antes no.
+A este tamaño ese intercambio es malo de forma evidente. Cuando las fases de recorrido e indexado, las dos que escalan con el vault, empiecen a acercarse a la lectura interactiva, lo revisaré. Antes no.
 
-No hay embeddings, ni vectores, ni base de datos vectorial, ni ninguna llamada a un LLM en la CLI. Funciona offline, sin credenciales y sin proveedor. Para unos pocos miles de ficheros Markdown, la recuperación léxica no es un compromiso; es la cantidad correcta de maquinaria.
+No hay embeddings, ni vectores, ni ninguna llamada a un LLM en la CLI. Funciona offline, sin credenciales y sin proveedor. Para unos pocos miles de ficheros Markdown, la recuperación léxica no es un compromiso. Es la cantidad correcta de maquinaria.
 
 ## Al agente hay que decírselo, y decírselo bien
 
 Nada de esto sirve si un agente de código no sabe que el cerebro existe.
 
-Así que inicializar un cerebro genera un `AGENTS.md` en su raíz — un fichero gestionado por el manifiesto que dice qué es el cerebro, el comando exacto incluyendo cómo pasar varias formulaciones, los cinco campos del resultado y la limitación sobre la ausencia.
+Así que inicializar un cerebro genera un `AGENTS.md` en su raíz: un fichero gestionado por el manifiesto que dice qué es el cerebro, el comando exacto incluyendo cómo pasar varias formulaciones, los cinco campos del resultado y la limitación sobre la ausencia.
 
 Regenerarlo sobre una copia que hayas editado reporta desviación en vez de sobrescribir. Ganan tus ediciones.
 
@@ -256,7 +248,7 @@ La instrucción de emitir varias formulaciones vive en ese fichero deliberadamen
 
 ## Y el número que no pude elegir
 
-Toda la premisa es que recuperar fragmentos es más barato que leer notas. Eso también lo medí, sobre el mismo corpus, usando la llamada exacta que enseña el artefacto.
+Toda la premisa es que recuperar fragmentos es más barato que leer notas. Eso también lo medí, usando la llamada exacta que enseña el artefacto.
 
 Cinco resultados, de cinco ficheros distintos.
 
@@ -264,19 +256,19 @@ Las notas enteras donde viven esos fragmentos: **5.604 bytes.** El payload JSON 
 
 Aproximadamente **2,0x**. Modesto.
 
-Lo reporto como medido, no como mejorado, y hay tres cosas que lo acotan — todas las cuales podría haber ajustado y no ajusté.
+Lo reporto como medido, no como mejorado, y hay tres cosas que lo acotan. Las tres podría haberlas ajustado y no las ajusté.
 
 La línea base es deliberadamente generosa. Solo cobra por los ficheros de los que salieron los fragmentos devueltos, como si el agente ya hubiera sabido qué cinco notas abrir. Sin recuperación por fragmentos no lo habría sabido, así que 2,0x es un suelo, no un mejor caso.
 
 Las notas sintéticas rondan el kilobyte, así que un fragmento solo puede ser unas 3,4 veces más pequeño que la nota que lo contiene. Un vault de notas más largas mostraría un ahorro mayor. No alargué el corpus para conseguirlo.
 
-Y el payload está formateado con indentación, que es el 12% de sus bytes. Con JSON compacto saldría 2,2x — pero el formato de salida es un contrato del que dependen otras cosas, y cambiar un contrato para mejorar un benchmark es exactamente el tipo de cosa que este proyecto existe para evitar.
+Y el payload está formateado con indentación, que es el 12% de sus bytes. Con JSON compacto saldría 2,2x, pero el formato de salida es un contrato del que dependen otras cosas, y cambiar un contrato para mejorar un benchmark es exactamente el tipo de cosa que este proyecto existe para evitar.
 
-Los bytes son un proxy etiquetado del coste en tokens, no un recuento de tokens. Contar tokens reales significa incluir un tokenizador y elegir un proveedor, y la CLI hace cero llamadas a LLM por diseño. Un proxy declarado es más honesto que una precisión prestada.
+Los bytes son un proxy etiquetado del coste en tokens, no un recuento de tokens. Contar tokens reales significa incluir un tokenizador y elegir un proveedor, y la CLI hace cero llamadas a LLM por diseño.
 
 ## Lo que me hizo reír
 
-`AGENTS.md` — el fichero que enseña a un agente a buscar — está a su vez indexado por la búsqueda.
+`AGENTS.md`, el fichero que enseña a un agente a buscar, está a su vez indexado por la búsqueda.
 
 En su propia consulta de ejemplo, supera a la nota que intentaba demostrar. 0,0492 contra 0,0484.
 
@@ -284,13 +276,13 @@ Podría excluirlo por nombre de fichero. Eso significaría que la recuperación 
 
 No hay un arreglo pequeño y correcto, así que no hay ninguno. Está escrito como comportamiento conocido en vez de parcheado en silencio.
 
-En cuatro preguntas realistas la nota buscada quedó primera todas las veces, y el artefacto aparecía solo más abajo, a aproximadamente un tercio de la puntuación ganadora. Exactamente como ya hacen los README de arranque.
+En cuatro preguntas realistas la nota buscada quedó primera todas las veces, y el artefacto aparecía solo más abajo, a aproximadamente un tercio de la puntuación ganadora.
 
 ## Hacia dónde va esto
 
 Pathfinder encuentra el camino. Lorekeeper recuerda el viaje.
 
-La columna vertebral de la recuperación es la parte que quería acertar primero, porque todo lo posterior — sincronización de capacidades, un adaptador MCP, captura móvil — es una cuestión de transporte sobre el mismo núcleo. MCP es un transporte, no una arquitectura, y una CLI se puede probar sin un agente en el bucle.
+La columna vertebral de la recuperación es la parte que quería acertar primero, porque todo lo posterior (sincronización de capacidades, un adaptador MCP, captura móvil) es una cuestión de transporte sobre el mismo núcleo.
 
 Sigo sin necesitar una IA que lo recuerde todo.
 
@@ -318,7 +310,7 @@ La première chose que j'ai jetée, ce sont les dossiers PARA numérotés.
 
 Les préfixes numériques existent pour forcer l'ordre de tri dans un explorateur de fichiers. Encoder la préoccupation d'une visionneuse dans l'architecture, c'est ainsi qu'une base de connaissances devient impossible à déplacer.
 
-Les dossiers sont donc minces et ne portent qu'un rôle épistémique — où se situe une chose dans la chaîne qui va de l'artefact brut à la connaissance synthétisée :
+Les dossiers sont donc minces et ne portent qu'un rôle épistémique : où se situe une chose dans la chaîne qui va de l'artefact brut à la connaissance synthétisée :
 
 ```text
 artefact externe → sources/ → notes/ → entities/
@@ -328,19 +320,15 @@ Et le frontmatter fait autorité sur tout ce qui compte : type, statut, provenan
 
 Cette seule séparation est ce qui me permet de réorganiser mon vault un dimanche après-midi sans casser la recherche.
 
-Un contrat est gelé : les arêtes de provenance pointent toujours de l'artefact dérivé vers son origine. Les arêtes inverses ne sont jamais stockées. Les backlinks sont calculés, jamais écrits. Une note qui dit d'où elle vient reste vraie quoi qu'on ajoute ensuite ; une note qui garde la liste de tout ce qui pointe vers elle devient fausse dès qu'elle n'est plus mise à jour.
+Un contrat est gelé : les arêtes de provenance pointent toujours de l'artefact dérivé vers son origine. Les arêtes inverses ne sont jamais stockées. Les backlinks sont calculés, jamais écrits. Une note qui dit d'où elle vient reste vraie quoi qu'on ajoute ensuite.
 
 ## Un fichier est la mauvaise unité
 
-Voici la partie qui a tout changé.
-
 L'index n'adresse pas des fichiers. Il adresse des **fragments** : un chemin, une ancre de titre et une plage de lignes commençant à 1.
 
-Une note de trois mille mots sur le déploiement n'est pas un fait. C'en est quarante. La récupérer entièrement pour répondre à une question, c'est la même erreur que coller un dépôt dans un prompt — vous obtenez la réponse, et aussi trente-neuf choses hors sujet qui lui disputent l'attention.
+Une note de trois mille mots sur le déploiement n'est pas un fait. C'en est quarante. La récupérer entièrement pour répondre à une question, c'est la même erreur que coller un dépôt dans un prompt. Vous obtenez la réponse, et trente-neuf choses hors sujet qui lui disputent l'attention.
 
-Le classement est un BM25 sur le texte du fragment plus un document de métadonnées pondéré. Ce ne fut pas un débat de conception ; un prototype l'a tranché tôt, et j'ai délibérément cessé de traiter le classement comme une Feature à inventer.
-
-La couche au-dessus est celle qui m'intéresse.
+Le classement est un BM25 sur le texte du fragment plus un document de métadonnées pondéré. Un prototype l'a tranché tôt, et j'ai délibérément cessé de traiter le classement comme une Feature à inventer.
 
 Une question arrive rarement avec les mots dans lesquels la note a été écrite. Une recherche accepte donc plusieurs formulations alternatives en un seul appel et fusionne les listes classées avec la Reciprocal Rank Fusion :
 
@@ -356,19 +344,19 @@ Chaque résultat porte le chemin, l'ancre, la plage de lignes, le score et le te
 
 Il n'y a aucun seuil de pertinence. Nulle part.
 
-Un score faible ne retient jamais un résultat, et aucun verdict « rien trouvé » n'est jamais dérivé d'un nombre. Cela compte plus qu'il n'y paraît : **un score de recherche ne peut pas prouver qu'une connaissance est absente.** C'est une limitation documentée de la version actuelle, pas un défaut en attente de correction, et les instructions destinées à l'agent le disent explicitement. L'agent traite les résultats comme des preuves à évaluer, peut reformuler et rechercher à nouveau, et peut conclure que les preuves sont insuffisantes — ce qui est une phrase très différente de « il n'y a rien ».
+Un score faible ne retient jamais un résultat, et aucun verdict « rien trouvé » n'est jamais dérivé d'un nombre. Cela compte plus qu'il n'y paraît : **un score de recherche ne peut pas prouver qu'une connaissance est absente.** C'est une limitation documentée, pas un défaut en attente de correction, et les instructions destinées à l'agent le disent explicitement. L'agent traite les résultats comme des preuves, peut rechercher à nouveau, et peut conclure qu'elles sont insuffisantes, ce qui est une phrase très différente de « il n'y a rien ».
 
 Et la justesse ne dépend jamais de la qualité des métadonnées. Un fichier sans frontmatter, ou avec un frontmatter que personne ne reconnaît, est indexé comme une connaissance ordinaire. Le classement ne lit ni `type` ni `about` comme une structure.
 
 C'est délibéré. Dès l'instant où la qualité de la recherche dépend d'un étiquetage parfait, le système ne fonctionne que pour la version de moi qui a le temps d'étiqueter parfaitement.
 
-Lire et indexer n'écrivent jamais dans vos notes non plus. Indexer un vault laisse chaque fichier identique octet pour octet. C'est votre vault ; l'outil y est invité.
+Lire et indexer n'écrivent jamais dans vos notes non plus. Indexer un vault laisse chaque fichier identique octet pour octet.
 
 ## Ce que coûte une question
 
-Je ne veux pas affirmer qu'un système est rapide. Je veux le mesurer et publier le chiffre.
+Je préfère mesurer qu'affirmer.
 
-Sur un corpus synthétique déterministe de 3 000 notes — 10 537 fragments, environ 3,2 Mo, avec 907 paragraphes délibérément dupliqués entre fichiers :
+Sur un corpus synthétique déterministe de 3 000 notes (10 537 fragments, environ 3,2 Mo, avec 907 paragraphes délibérément dupliqués entre fichiers) :
 
 | Mesure | Valeur |
 | --- | --- |
@@ -382,15 +370,15 @@ Mesuré sur un M5 avec Node 26 ; les lignes de requête sont des médianes sur 2
 
 L'index est construit en mémoire à chaque commande et n'est jamais persisté. Cela paraît du gaspillage jusqu'à ce qu'on lise le tableau : le persister économiserait environ 150 ms et coûterait un fichier géré qui peut dériver, devenir obsolète et nécessiter une invalidation.
 
-À cette taille, le compromis est manifestement mauvais. Quand les phases de parcours et d'indexation — les deux qui grandissent avec le vault — commenceront à s'approcher du seuil interactif, je le reverrai. Pas avant.
+À cette taille, le compromis est manifestement mauvais. Quand les phases de parcours et d'indexation, les deux qui grandissent avec le vault, commenceront à s'approcher du seuil interactif, je le reverrai. Pas avant.
 
-Il n'y a ni embeddings, ni vecteurs, ni base vectorielle, ni le moindre appel LLM dans la CLI. Elle fonctionne hors ligne, sans identifiants et sans fournisseur. Pour quelques milliers de fichiers Markdown, la recherche lexicale n'est pas un compromis ; c'est exactement la bonne quantité de machinerie.
+Il n'y a ni embeddings, ni vecteurs, ni le moindre appel LLM dans la CLI. Elle fonctionne hors ligne, sans identifiants et sans fournisseur. Pour quelques milliers de fichiers Markdown, la recherche lexicale n'est pas un compromis. C'est exactement la bonne quantité de machinerie.
 
 ## Il faut le dire à l'agent, et bien le dire
 
 Rien de tout cela ne sert si un agent de code ignore que le cerveau existe.
 
-Initialiser un cerveau génère donc un `AGENTS.md` à sa racine — un fichier détenu par le manifeste qui indique ce qu'est le cerveau, la commande exacte avec la façon de passer plusieurs formulations, les cinq champs du résultat et la limitation sur l'absence.
+Initialiser un cerveau génère donc un `AGENTS.md` à sa racine : un fichier détenu par le manifeste qui indique ce qu'est le cerveau, la commande exacte avec la façon de passer plusieurs formulations, les cinq champs du résultat et la limitation sur l'absence.
 
 Le régénérer par-dessus une copie que vous avez modifiée signale une dérive au lieu d'écraser. Vos modifications gagnent.
 
@@ -398,7 +386,7 @@ L'instruction d'émettre plusieurs formulations vit dans ce fichier délibérém
 
 ## Et le chiffre que je n'ai pas pu choisir
 
-Toute la prémisse est que récupérer des fragments coûte moins cher que lire des notes. Je l'ai mesuré aussi, sur le même corpus, avec l'appel exact que l'artefact enseigne.
+Toute la prémisse est que récupérer des fragments coûte moins cher que lire des notes. Je l'ai mesuré aussi, avec l'appel exact que l'artefact enseigne.
 
 Cinq résultats, issus de cinq fichiers distincts.
 
@@ -406,19 +394,19 @@ Les notes entières où vivent ces fragments : **5 604 octets.** La charge utile
 
 Environ **2,0x**. Modeste.
 
-Je le rapporte tel que mesuré, pas tel qu'amélioré, et trois choses le bornent — que j'aurais toutes pu ajuster et que je n'ai pas ajustées.
+Je le rapporte tel que mesuré, pas tel qu'amélioré, et trois choses le bornent. J'aurais pu les ajuster toutes les trois et je ne l'ai pas fait.
 
 La ligne de base est délibérément généreuse. Elle ne facture que les fichiers d'où proviennent les fragments renvoyés, comme si l'agent avait déjà su quelles cinq notes ouvrir. Sans recherche par fragments, il ne l'aurait pas su : 2,0x est donc un plancher, pas un meilleur cas.
 
 Les notes synthétiques font environ un kilo-octet, donc un fragment ne peut être qu'environ 3,4 fois plus petit que la note qui le contient. Un vault de notes plus longues montrerait une économie supérieure. Je n'ai pas allongé le corpus pour en obtenir une.
 
-Et la charge utile est indentée, ce qui représente 12 % de ses octets. En JSON compact, elle afficherait 2,2x — mais le format de sortie est un contrat dont d'autres choses dépendent, et modifier un contrat pour améliorer un benchmark est exactement le genre de chose que ce projet existe pour éviter.
+Et la charge utile est indentée, ce qui représente 12 % de ses octets. En JSON compact, elle afficherait 2,2x, mais le format de sortie est un contrat dont d'autres choses dépendent, et modifier un contrat pour améliorer un benchmark est exactement le genre de chose que ce projet existe pour éviter.
 
-Les octets sont un proxy assumé du coût en tokens, pas un comptage de tokens. Compter de vrais tokens implique d'embarquer un tokenizer et de choisir un fournisseur, et la CLI ne fait aucun appel LLM par conception. Un proxy déclaré est plus honnête qu'une précision empruntée.
+Les octets sont un proxy assumé du coût en tokens, pas un comptage de tokens. Compter de vrais tokens implique d'embarquer un tokenizer et de choisir un fournisseur, et la CLI ne fait aucun appel LLM par conception.
 
 ## Ce qui m'a fait rire
 
-`AGENTS.md` — le fichier qui apprend à un agent à chercher — est lui-même indexé par la recherche.
+`AGENTS.md`, le fichier qui apprend à un agent à chercher, est lui-même indexé par la recherche.
 
 Sur sa propre requête d'exemple, il devance la note qu'il essayait de démontrer. 0,0492 contre 0,0484.
 
@@ -426,13 +414,13 @@ Je pourrais l'exclure par son nom de fichier. Cela reviendrait à faire dériver
 
 Il n'existe pas de petite correction juste, donc il n'y en a aucune. C'est consigné comme un comportement connu plutôt que rustiné en silence.
 
-Sur quatre questions réalistes, la note visée est arrivée première à chaque fois, l'artefact n'apparaissant que plus bas, à environ un tiers du score gagnant. Exactement comme le font déjà les README de départ.
+Sur quatre questions réalistes, la note visée est arrivée première à chaque fois, l'artefact n'apparaissant que plus bas, à environ un tiers du score gagnant.
 
 ## Où cela va
 
 Pathfinder trouve le chemin. Lorekeeper se souvient du voyage.
 
-La colonne vertébrale de la recherche est la partie que je voulais réussir en premier, parce que tout ce qui suit — synchronisation de capacités, adaptateur MCP, capture mobile — est une question de transport au-dessus du même noyau. MCP est un transport, pas une architecture, et une CLI se teste sans agent dans la boucle.
+La colonne vertébrale de la recherche est la partie que je voulais réussir en premier, parce que tout ce qui suit (synchronisation de capacités, adaptateur MCP, capture mobile) est une question de transport au-dessus du même noyau.
 
 Je n'ai toujours pas besoin d'une IA qui se souvient de tout.
 

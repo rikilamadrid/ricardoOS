@@ -4,13 +4,13 @@ title:
   es: Pathfinder aprendió a ejecutar más de un agente a la vez
   fr: Pathfinder a appris à faire travailler plusieurs agents à la fois
 summary:
-  en: My workflow kit was built to keep a human in the loop, one ticket at a time. Now it can coordinate several isolated agents at once — without becoming an autopilot.
+  en: My workflow kit was built to keep a human in the loop, one ticket at a time. Now it can coordinate several isolated agents at once, without becoming an autopilot.
   es: Mi kit de flujo de trabajo estaba hecho para mantener a un humano en el bucle, ticket a ticket. Ahora puede coordinar varios agentes aislados a la vez, sin convertirse en un piloto automático.
   fr: Mon kit de workflow était conçu pour garder un humain dans la boucle, un ticket à la fois. Il peut désormais coordonner plusieurs agents isolés en parallèle, sans devenir un pilote automatique.
 shareCaption:
-  en: Pathfinder now has two execution modes. 🧭 One agent under direct control, or several isolated workers coordinated at once — and the merge button is still mine.
-  es: Pathfinder ya tiene dos modos de ejecución. 🧭 Un agente bajo control directo, o varios workers aislados coordinados a la vez — y el botón de merge sigue siendo mío.
-  fr: Pathfinder a maintenant deux modes d'exécution. 🧭 Un agent sous contrôle direct, ou plusieurs workers isolés coordonnés en parallèle — et le bouton merge reste le mien.
+  en: Pathfinder now has two execution modes. 🧭 One agent under direct control, or several isolated workers coordinated at once. The merge button is still mine.
+  es: Pathfinder ya tiene dos modos de ejecución. 🧭 Un agente bajo control directo, o varios workers aislados coordinados a la vez. El botón de merge sigue siendo mío.
+  fr: Pathfinder a maintenant deux modes d'exécution. 🧭 Un agent sous contrôle direct, ou plusieurs workers isolés coordonnés en parallèle. Le bouton merge reste le mien.
 date: "2026-09-18"
 tags: ["ai", "engineering", "pathfinder", "agents", "open-source"]
 draft: false
@@ -22,7 +22,7 @@ For months, Pathfinder did one thing very deliberately: it made me the bottlenec
 
 Load a ticket. Start it. Ask for a review. Accept the result. Merge it. One at a time.
 
-That was never an accident. The whole reason the kit exists is that a coding agent can execute far faster than it can be trusted, and the gap between those two speeds is exactly where bad software gets written.
+That was never an accident. The kit exists because a coding agent can execute far faster than it can be trusted, and the gap between those two speeds is exactly where bad software gets written.
 
 So I put a human in every place where a decision had consequences.
 
@@ -34,7 +34,7 @@ Most of the queue wasn't waiting on me thinking.
 
 It was waiting on me *being available*.
 
-Two tickets that touch completely different parts of a codebase, with no dependency between them, would still run one after the other — because there was exactly one session, and I was in it.
+Two tickets that touch completely different parts of a codebase, with no dependency between them, would still run one after the other, because there was exactly one session and I was in it.
 
 That's not human-in-the-loop. That's human-as-a-scheduler.
 
@@ -48,34 +48,29 @@ The mode lives in a tracked file, `context/execution-mode.md`, and the part the 
 <!-- pathfinder:execution-mode orchestrator -->
 ```
 
-The rest of the file is prose for people.
-
 There are two valid values, `human-in-the-loop` and `orchestrator`. A missing file means human-in-the-loop, so every project installed before modes existed needs no migration at all.
 
-A file with an invalid marker doesn't get guessed at. The ticket lifecycle says so once and proceeds human-in-the-loop; orchestration refuses to run.
+A file with an invalid marker doesn't get guessed at. The ticket lifecycle says so once and proceeds human-in-the-loop. Orchestration refuses to run.
 
-You choose it at install, or change it later:
+You choose it at install, or switch later:
 
 ```bash
 npx create-pathfinder --mode orchestrator
-npx create-pathfinder --mode human-in-the-loop
 ```
 
 ## What a worker actually gets
 
 A claim is not a label. It's a Git fact.
 
-Claiming a ticket creates a linked worktree at `.pathfinder/worktrees/<key>` and its own `ticket/<key>-<slug>` branch. Git's own claim ref and worktree checks are what prevent two workers owning the same ticket — not a lock file I invented.
+Claiming a ticket creates a linked worktree at `.pathfinder/worktrees/<key>` and its own `ticket/<key>-<slug>` branch. What stops two workers owning the same ticket is Git's own claim ref and worktree checks, not a lock file I invented.
 
 Each worktree carries its own `context/current-ticket.md`, so one worker's state can never overwrite another's. That single detail is the reason parallel work stops being terrifying.
-
-The engine also refuses to claim anything until `/.pathfinder/` is in your `.gitignore`. It checks, and it never edits your ignore rules for you.
 
 ## The plan you approve, once
 
 `start` plans before it claims.
 
-A ticket is eligible only when its status is `Proposed` or `Ready` and every blocker is `Complete`. A cancelled or superseded blocker is a planning question, not something to route around.
+A ticket is eligible only when its status is `Proposed` or `Ready` and every blocker is `Complete`.
 
 Before anything is claimed, you see each selected ticket, its estimate, role, model, effort, and proposed worker assignment. Then you approve once.
 
@@ -97,11 +92,11 @@ dispatch(brief)                    → worker session
 
 The profile records complexity, context size, parallel safety and risk, with the reason for each and whether it was derived or assessed. Parallel safety reports `isolated`, `shared-surface` or `serialize`.
 
-I'm careful about how much weight that carries. Those estimates come from the paths a ticket declares. They are coarse evidence that two branches probably won't collide — not proof. Actual changed-file overlap gets checked again at integration, against reality.
+I'm careful about how much weight that carries. Those estimates come from the paths a ticket declares, so they are coarse evidence that two branches probably won't collide, not proof. Actual changed-file overlap gets checked again at integration.
 
 This release ships **static** routing: `developer` implements, `tester` reviews, and the model and reasoning effort are inherited from the dispatching session. Dynamic model routing is not in it. I'd rather ship the boring version of a routing layer and learn what it needs.
 
-Harness translation covers `claude-code`, `codex` and `manual`. A value the harness can't honor is refused out loud rather than quietly downgraded, and `manual` prints a brief for a human-started session instead of pretending it launched one.
+Harness translation covers `claude-code`, `codex` and `manual`. A value the harness can't honor is refused out loud rather than quietly downgraded.
 
 ## Gates are the whole point
 
@@ -109,9 +104,9 @@ When a worker hits something that needs a person, it records `State: human-gate`
 
 Its dependents wait. Everything unrelated keeps going.
 
-On GitHub Issues the orchestrator adds a `gate: human` label and one idempotent comment — the marker means a retry can't spam the issue. The issue keeps its ordinary lifecycle label, because a gate isn't a lifecycle status.
+On GitHub Issues the orchestrator adds a `gate: human` label and one idempotent comment, so a retry can't spam the issue.
 
-That's the distinction the whole mode rests on. Execution state (`ready`, `working`, `review`, `human-gate`, `done`, `stale`, `failed`, `integrated`) is a different vocabulary from ticket lifecycle (`Proposed → Ready → In Progress → Complete`). Conflating them is how a tool starts quietly deciding things.
+Execution state (`ready`, `working`, `review`, `human-gate`, `done`, `stale`, `failed`, `integrated`) is a different vocabulary from ticket lifecycle (`Proposed → Ready → In Progress → Complete`). Conflating them is how a tool starts quietly deciding things.
 
 ## Integration is a separate decision
 
@@ -119,13 +114,13 @@ Work complete is not the same as safe to merge.
 
 The integrator takes reviewed, pushed work and checks it against the current default branch: changed-file overlap, divergence, `git merge-tree` conflict evidence, review, CI. It returns one of three answers.
 
-`candidate` — present the merge under your approval policy.
+`candidate`: present the merge under your approval policy.
 
-`behind` — resume the existing developer to update onto the default branch and re-verify.
+`behind`: resume the existing developer to update onto the default branch and re-verify.
 
-`conflict` — serialize the conflicting work and hand it back to its developer.
+`conflict`: serialize the conflicting work and hand it back to its developer.
 
-And because a merge changes the evidence, every remaining branch gets checked again afterward. A behind or conflicted branch is never dressed up as a clean candidate.
+Because a merge changes the evidence, every remaining branch gets checked again afterward. A behind branch is never dressed up as a clean candidate.
 
 ## It survived its own acceptance run
 
@@ -137,7 +132,7 @@ Then both worker sessions hit usage limits and ended.
 
 The work survived. The branch, worktree, claim, state file and execution profile are all durable, so replacement sessions resumed the same claims and carried on.
 
-One ticket integrated first. The orchestrator then reported the second as `behind`, dispatched a rebase-and-reverify brief against its preserved worktree, and only after fresh review and integration did the real dependency graph make the third ticket eligible.
+One ticket integrated first. The orchestrator reported the second as `behind`, dispatched a rebase-and-reverify brief against its preserved worktree, and only after fresh review and integration did the real dependency graph make the third ticket eligible.
 
 I didn't plan that failure. It's the best evidence in the whole Feature.
 
@@ -147,7 +142,7 @@ A quota limit, a crash or a terminated harness does not erase a ticket:
 /orchestrate resume 53.4
 ```
 
-A compatible harness can even replace the worker without replacing the ticket — a Claude Code session on an inherited profile can be resumed by Codex in the same worktree and branch. There's no automatic failover, and I don't want one. Two sessions mutating one worktree is the failure mode worth being paranoid about.
+A compatible harness can even replace the worker without replacing the ticket. A Claude Code session on an inherited profile can be resumed by Codex in the same worktree and branch. There's no automatic failover, and I don't want one. Two sessions mutating one worktree is the failure mode worth being paranoid about.
 
 ## What it is not
 
@@ -155,19 +150,13 @@ No daemon. No broker. No queue. No database. No server.
 
 No automatic merging, no bypassing review, no unlimited agents.
 
-The engine reads the ticket store, the blockers, Git branches and each worker's state file every time it runs. There is nothing to start and nothing to keep alive.
-
-Orchestration needs Node and Git, and `gh` if your tickets live in GitHub Issues. The human-in-the-loop workflow still needs no runtime at all.
+The engine reads the ticket store, the blockers, Git branches and each worker's state file every time it runs. There is nothing to start and nothing to keep alive. It needs Node and Git, plus `gh` if your tickets live in GitHub Issues, while the human-in-the-loop workflow still needs no runtime at all.
 
 ## Where it sits right now
 
-Nine tickets, nine squash-merged pull requests, and one acceptance run with its snapshots and transcripts recorded rather than summarized.
-
-Every suite green: orchestration 166/166, installer 693/693, renderer 825 passing with 25 documented skips. Twenty-five skills validated. The docs site builds 43 pages.
+Nine tickets, nine squash-merged pull requests, and one acceptance run with its snapshots and transcripts recorded rather than summarized. Every suite green: orchestration 166/166, installer 693/693, renderer 825 passing with 25 documented skips.
 
 No version bump, no npm publication, no tag, no release. The capability sits under `[Unreleased]` until I decide it's worth shipping, which is its own decision and not the same as finishing the work.
-
-That distinction is basically the entire philosophy of the kit.
 
 Pathfinder can now run several agents at once. It still can't approve, accept, merge or release anything.
 
@@ -181,7 +170,7 @@ Durante meses, Pathfinder hizo una cosa de forma muy deliberada: convertirme a m
 
 Cargar un ticket. Empezarlo. Pedir una revisión. Aceptar el resultado. Mergearlo. De uno en uno.
 
-Eso nunca fue un accidente. El kit existe precisamente porque un agente de código puede ejecutar mucho más rápido de lo que se le puede confiar, y la distancia entre esas dos velocidades es exactamente donde se escribe el software malo.
+Eso nunca fue un accidente. El kit existe porque un agente de código puede ejecutar mucho más rápido de lo que se le puede confiar, y la distancia entre esas dos velocidades es exactamente donde se escribe el software malo.
 
 Así que puse a un humano en cada punto donde una decisión tenía consecuencias.
 
@@ -193,7 +182,7 @@ La mayor parte de la cola no esperaba a que yo pensara.
 
 Esperaba a que yo *estuviera disponible*.
 
-Dos tickets que tocan partes completamente distintas de un código, sin ninguna dependencia entre ellos, se ejecutaban uno detrás de otro — porque había exactamente una sesión, y yo estaba dentro.
+Dos tickets que tocan partes completamente distintas de un código, sin ninguna dependencia entre ellos, se ejecutaban uno detrás de otro, porque había exactamente una sesión y yo estaba dentro.
 
 Eso no es *human-in-the-loop*. Eso es un humano haciendo de planificador.
 
@@ -207,17 +196,14 @@ El modo vive en un archivo versionado, `context/execution-mode.md`, y lo único 
 <!-- pathfinder:execution-mode orchestrator -->
 ```
 
-El resto del archivo es prosa para personas.
-
 Hay dos valores válidos, `human-in-the-loop` y `orchestrator`. Si el archivo no existe, el modo es human-in-the-loop, así que ningún proyecto instalado antes de que existieran los modos necesita migración.
 
-Un archivo con un marcador inválido no se adivina. El ciclo de vida lo dice una vez y continúa en human-in-the-loop; la orquestación se niega a ejecutarse.
+Un archivo con un marcador inválido no se adivina. El ciclo de vida lo dice una vez y continúa en human-in-the-loop. La orquestación se niega a ejecutarse.
 
 Se elige al instalar, o se cambia después:
 
 ```bash
 npx create-pathfinder --mode orchestrator
-npx create-pathfinder --mode human-in-the-loop
 ```
 
 ## Qué recibe realmente un worker
@@ -228,13 +214,11 @@ Reclamar un ticket crea un worktree enlazado en `.pathfinder/worktrees/<key>` y 
 
 Cada worktree lleva su propio `context/current-ticket.md`, así que el estado de un worker nunca puede sobrescribir el de otro. Ese único detalle es la razón por la que el trabajo en paralelo deja de dar miedo.
 
-El motor además se niega a reclamar nada hasta que `/.pathfinder/` esté en tu `.gitignore`. Lo comprueba, y nunca edita tus reglas de ignore por ti.
-
 ## El plan que apruebas, una vez
 
 `start` planifica antes de reclamar.
 
-Un ticket es elegible solo si su estado es `Proposed` o `Ready` y todos sus bloqueantes están `Complete`. Un bloqueante cancelado o sustituido es una pregunta de planificación, no algo que esquivar.
+Un ticket es elegible solo si su estado es `Proposed` o `Ready` y todos sus bloqueantes están `Complete`.
 
 Antes de reclamar nada, ves cada ticket seleccionado, su estimación, rol, modelo, esfuerzo y la asignación de worker propuesta. Y apruebas una vez.
 
@@ -256,11 +240,11 @@ dispatch(brief)                   → sesión de worker
 
 El perfil registra complejidad, tamaño de contexto, seguridad en paralelo y riesgo, con el motivo de cada uno y si fue derivado o evaluado. La seguridad en paralelo devuelve `isolated`, `shared-surface` o `serialize`.
 
-Tengo cuidado con el peso que le doy a eso. Esas estimaciones salen de las rutas que el propio ticket declara. Son evidencia gruesa de que dos ramas probablemente no chocarán — no una prueba. El solapamiento real de ficheros modificados se vuelve a comprobar en la integración, contra la realidad.
+Tengo cuidado con el peso que le doy a eso. Esas estimaciones salen de las rutas que el propio ticket declara, así que son evidencia gruesa de que dos ramas probablemente no chocarán, no una prueba. El solapamiento real se vuelve a comprobar en la integración.
 
 Esta entrega lleva enrutado **estático**: `developer` implementa, `tester` revisa, y el modelo y el esfuerzo de razonamiento se heredan de la sesión que despacha. El enrutado dinámico de modelos no está incluido. Prefiero entregar la versión aburrida de una capa de enrutado y aprender qué necesita de verdad.
 
-La traducción de harness cubre `claude-code`, `codex` y `manual`. Un valor que el harness no puede cumplir se rechaza en voz alta en vez de degradarse en silencio, y `manual` imprime un brief para una sesión iniciada por una persona en lugar de fingir que la ha lanzado.
+La traducción de harness cubre `claude-code`, `codex` y `manual`. Un valor que el harness no puede cumplir se rechaza en voz alta en vez de degradarse en silencio.
 
 ## Las puertas humanas son el punto entero
 
@@ -268,9 +252,9 @@ Cuando un worker se topa con algo que necesita a una persona, registra `State: h
 
 Sus dependientes esperan. Todo lo no relacionado sigue.
 
-En GitHub Issues el orquestador añade una etiqueta `gate: human` y un único comentario idempotente — el marcador hace que un reintento no pueda inundar el issue. El issue conserva su etiqueta de ciclo de vida normal, porque una puerta no es un estado del ciclo de vida.
+En GitHub Issues el orquestador añade una etiqueta `gate: human` y un único comentario idempotente, así que un reintento no puede inundar el issue.
 
-Esa es la distinción sobre la que se apoya todo el modo. El estado de ejecución (`ready`, `working`, `review`, `human-gate`, `done`, `stale`, `failed`, `integrated`) es un vocabulario distinto del ciclo de vida del ticket (`Proposed → Ready → In Progress → Complete`). Confundirlos es cómo una herramienta empieza a decidir cosas en silencio.
+El estado de ejecución (`ready`, `working`, `review`, `human-gate`, `done`, `stale`, `failed`, `integrated`) es un vocabulario distinto del ciclo de vida del ticket (`Proposed → Ready → In Progress → Complete`). Confundirlos es cómo una herramienta empieza a decidir cosas en silencio.
 
 ## La integración es una decisión aparte
 
@@ -278,13 +262,13 @@ Trabajo terminado no es lo mismo que seguro de mergear.
 
 El integrador coge el trabajo revisado y subido y lo comprueba contra la rama por defecto actual: solapamiento de ficheros modificados, divergencia, evidencia de conflicto con `git merge-tree`, revisión, CI. Devuelve una de tres respuestas.
 
-`candidate` — presenta el merge bajo tu política de aprobación.
+`candidate`: presenta el merge bajo tu política de aprobación.
 
-`behind` — retoma al developer existente para actualizar sobre la rama por defecto y volver a verificar.
+`behind`: retoma al developer existente para actualizar sobre la rama por defecto y volver a verificar.
 
-`conflict` — serializa el trabajo en conflicto y se lo devuelve a su developer.
+`conflict`: serializa el trabajo en conflicto y se lo devuelve a su developer.
 
-Y como un merge cambia la evidencia, cada rama restante se vuelve a comprobar después. Una rama atrasada o en conflicto nunca se disfraza de candidata limpia.
+Como un merge cambia la evidencia, cada rama restante se vuelve a comprobar después. Una rama atrasada nunca se disfraza de candidata limpia.
 
 ## Sobrevivió a su propia prueba de aceptación
 
@@ -306,7 +290,7 @@ Un límite de cuota, un crash o un harness terminado no borran un ticket:
 /orchestrate resume 53.4
 ```
 
-Un harness compatible incluso puede reemplazar al worker sin reemplazar el ticket — una sesión de Claude Code con perfil heredado puede ser retomada por Codex en el mismo worktree y la misma rama. No hay failover automático, y no lo quiero. Dos sesiones mutando un mismo worktree es el modo de fallo con el que merece la pena ser paranoico.
+Un harness compatible incluso puede reemplazar al worker sin reemplazar el ticket. Una sesión de Claude Code con perfil heredado puede ser retomada por Codex en el mismo worktree y la misma rama. No hay failover automático, y no lo quiero. Dos sesiones mutando un mismo worktree es el modo de fallo con el que merece la pena ser paranoico.
 
 ## Lo que no es
 
@@ -314,19 +298,13 @@ Ni demonio. Ni broker. Ni cola. Ni base de datos. Ni servidor.
 
 Ni merge automático, ni saltarse la revisión, ni agentes ilimitados.
 
-El motor lee el store de tickets, los bloqueantes, las ramas de Git y el fichero de estado de cada worker cada vez que se ejecuta. No hay nada que arrancar ni nada que mantener vivo.
-
-La orquestación necesita Node y Git, y `gh` si tus tickets viven en GitHub Issues. El flujo human-in-the-loop sigue sin necesitar ningún runtime.
+El motor lee el store de tickets, los bloqueantes, las ramas de Git y el fichero de estado de cada worker cada vez que se ejecuta. No hay nada que arrancar ni nada que mantener vivo. Necesita Node y Git, más `gh` si tus tickets viven en GitHub Issues, mientras que el flujo human-in-the-loop sigue sin necesitar ningún runtime.
 
 ## Dónde está ahora mismo
 
-Nueve tickets, nueve pull requests mergeadas en squash, y una ejecución de aceptación con sus capturas y transcripciones registradas en vez de resumidas.
-
-Todas las suites en verde: orquestación 166/166, instalador 693/693, renderer 825 pasando con 25 skips documentados. Veinticinco skills validadas. El sitio de documentación construye 43 páginas.
+Nueve tickets, nueve pull requests mergeadas en squash, y una ejecución de aceptación con sus capturas y transcripciones registradas en vez de resumidas. Todas las suites en verde: orquestación 166/166, instalador 693/693, renderer 825 pasando con 25 skips documentados.
 
 Ni bump de versión, ni publicación en npm, ni tag, ni release. La capacidad está bajo `[Unreleased]` hasta que decida que merece la pena publicarla, lo cual es una decisión propia y no lo mismo que terminar el trabajo.
-
-Esa distinción es básicamente toda la filosofía del kit.
 
 Pathfinder ya puede ejecutar varios agentes a la vez. Sigue sin poder aprobar, aceptar, mergear ni publicar nada.
 
@@ -340,7 +318,7 @@ Pendant des mois, Pathfinder a fait une chose de manière très délibérée : f
 
 Charger un ticket. Le démarrer. Demander une revue. Accepter le résultat. Le merger. Un à la fois.
 
-Ce n'était jamais un accident. Le kit existe précisément parce qu'un agent de code peut exécuter bien plus vite qu'on ne peut lui faire confiance, et l'écart entre ces deux vitesses est exactement là où s'écrit le mauvais logiciel.
+Ce n'était jamais un accident. Le kit existe parce qu'un agent de code peut exécuter bien plus vite qu'on ne peut lui faire confiance, et l'écart entre ces deux vitesses est exactement là où s'écrit le mauvais logiciel.
 
 J'ai donc placé un humain à chaque endroit où une décision avait des conséquences.
 
@@ -352,7 +330,7 @@ La file d'attente n'attendait pas que je réfléchisse.
 
 Elle attendait que je sois *disponible*.
 
-Deux tickets touchant des parties totalement différentes d'un code, sans aucune dépendance entre eux, s'exécutaient quand même l'un après l'autre — parce qu'il y avait exactement une session, et que j'étais dedans.
+Deux tickets touchant des parties totalement différentes d'un code, sans aucune dépendance entre eux, s'exécutaient quand même l'un après l'autre, parce qu'il y avait exactement une session et que j'étais dedans.
 
 Ce n'est pas du *human-in-the-loop*. C'est un humain qui sert d'ordonnanceur.
 
@@ -366,34 +344,29 @@ Le mode vit dans un fichier versionné, `context/execution-mode.md`, et la seule
 <!-- pathfinder:execution-mode orchestrator -->
 ```
 
-Le reste du fichier est de la prose pour les humains.
-
 Il y a deux valeurs valides, `human-in-the-loop` et `orchestrator`. Un fichier absent signifie human-in-the-loop, donc aucun projet installé avant l'existence des modes n'a besoin de migration.
 
-Un fichier avec un marqueur invalide n'est jamais deviné. Le cycle de vie le signale une fois et continue en human-in-the-loop ; l'orchestration, elle, refuse de s'exécuter.
+Un fichier avec un marqueur invalide n'est jamais deviné. Le cycle de vie le signale une fois et continue en human-in-the-loop. L'orchestration, elle, refuse de s'exécuter.
 
 On le choisit à l'installation, ou on le change ensuite :
 
 ```bash
 npx create-pathfinder --mode orchestrator
-npx create-pathfinder --mode human-in-the-loop
 ```
 
 ## Ce qu'un worker reçoit vraiment
 
 Un *claim* n'est pas une étiquette. C'est un fait Git.
 
-Réclamer un ticket crée un worktree lié dans `.pathfinder/worktrees/<key>` et sa propre branche `ticket/<key>-<slug>`. Ce qui empêche deux workers de posséder le même ticket, ce sont les vérifications de référence et de worktree de Git lui-même — pas un fichier de verrou que j'aurais inventé.
+Réclamer un ticket crée un worktree lié dans `.pathfinder/worktrees/<key>` et sa propre branche `ticket/<key>-<slug>`. Ce qui empêche deux workers de posséder le même ticket, ce sont les vérifications de référence et de worktree de Git lui-même, pas un fichier de verrou que j'aurais inventé.
 
 Chaque worktree porte son propre `context/current-ticket.md`, donc l'état d'un worker ne peut jamais écraser celui d'un autre. Ce seul détail est la raison pour laquelle le travail en parallèle cesse d'être effrayant.
-
-Le moteur refuse par ailleurs de réclamer quoi que ce soit tant que `/.pathfinder/` n'est pas dans votre `.gitignore`. Il vérifie, et il ne modifie jamais vos règles d'ignore à votre place.
 
 ## Le plan que vous approuvez, une fois
 
 `start` planifie avant de réclamer.
 
-Un ticket n'est éligible que si son statut est `Proposed` ou `Ready` et que chaque bloqueur est `Complete`. Un bloqueur annulé ou remplacé est une question de planification, pas quelque chose à contourner.
+Un ticket n'est éligible que si son statut est `Proposed` ou `Ready` et que chaque bloqueur est `Complete`.
 
 Avant le moindre claim, vous voyez chaque ticket sélectionné, son estimation, son rôle, son modèle, son effort et l'affectation de worker proposée. Puis vous approuvez une fois.
 
@@ -415,11 +388,11 @@ dispatch(brief)                 → session de worker
 
 Le profil enregistre la complexité, la taille de contexte, la sûreté en parallèle et le risque, avec la raison de chacun et s'il a été dérivé ou évalué. La sûreté en parallèle renvoie `isolated`, `shared-surface` ou `serialize`.
 
-Je fais attention au poids que je donne à cela. Ces estimations viennent des chemins que le ticket déclare lui-même. Ce sont des indices grossiers que deux branches n'entreront probablement pas en collision — pas une preuve. Le chevauchement réel des fichiers modifiés est revérifié à l'intégration, face à la réalité.
+Je fais attention au poids que je donne à cela. Ces estimations viennent des chemins que le ticket déclare lui-même, donc ce sont des indices grossiers que deux branches n'entreront probablement pas en collision, pas une preuve. Le chevauchement réel est revérifié à l'intégration.
 
 Cette version embarque un routage **statique** : `developer` implémente, `tester` relit, et le modèle et l'effort de raisonnement sont hérités de la session qui dispatche. Le routage dynamique de modèles n'y est pas. Je préfère livrer la version ennuyeuse d'une couche de routage et apprendre ce dont elle a réellement besoin.
 
-La traduction de harness couvre `claude-code`, `codex` et `manual`. Une valeur que le harness ne peut pas honorer est refusée explicitement plutôt que dégradée en silence, et `manual` imprime un brief pour une session lancée par un humain au lieu de faire semblant de l'avoir démarrée.
+La traduction de harness couvre `claude-code`, `codex` et `manual`. Une valeur que le harness ne peut pas honorer est refusée explicitement plutôt que dégradée en silence.
 
 ## Les portes humaines sont tout l'enjeu
 
@@ -427,9 +400,9 @@ Quand un worker tombe sur quelque chose qui nécessite une personne, il enregist
 
 Ses dépendants attendent. Tout ce qui n'a aucun rapport continue.
 
-Sur GitHub Issues, l'orchestrateur ajoute un label `gate: human` et un unique commentaire idempotent — le marqueur fait qu'une nouvelle tentative ne peut pas inonder l'issue. L'issue garde son label de cycle de vie habituel, parce qu'une porte n'est pas un statut de cycle de vie.
+Sur GitHub Issues, l'orchestrateur ajoute un label `gate: human` et un unique commentaire idempotent, de sorte qu'une nouvelle tentative ne peut pas inonder l'issue.
 
-C'est la distinction sur laquelle repose tout le mode. L'état d'exécution (`ready`, `working`, `review`, `human-gate`, `done`, `stale`, `failed`, `integrated`) est un vocabulaire distinct du cycle de vie du ticket (`Proposed → Ready → In Progress → Complete`). Les confondre, c'est ainsi qu'un outil commence à décider en silence.
+L'état d'exécution (`ready`, `working`, `review`, `human-gate`, `done`, `stale`, `failed`, `integrated`) est un vocabulaire distinct du cycle de vie du ticket (`Proposed → Ready → In Progress → Complete`). Les confondre, c'est ainsi qu'un outil commence à décider en silence.
 
 ## L'intégration est une décision à part
 
@@ -437,13 +410,13 @@ Travail terminé n'est pas la même chose que sûr à merger.
 
 L'intégrateur prend le travail relu et poussé et le confronte à la branche par défaut actuelle : chevauchement de fichiers modifiés, divergence, preuve de conflit via `git merge-tree`, revue, CI. Il renvoie l'une de trois réponses.
 
-`candidate` — présentez le merge selon votre politique d'approbation.
+`candidate` : présentez le merge selon votre politique d'approbation.
 
-`behind` — relancez le developer existant pour se remettre à jour sur la branche par défaut et revérifier.
+`behind` : relancez le developer existant pour se remettre à jour sur la branche par défaut et revérifier.
 
-`conflict` — sérialisez le travail en conflit et rendez-le à son developer.
+`conflict` : sérialisez le travail en conflit et rendez-le à son developer.
 
-Et comme un merge change les preuves, chaque branche restante est revérifiée ensuite. Une branche en retard ou en conflit n'est jamais déguisée en candidate propre.
+Comme un merge change les preuves, chaque branche restante est revérifiée ensuite. Une branche en retard n'est jamais déguisée en candidate propre.
 
 ## Il a survécu à sa propre recette
 
@@ -455,7 +428,7 @@ Puis les deux sessions ont atteint leurs limites d'usage et se sont arrêtées.
 
 Le travail a survécu. La branche, le worktree, le claim, le fichier d'état et le profil d'exécution sont tous durables, donc des sessions de remplacement ont repris les mêmes claims et continué.
 
-Un ticket s'est intégré en premier. L'orchestrateur a ensuite signalé le second comme `behind`, dispatché un brief de rebase et de revérification contre son worktree préservé, et ce n'est qu'après une nouvelle revue et intégration que le vrai graphe de dépendances a rendu le troisième éligible.
+Un ticket s'est intégré en premier. L'orchestrateur a signalé le second comme `behind`, dispatché un brief de rebase et de revérification contre son worktree préservé, et ce n'est qu'après une nouvelle revue et intégration que le vrai graphe de dépendances a rendu le troisième éligible.
 
 Je n'avais pas prévu cette panne. C'est la meilleure preuve de toute la Feature.
 
@@ -465,7 +438,7 @@ Une limite de quota, un crash ou un harness terminé n'effacent pas un ticket :
 /orchestrate resume 53.4
 ```
 
-Un harness compatible peut même remplacer le worker sans remplacer le ticket — une session Claude Code au profil hérité peut être reprise par Codex dans le même worktree et la même branche. Il n'y a pas de bascule automatique, et je n'en veux pas. Deux sessions qui modifient un même worktree, c'est le mode de défaillance qui mérite qu'on soit paranoïaque.
+Un harness compatible peut même remplacer le worker sans remplacer le ticket. Une session Claude Code au profil hérité peut être reprise par Codex dans le même worktree et la même branche. Il n'y a pas de bascule automatique, et je n'en veux pas. Deux sessions qui modifient un même worktree, c'est le mode de défaillance qui mérite qu'on soit paranoïaque.
 
 ## Ce que ce n'est pas
 
@@ -473,19 +446,13 @@ Pas de démon. Pas de broker. Pas de file. Pas de base de données. Pas de serve
 
 Pas de merge automatique, pas de contournement de revue, pas d'agents illimités.
 
-Le moteur lit le store de tickets, les bloqueurs, les branches Git et le fichier d'état de chaque worker à chaque exécution. Il n'y a rien à démarrer et rien à maintenir en vie.
-
-L'orchestration nécessite Node et Git, et `gh` si vos tickets vivent dans GitHub Issues. Le flux human-in-the-loop, lui, ne nécessite toujours aucun runtime.
+Le moteur lit le store de tickets, les bloqueurs, les branches Git et le fichier d'état de chaque worker à chaque exécution. Il n'y a rien à démarrer et rien à maintenir en vie. Il nécessite Node et Git, plus `gh` si vos tickets vivent dans GitHub Issues, tandis que le flux human-in-the-loop ne nécessite toujours aucun runtime.
 
 ## Où ça en est aujourd'hui
 
-Neuf tickets, neuf pull requests mergées en squash, et une recette d'acceptation dont les instantanés et les transcriptions sont enregistrés plutôt que résumés.
+Neuf tickets, neuf pull requests mergées en squash, et une recette d'acceptation dont les instantanés et les transcriptions sont enregistrés plutôt que résumés. Toutes les suites au vert : orchestration 166/166, installeur 693/693, renderer 825 passants avec 25 skips documentés.
 
-Toutes les suites au vert : orchestration 166/166, installeur 693/693, renderer 825 passants avec 25 skips documentés. Vingt-cinq skills validées. Le site de documentation construit 43 pages.
-
-Aucun bump de version, aucune publication npm, aucun tag, aucune release. La capacité reste sous `[Unreleased]` jusqu'à ce que je décide qu'elle mérite d'être publiée — ce qui est une décision à part entière, et pas la même chose que terminer le travail.
-
-Cette distinction, c'est à peu près toute la philosophie du kit.
+Aucun bump de version, aucune publication npm, aucun tag, aucune release. La capacité reste sous `[Unreleased]` jusqu'à ce que je décide qu'elle mérite d'être publiée, ce qui est une décision à part entière et pas la même chose que terminer le travail.
 
 Pathfinder peut désormais faire tourner plusieurs agents à la fois. Il ne peut toujours ni approuver, ni accepter, ni merger, ni publier quoi que ce soit.
 
