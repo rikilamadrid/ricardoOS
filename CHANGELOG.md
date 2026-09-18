@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- New Field Notes post, "Pathfinder learned to run more than one agent at a
+  time", on adding an orchestrator execution mode to Pathfinder: isolated Git
+  worktree claims, a plan you approve once, human gates that only block their
+  own dependents, integration as a separate decision, and an acceptance run
+  that survived its own workers running out of quota. Available in English,
+  Spanish, and French.
+- New Field Notes post, "Lorekeeper doesn't retrieve notes. It retrieves
+  spans.", on the structure Lorekeeper distilled for retrieval — span-level
+  addressing, BM25 with multi-wording fusion, no relevance cutoff — plus the
+  measured query timings and the honest, modest context saving behind it.
+  Available in English, Spanish, and French.
+
 ## [1.11.0] - 2026-09-03
 
 ### Added
