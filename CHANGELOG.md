@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.12.1] - 2026-09-18
+
 ### Changed
 - The Pathfinder orchestration and Lorekeeper retrieval Field Notes posts are
   tightened for length and rewritten without em dashes, in English, Spanish,
@@ -228,7 +230,8 @@ Initial public release — RicardoOS goes live at https://ricardolamadrid.com.
 - Static export (`output: "export"`) and automated deployment to Hostinger via GitHub Actions.
 - On-brand bubble-R favicon.
 
-[Unreleased]: https://github.com/rikilamadrid/ricardoOS/compare/v1.12.0...HEAD
+[Unreleased]: https://github.com/rikilamadrid/ricardoOS/compare/v1.12.1...HEAD
+[1.12.1]: https://github.com/rikilamadrid/ricardoOS/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.10.0...v1.11.0
 [1.10.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.9.0...v1.10.0
