@@ -7,6 +7,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.13.2] - 2026-09-19
+
+### Changed
+- The Pathfinder 4.4.0 Field Notes post is retitled to lead with the release
+  and rewritten for a general audience: what the orchestrator mode does, why
+  each agent gets its own Git worktree, how a ticket is sized up before
+  dispatch, and the run in which both agents died without losing work. The
+  deeper routing internals are summarised rather than walked through. English,
+  Spanish, and French.
+
 ## [1.13.1] - 2026-09-19
 
 ### Changed
@@ -250,7 +260,8 @@ Initial public release — RicardoOS goes live at https://ricardolamadrid.com.
 - Static export (`output: "export"`) and automated deployment to Hostinger via GitHub Actions.
 - On-brand bubble-R favicon.
 
-[Unreleased]: https://github.com/rikilamadrid/ricardoOS/compare/v1.13.1...HEAD
+[Unreleased]: https://github.com/rikilamadrid/ricardoOS/compare/v1.13.2...HEAD
+[1.13.2]: https://github.com/rikilamadrid/ricardoOS/compare/v1.13.1...v1.13.2
 [1.13.1]: https://github.com/rikilamadrid/ricardoOS/compare/v1.13.0...v1.13.1
 [1.13.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.12.1...v1.13.0
 [1.12.1]: https://github.com/rikilamadrid/ricardoOS/compare/v1.12.0...v1.12.1

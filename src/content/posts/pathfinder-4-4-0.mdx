@@ -1,16 +1,16 @@
 ---
 title:
-  en: "Pathfinder 4.4.0: the orchestrator estimates every ticket, then ignores it"
-  es: "Pathfinder 4.4.0: el orquestador estima cada ticket y luego lo ignora"
-  fr: "Pathfinder 4.4.0 : l'orchestrateur estime chaque ticket, puis l'ignore"
+  en: "Pathfinder 4.4.0 is live: it can now run several AI agents at once"
+  es: "Pathfinder 4.4.0 ya está disponible: ahora puede ejecutar varios agentes de IA a la vez"
+  fr: "Pathfinder 4.4.0 est disponible : il peut maintenant faire tourner plusieurs agents IA en parallèle"
 summary:
-  en: The new orchestrator mode runs isolated agent workers over the same ticket lifecycle. Its routing layer estimates every ticket it is about to run, then hands the estimate to a policy that reads none of it. That was deliberate.
-  es: El nuevo modo orquestador ejecuta workers de agente aislados sobre el mismo ciclo de vida de tickets. Su capa de enrutado estima cada ticket que va a ejecutar y luego entrega esa estimación a una política que no lee nada de ella. Fue deliberado.
-  fr: Le nouveau mode orchestrateur fait tourner des workers d'agent isolés sur le même cycle de vie de tickets. Sa couche de routage estime chaque ticket qu'elle va lancer, puis confie cette estimation à une politique qui n'en lit rien. C'était délibéré.
+  en: My workflow kit used to do one ticket at a time, on purpose. The new orchestrator mode runs several agents in parallel, each in its own copy of the repository, and I still own every decision that matters.
+  es: Mi kit de flujo de trabajo hacía un ticket a la vez, a propósito. El nuevo modo orquestador ejecuta varios agentes en paralelo, cada uno en su propia copia del repositorio, y yo sigo siendo dueño de cada decisión que importa.
+  fr: Mon kit de workflow traitait un ticket à la fois, délibérément. Le nouveau mode orchestrateur fait tourner plusieurs agents en parallèle, chacun dans sa propre copie du dépôt, et je garde toutes les décisions qui comptent.
 shareCaption:
-  en: "Pathfinder 4.4.0 ships an orchestrator. 🧭 It estimates every ticket it runs, and the shipped routing policy reads none of it. The socket was the deliverable."
-  es: "Pathfinder 4.4.0 trae un orquestador. 🧭 Estima cada ticket que ejecuta, y la política de enrutado que se publica no lee nada de eso. El zócalo era el entregable."
-  fr: "Pathfinder 4.4.0 embarque un orchestrateur. 🧭 Il estime chaque ticket qu'il lance, et la politique de routage livrée n'en lit rien. L'emplacement était le livrable."
+  en: "Pathfinder 4.4.0 is live. 🧭 It can now run several AI agents at once, each in its own copy of the repo. Both agents died mid-run during testing and nothing was lost."
+  es: "Pathfinder 4.4.0 ya está disponible. 🧭 Ahora ejecuta varios agentes de IA a la vez, cada uno en su propia copia del repo. En las pruebas murieron los dos agentes a mitad de ejecución y no se perdió nada."
+  fr: "Pathfinder 4.4.0 est disponible. 🧭 Il fait tourner plusieurs agents IA en parallèle, chacun dans sa propre copie du dépôt. Pendant les tests, les deux agents sont morts en cours de route et rien n'a été perdu."
 date: "2026-09-19"
 tags: ["ai", "engineering", "pathfinder", "agents", "open-source"]
 draft: false
@@ -18,116 +18,97 @@ draft: false
 
 <!-- locale:en -->
 
-Pathfinder 4.4.0 shipped on 18 September with a second execution mode. `human-in-the-loop` keeps direct control of one ticket session. `orchestrator` coordinates several dependency-safe workers at once, each in its own Git worktree, with human gates and integration as a separate decision.
+Pathfinder is the workflow kit I use to build software with AI agents. Until now it did one thing at a time, on purpose. Version 4.4.0 is live, and it can run several agents at once without giving up the part that makes it safe.
 
-The part worth explaining is the routing layer that sits between eligibility and dispatch. It estimates every ticket it is about to run, records that estimate in a closed schema, and then hands it to a policy that reads none of it.
+Here is what that actually means.
 
-That is not an oversight. It is the shape I wanted to ship first.
+## The slow part was never the thinking
 
-## A worker is a worktree
+The kit exists because an agent can write code far faster than anyone can responsibly approve it. So I put a human at every point where a decision had consequences: approve the plan, accept the work, merge it, release it.
 
-A claimed ticket gets one linked worktree at `.pathfinder/worktrees/<key>` on one branch `ticket/<key>-<slug>`. The worktree path is the worker's identity and the claim, and its own `context/current-ticket.md` is that worker's transient state, so two workers never share one.
+That worked. It also got slow, for a slightly silly reason.
 
-What stops two workers owning the same ticket is a Git ref. A claim first creates `refs/pathfinder/claims/<key>`, which Git creates only if it does not already exist, under its own ref lock. Of any number of concurrent claims, exactly one proceeds. A claim that then fails removes the branch and the ref it created.
+Two tickets touching completely unrelated parts of a codebase would still run one after the other, because there was one session and I was sitting in it. The queue was not waiting for me to think. It was waiting for me to be available. That is not a human in the loop, it is a human as a scheduler.
 
-The engine holds no state of its own: every call re-derives its answer from Git, the worktrees and the ticket store.
+## The new mode
 
-## Three steps, and the boundaries are the point
+A project now says how it wants to run, in one line of one file:
 
 ```text
-estimate(ticket, in-flight claims)  ->  execution profile
-select(profile, routing policy)     ->  role, model, effort
-dispatch(brief)                     ->  worker session
+<!-- pathfinder:execution-mode orchestrator -->
 ```
 
-Those boundaries are where a later routing Feature plugs in. The module that assembles them knows the order of the steps and nothing about any policy.
+`human-in-the-loop` is the old behaviour: one ticket, one session, you drive. `orchestrator` lets Pathfinder work on several tickets at the same time, give each one its own agent, and interrupt you only when something genuinely needs a person.
 
-## What the estimator counts
+A project with no mode file at all keeps the old behaviour. There is nothing to migrate.
 
-The profile is a closed schema, `pathfinder.execution-profile/1`:
+```bash
+npx create-pathfinder@4.4.0
+npx create-pathfinder --mode orchestrator
+```
+
+## Every agent gets its own copy of the repository
+
+This is the idea the whole thing rests on, and it is simpler than it sounds.
+
+Git has a feature called a worktree. One repository can have several working directories checked out at the same time, each sitting on its own branch. Pathfinder gives every claimed ticket one of those, on a branch named after the ticket.
+
+So two agents are never editing the same files in the same folder. They are not coordinating, or taking turns, or being careful. They are somewhere else entirely.
+
+What stops two agents grabbing the same ticket is not a lock file I invented. It is a Git reference that Git creates only if it does not already exist. Of any number of agents trying to claim a ticket in the same moment, exactly one wins, and Git is what decides. No database, no background service, nothing running that you have to keep alive.
+
+## How it decides who does what
+
+Before dispatching anything, Pathfinder sizes up each ticket and writes down what it found:
 
 ```yaml
-estimate:
-  complexity:
-    value: medium
-    source: derived
-    reason: "5 bullets under ## Changes"
-  context:
-    value: small
-    source: derived
-    reason: "3 paths named under ## Context"
-  parallel-safety:
-    value: isolated
-    source: derived
-    reason: "no other ticket is in flight"
-  risk:
-    value: unassessed
-    source: derived
-    reason: "no risk rule applies"
-selection:
-  policy: static
-  role: developer
-  model: inherited
-  effort: inherited
+complexity:      medium      # 5 bullets under ## Changes
+context:         small       # 3 paths named under ## Context
+parallel-safety: isolated    # no other ticket is in flight
+risk:            unassessed  # no risk rule applies
 ```
 
-Closed means an unknown field, an unknown value, a missing field or another schema version is refused. A different shape is `/2`, never an edit to `/1`.
+Each of those is a count over the ticket's own text rather than a guess. Complexity counts the bullet points describing the work. Context counts how many file paths the ticket names. The same ticket gives the same answer every time.
 
-Every derived field is a count over the ticket's own body, so the same ticket and the same board give the same bytes. Complexity counts top-level list items under the ticket's Changes heading: three or fewer is `low`, seven or fewer is `medium`, more is `high`. Context counts distinct backticked paths under the Context heading: three or fewer is `small`, eight or fewer is `medium`, more is `large`.
+The interesting one is `parallel-safety`. It compares the files this ticket says it will touch against the files every other in-flight ticket says it will touch, and reports one of three things: `isolated` when there is no overlap, `shared-surface` when they share a directory, and `serialize` when they name the same file, which means do not run these two together.
 
-What counts as a path is defined rather than guessed, and that definition is most of the work. It is a backticked token with a slash whose first segment carries no dot, unless it is a dot-directory, or a token ending in a file extension. Versions and ticket keys like `53.2` are not paths. Braces expand, so `src/{a,b}.mjs` is two. A glob is cut back to its literal directory, so `packages/*/test/` is `packages`, and `**/*.md` names nothing.
+That is the check that makes starting two agents feel less like a gamble.
 
-The profile is orchestration state, not ticket content. Claiming writes it into the worker's own current-ticket file, and the ticket body never carries it.
+Then a routing policy turns those findings into an assignment: which role the agent plays, which model it runs on, how much reasoning effort it gets.
 
-## Parallel safety is the field that earns its keep
+## The boring version, on purpose
 
-It is computed against every registered claim other than this ticket's whose ticket is not complete:
-
-```text
-serialize        names a file another in-flight ticket also names
-shared-surface   names a directory containing, contained by, or equal to one another names
-isolated         no overlap, nothing in flight, or no declared relevant area
-```
-
-Tickets the same plan selected earlier in the round count as in flight, because two tickets dispatched together run together.
-
-Risk is derived by exactly two rules. `low` is complexity `low` with context `small` and `isolated`. `high` is complexity `high` with context `large`. Everything else is `unassessed`, and the engine does not guess a middle. I can assess risk myself with a reason, and the profile then marks that value `assessed` and keeps the reason. No other field can be assessed, and the orchestrator never picks a model.
-
-## The policy socket, and why static ships alone
-
-A routing policy is one module exporting a synchronous `select(estimate, session)`, where the session is `implementation` or `review`. The registry finds policies by file name. A project names one on an optional second marker line in its execution-mode file, and no marker means `static`. A name the engine does not ship refuses the claim and lists the ones it has.
-
-Two details make the socket worth having. A policy receives a deep-frozen copy of the estimate, so a write to it is refused and cannot alter what the profile records. And no scheduler, claim, status or brief code names a policy at all, with a test that proves it by adding one.
-
-Version one ships `static` alone, and this is the whole of it:
+Here is the entire routing policy that ships:
 
 ```js
-export function select(profile, { session }) {
-  return {
-    role: session === "review" ? "tester" : "developer",
-    model: "inherited",
-    effort: "inherited",
-  };
-}
+role:   session === "review" ? "tester" : "developer"
+model:  "inherited"
+effort: "inherited"
 ```
 
-`inherited` means whatever the session dispatching the worker already runs on. It reads nothing from the estimate.
+It reads none of the estimate. `inherited` means the agent simply runs on whatever the session that dispatched it was already using.
 
-So the estimator computes thresholds that the shipped policy ignores. They are coarse on purpose. Their job in this version is to be a stable, inspectable input that a later policy can be written against, and to sit visibly in every profile so I can judge whether they were any good. Nothing has tuned them against outcomes yet, and I am not going to let a number I never validated start choosing models.
+So Pathfinder measures four things and then ignores them. That is deliberate. Those measurements exist to be a stable input for a smarter policy later, and to sit visibly in every profile so I can find out whether they were any good in the first place. Nothing has tested those thresholds against real outcomes yet, and I would rather ship a policy whose behaviour I can predict than let an unvalidated number start choosing models for me.
 
-The boring policy is also the reproducible one. A run is reviewable because the selection depends on nothing but the session type.
+Swapping in a different policy later means one new file and one line in the mode file. That socket was the actual deliverable.
 
-## It survived its workers dying
+## Then both agents died
 
-During the acceptance run, Pathfinder dispatched two workers concurrently while a third stayed correctly blocked. Both live Codex sessions hit usage limits and ended, their claims went stale with uncommitted work preserved, and replacement sessions resumed the same branches, worktrees and profiles. Any claim the current run did not start is stale until resumed deliberately, and a stale claim is never dispatched twice.
+The best evidence came from an accident.
 
-The limits, as the acceptance record states them: the live workers never hit a human gate or a file conflict, and nothing in this release measures concurrent against serial delivery. So nothing here claims it is faster.
+During the acceptance run, Pathfinder dispatched two agents and correctly held a third ticket back, because it depended on the other two. Both agents then hit their usage limits and stopped, in the middle of their work.
 
-## What it does not do
+Nothing was lost. The branch, the working directory, the uncommitted changes and the assignment all live in Git and the ticket tracker, not in the agent's memory. Fresh sessions picked up the same claims exactly where the dead ones left them, and the run finished.
 
-No dynamic model routing. No daemon, broker, queue, database or server. No automatic merge, no bypassed review, no unlimited agents. A ticket whose status the engine cannot read is never eligible and never unblocks a dependent.
+An agent is the cheapest part of the system. It is the one piece you should be able to lose.
 
-The next policy has somewhere to go, which was the point of shipping the socket without it.
+To be straight about the limits: those two agents never hit a human approval gate or a file conflict, so both of those were tested separately in throwaway repositories. And nothing in this release measures whether running agents in parallel is actually faster, so I am not claiming that it is.
+
+## What it will not do
+
+It does not merge anything. It does not skip review. It does not launch unlimited agents. A ticket whose status it cannot read clearly is never eligible to run, and never unblocks anything else.
+
+Pathfinder can now run several agents at once. It still cannot approve, accept, merge or release anything. That is the whole point.
 
 **Pathfinder on GitHub:** https://github.com/rikilamadrid/pathfinder
 
@@ -135,116 +116,97 @@ The next policy has somewhere to go, which was the point of shipping the socket 
 
 <!-- locale:es -->
 
-Pathfinder 4.4.0 salió el 18 de septiembre con un segundo modo de ejecución. `human-in-the-loop` mantiene el control directo de una sesión de ticket. `orchestrator` coordina varios workers seguros en dependencias a la vez, cada uno en su propio worktree de Git, con gates humanos e integración como decisión aparte.
+Pathfinder es el kit de flujo de trabajo que uso para construir software con agentes de IA. Hasta ahora hacía una cosa a la vez, a propósito. La versión 4.4.0 ya está disponible, y puede ejecutar varios agentes a la vez sin renunciar a lo que lo hace seguro.
 
-Lo que merece explicación es la capa de enrutado que se sitúa entre la elegibilidad y el despacho. Estima cada ticket que va a ejecutar, registra esa estimación en un esquema cerrado, y después se la entrega a una política que no lee nada de ella.
+Esto es lo que significa en la práctica.
 
-No es un descuido. Es la forma que quería publicar primero.
+## La parte lenta nunca fue pensar
 
-## Un worker es un worktree
+El kit existe porque un agente escribe código mucho más rápido de lo que nadie puede aprobarlo con responsabilidad. Así que puse a un humano en cada punto donde una decisión tenía consecuencias: aprobar el plan, aceptar el trabajo, mergearlo, publicarlo.
 
-Un ticket reclamado recibe un worktree enlazado en `.pathfinder/worktrees/<key>` sobre una rama `ticket/<key>-<slug>`. La ruta del worktree es la identidad del worker y el claim, y su propio `context/current-ticket.md` es el estado transitorio de ese worker, así que dos workers nunca comparten uno.
+Funcionó. También se volvió lento, por un motivo algo tonto.
 
-Lo que impide que dos workers sean dueños del mismo ticket es una referencia de Git. Un claim crea primero `refs/pathfinder/claims/<key>`, que Git solo crea si no existe ya, bajo su propio bloqueo de referencias. De cualquier número de claims concurrentes, exactamente uno prospera. Un claim que luego falla elimina la rama y la referencia que había creado.
+Dos tickets que tocaban partes completamente distintas de un código seguían ejecutándose uno detrás de otro, porque había una sesión y yo estaba dentro. La cola no esperaba a que yo pensara. Esperaba a que yo estuviera disponible. Eso no es un humano en el bucle, es un humano haciendo de planificador.
 
-El motor no guarda estado propio: cada llamada vuelve a derivar su respuesta de Git, los worktrees y el almacén de tickets.
+## El modo nuevo
 
-## Tres pasos, y las fronteras son lo importante
+Un proyecto ahora dice cómo quiere ejecutarse, en una línea de un archivo:
 
 ```text
-estimate(ticket, claims en vuelo)  ->  perfil de ejecución
-select(perfil, política de enrutado) ->  rol, modelo, esfuerzo
-dispatch(brief)                    ->  sesión de worker
+<!-- pathfinder:execution-mode orchestrator -->
 ```
 
-Esas fronteras son donde se enchufa una Feature de enrutado posterior. El módulo que las ensambla conoce el orden de los pasos y nada sobre ninguna política.
+`human-in-the-loop` es el comportamiento de siempre: un ticket, una sesión, tú conduces. `orchestrator` deja que Pathfinder trabaje en varios tickets a la vez, dé a cada uno su propio agente, y te interrumpa solo cuando algo necesita de verdad a una persona.
 
-## Qué cuenta el estimador
+Un proyecto sin archivo de modo conserva el comportamiento anterior. No hay nada que migrar.
 
-El perfil es un esquema cerrado, `pathfinder.execution-profile/1`:
+```bash
+npx create-pathfinder@4.4.0
+npx create-pathfinder --mode orchestrator
+```
+
+## Cada agente recibe su propia copia del repositorio
+
+Esta es la idea sobre la que se apoya todo, y es más simple de lo que parece.
+
+Git tiene una función llamada worktree. Un mismo repositorio puede tener varios directorios de trabajo abiertos a la vez, cada uno sobre su propia rama. Pathfinder le da uno a cada ticket reclamado, en una rama con el nombre del ticket.
+
+Así que dos agentes nunca editan los mismos ficheros en la misma carpeta. No se coordinan, ni se turnan, ni tienen que ir con cuidado. Están en otro sitio.
+
+Lo que impide que dos agentes cojan el mismo ticket no es un fichero de bloqueo inventado por mí. Es una referencia de Git que Git solo crea si no existe ya. De cualquier número de agentes intentando reclamar un ticket en el mismo instante, exactamente uno gana, y quien decide es Git. Sin base de datos, sin servicio en segundo plano, sin nada que haya que mantener vivo.
+
+## Cómo decide quién hace qué
+
+Antes de despachar nada, Pathfinder mide cada ticket y anota lo que encuentra:
 
 ```yaml
-estimate:
-  complexity:
-    value: medium
-    source: derived
-    reason: "5 bullets under ## Changes"
-  context:
-    value: small
-    source: derived
-    reason: "3 paths named under ## Context"
-  parallel-safety:
-    value: isolated
-    source: derived
-    reason: "no other ticket is in flight"
-  risk:
-    value: unassessed
-    source: derived
-    reason: "no risk rule applies"
-selection:
-  policy: static
-  role: developer
-  model: inherited
-  effort: inherited
+complexity:      medium      # 5 bullets under ## Changes
+context:         small       # 3 paths named under ## Context
+parallel-safety: isolated    # no other ticket is in flight
+risk:            unassessed  # no risk rule applies
 ```
 
-Cerrado significa que un campo desconocido, un valor desconocido, un campo ausente u otra versión del esquema se rechazan. Una forma distinta es `/2`, nunca una edición de `/1`.
+Cada uno de esos valores es un recuento sobre el propio texto del ticket, no una suposición. La complejidad cuenta los puntos que describen el trabajo. El contexto cuenta cuántas rutas de fichero nombra el ticket. El mismo ticket da la misma respuesta siempre.
 
-Cada campo derivado es un recuento sobre el propio cuerpo del ticket, así que el mismo ticket y el mismo tablero dan los mismos bytes. La complejidad cuenta los elementos de lista de primer nivel bajo el encabezado de cambios del ticket: tres o menos es `low`, siete o menos es `medium`, más es `high`. El contexto cuenta rutas distintas entre comillas invertidas bajo el encabezado de contexto: tres o menos es `small`, ocho o menos es `medium`, más es `large`.
+El interesante es `parallel-safety`. Compara los ficheros que este ticket dice que va a tocar con los que dice tocar cada otro ticket en vuelo, y responde una de tres cosas: `isolated` si no hay solape, `shared-surface` si comparten un directorio, y `serialize` si nombran el mismo fichero, lo que significa no ejecutar estos dos juntos.
 
-Qué cuenta como ruta está definido y no adivinado, y esa definición es la mayor parte del trabajo. Es un token entre comillas invertidas con una barra cuyo primer segmento no lleva punto, salvo que sea un directorio con punto, o un token que termina en una extensión de fichero. Versiones y claves de ticket como `53.2` no son rutas. Las llaves se expanden, así que `src/{a,b}.mjs` son dos. Un glob se recorta a su directorio literal, así que `packages/*/test/` es `packages`, y `**/*.md` no nombra nada.
+Esa es la comprobación que hace que lanzar dos agentes deje de parecer una apuesta.
 
-El perfil es estado de orquestación, no contenido del ticket. Reclamar lo escribe en el fichero de ticket actual del propio worker, y el cuerpo del ticket nunca lo lleva.
+Después, una política de enrutado convierte esos hallazgos en una asignación: qué rol juega el agente, sobre qué modelo corre, cuánto esfuerzo de razonamiento recibe.
 
-## La seguridad en paralelo es el campo que se gana el sueldo
+## La versión aburrida, a propósito
 
-Se calcula contra cada claim registrado distinto del de este ticket cuyo ticket no esté completo:
-
-```text
-serialize        nombra un fichero que otro ticket en vuelo también nombra
-shared-surface   nombra un directorio que contiene, está contenido en, o es igual a uno que otro nombra
-isolated         sin solape, nada en vuelo, o sin área relevante declarada
-```
-
-Los tickets que el mismo plan seleccionó antes en la ronda cuentan como en vuelo, porque dos tickets despachados juntos se ejecutan juntos.
-
-El riesgo se deriva con exactamente dos reglas. `low` es complejidad `low` con contexto `small` y `isolated`. `high` es complejidad `high` con contexto `large`. Todo lo demás es `unassessed`, y el motor no adivina un punto medio. Yo puedo evaluar el riesgo a mano con una razón, y entonces el perfil marca ese valor como `assessed` y conserva la razón. Ningún otro campo se puede evaluar así, y el orquestador nunca elige un modelo.
-
-## El zócalo de políticas, y por qué solo se publica static
-
-Una política de enrutado es un módulo que exporta un `select(estimate, session)` síncrono, donde la sesión es `implementation` o `review`. El registro encuentra las políticas por nombre de fichero. Un proyecto nombra la suya en una segunda línea marcadora opcional de su fichero de modo de ejecución, y sin marcador la política es `static`. Un nombre que el motor no publica rechaza el claim y lista los que sí tiene.
-
-Dos detalles hacen que el zócalo valga la pena. Una política recibe una copia profundamente congelada de la estimación, así que una escritura sobre ella se rechaza y no puede alterar lo que el perfil registra. Y ningún código de planificador, claim, estado o brief nombra política alguna, con un test que lo demuestra añadiendo una.
-
-La versión uno publica `static` en solitario, y esto es todo lo que hay:
+Esta es la política de enrutado completa que se publica:
 
 ```js
-export function select(profile, { session }) {
-  return {
-    role: session === "review" ? "tester" : "developer",
-    model: "inherited",
-    effort: "inherited",
-  };
-}
+role:   session === "review" ? "tester" : "developer"
+model:  "inherited"
+effort: "inherited"
 ```
 
-`inherited` significa aquello sobre lo que ya corre la sesión que despacha al worker. No lee nada de la estimación.
+No lee nada de la estimación. `inherited` significa que el agente simplemente corre sobre lo mismo que ya usaba la sesión que lo despachó.
 
-Así que el estimador calcula umbrales que la política publicada ignora. Son groseros a propósito. Su trabajo en esta versión es ser una entrada estable e inspeccionable contra la que escribir una política posterior, y quedar a la vista en cada perfil para que yo pueda juzgar si eran buenos. Nada los ha ajustado todavía contra resultados reales, y no voy a dejar que un número que nunca validé empiece a elegir modelos.
+Así que Pathfinder mide cuatro cosas y después las ignora. Es deliberado. Esas medidas existen para ser una entrada estable de una política más lista más adelante, y para quedar a la vista en cada perfil y que yo pueda averiguar si valían algo. Nada ha contrastado todavía esos umbrales con resultados reales, y prefiero publicar una política cuyo comportamiento puedo predecir antes que dejar que un número sin validar empiece a elegir modelos por mí.
 
-La política aburrida es además la reproducible. Una ejecución es revisable porque la selección no depende de nada salvo del tipo de sesión.
+Cambiar a otra política más adelante significa un fichero nuevo y una línea en el fichero de modo. Ese zócalo era el entregable real.
 
-## Sobrevivió a la muerte de sus workers
+## Y entonces murieron los dos agentes
 
-Durante la ejecución de aceptación, Pathfinder despachó dos workers concurrentes mientras un tercero seguía correctamente bloqueado. Las dos sesiones Codex en vivo alcanzaron sus límites de uso y terminaron, sus claims quedaron obsoletos con el trabajo sin commitear preservado, y sesiones de reemplazo reanudaron las mismas ramas, worktrees y perfiles. Cualquier claim que la ejecución actual no haya iniciado está obsoleto hasta que se reanude deliberadamente, y un claim obsoleto nunca se despacha dos veces.
+La mejor prueba vino de un accidente.
 
-Los límites, tal como los enuncia el registro de aceptación: los workers en vivo nunca llegaron a un gate humano ni a un conflicto de ficheros, y nada en esta release mide la entrega concurrente frente a la serial. Así que nada aquí afirma que sea más rápida.
+Durante la ejecución de aceptación, Pathfinder despachó dos agentes y retuvo correctamente un tercer ticket, porque dependía de los otros dos. Los dos agentes alcanzaron entonces sus límites de uso y se detuvieron, en mitad del trabajo.
 
-## Lo que no hace
+No se perdió nada. La rama, el directorio de trabajo, los cambios sin commitear y la asignación viven en Git y en el tracker de tickets, no en la memoria del agente. Sesiones nuevas retomaron los mismos claims exactamente donde los dejaron los muertos, y la ejecución terminó.
 
-Nada de enrutado dinámico de modelos. Ni demonio, ni broker, ni cola, ni base de datos, ni servidor. Ni merge automático, ni revisión saltada, ni agentes ilimitados. Un ticket cuyo estado el motor no puede leer nunca es elegible y nunca desbloquea a un dependiente.
+Un agente es la parte más barata del sistema. Es la pieza que deberías poder perder.
 
-La siguiente política tiene a dónde ir, que era el objetivo de publicar el zócalo sin ella.
+Para ser claro con los límites: esos dos agentes nunca llegaron a un gate de aprobación humana ni a un conflicto de ficheros, así que ambas cosas se probaron aparte en repositorios desechables. Y nada en esta release mide si ejecutar agentes en paralelo es realmente más rápido, así que no afirmo que lo sea.
+
+## Lo que no hará
+
+No mergea nada. No se salta la revisión. No lanza agentes ilimitados. Un ticket cuyo estado no puede leer con claridad nunca es elegible para ejecutarse, y nunca desbloquea nada más.
+
+Pathfinder ya puede ejecutar varios agentes a la vez. Sigue sin poder aprobar, aceptar, mergear ni publicar nada. Ese es justamente el objetivo.
 
 **Pathfinder en GitHub:** https://github.com/rikilamadrid/pathfinder
 
@@ -252,116 +214,97 @@ La siguiente política tiene a dónde ir, que era el objetivo de publicar el zó
 
 <!-- locale:fr -->
 
-Pathfinder 4.4.0 est sorti le 18 septembre avec un second mode d'exécution. `human-in-the-loop` garde le contrôle direct d'une session de ticket. `orchestrator` coordonne plusieurs workers sûrs vis-à-vis des dépendances en parallèle, chacun dans son propre worktree Git, avec des gates humains et l'intégration comme décision distincte.
+Pathfinder est le kit de workflow que j'utilise pour construire des logiciels avec des agents IA. Jusqu'ici, il faisait une chose à la fois, délibérément. La version 4.4.0 est disponible, et elle peut faire tourner plusieurs agents en parallèle sans renoncer à ce qui la rend sûre.
 
-Ce qui mérite une explication, c'est la couche de routage placée entre l'éligibilité et l'envoi. Elle estime chaque ticket qu'elle va lancer, consigne cette estimation dans un schéma fermé, puis la confie à une politique qui n'en lit rien.
+Voici ce que cela veut dire concrètement.
 
-Ce n'est pas un oubli. C'est la forme que je voulais livrer en premier.
+## La lenteur n'a jamais été la réflexion
 
-## Un worker est un worktree
+Le kit existe parce qu'un agent écrit du code bien plus vite que quiconque peut l'approuver sérieusement. J'ai donc placé un humain à chaque endroit où une décision avait des conséquences : approuver le plan, accepter le travail, le merger, le publier.
 
-Un ticket réclamé reçoit un worktree lié dans `.pathfinder/worktrees/<key>` sur une branche `ticket/<key>-<slug>`. Le chemin du worktree est l'identité du worker et le claim, et son propre `context/current-ticket.md` est l'état transitoire de ce worker, si bien que deux workers n'en partagent jamais un.
+Ça marchait. C'est aussi devenu lent, pour une raison un peu bête.
 
-Ce qui empêche deux workers de posséder le même ticket, c'est une référence Git. Un claim crée d'abord `refs/pathfinder/claims/<key>`, que Git ne crée que si elle n'existe pas déjà, sous son propre verrou de référence. Sur un nombre quelconque de claims concurrents, exactement un aboutit. Un claim qui échoue ensuite supprime la branche et la référence qu'il avait créées.
+Deux tickets touchant des parties totalement indépendantes d'un code s'exécutaient quand même l'un après l'autre, parce qu'il y avait une seule session et que j'étais dedans. La file n'attendait pas que je réfléchisse. Elle attendait que je sois disponible. Ce n'est pas un humain dans la boucle, c'est un humain en guise d'ordonnanceur.
 
-Le moteur ne conserve aucun état propre : chaque appel redérive sa réponse depuis Git, les worktrees et le magasin de tickets.
+## Le nouveau mode
 
-## Trois étapes, et les frontières sont l'essentiel
+Un projet dit désormais comment il veut tourner, en une ligne dans un fichier :
 
 ```text
-estimate(ticket, claims en vol)     ->  profil d'exécution
-select(profil, politique de routage) ->  rôle, modèle, effort
-dispatch(brief)                     ->  session de worker
+<!-- pathfinder:execution-mode orchestrator -->
 ```
 
-Ces frontières sont l'endroit où une future Feature de routage vient se brancher. Le module qui les assemble connaît l'ordre des étapes et rien d'aucune politique.
+`human-in-the-loop`, c'est l'ancien comportement : un ticket, une session, vous conduisez. `orchestrator` laisse Pathfinder travailler sur plusieurs tickets à la fois, donner à chacun son propre agent, et ne vous interrompre que lorsque quelque chose a vraiment besoin d'une personne.
 
-## Ce que compte l'estimateur
+Un projet sans fichier de mode conserve l'ancien comportement. Il n'y a rien à migrer.
 
-Le profil est un schéma fermé, `pathfinder.execution-profile/1` :
+```bash
+npx create-pathfinder@4.4.0
+npx create-pathfinder --mode orchestrator
+```
+
+## Chaque agent reçoit sa propre copie du dépôt
+
+C'est l'idée sur laquelle tout repose, et elle est plus simple qu'il n'y paraît.
+
+Git possède une fonctionnalité appelée worktree. Un même dépôt peut avoir plusieurs répertoires de travail ouverts en même temps, chacun sur sa propre branche. Pathfinder en donne un à chaque ticket réclamé, sur une branche portant le nom du ticket.
+
+Deux agents ne modifient donc jamais les mêmes fichiers dans le même dossier. Ils ne se coordonnent pas, ne prennent pas leur tour, n'ont pas à faire attention. Ils sont ailleurs.
+
+Ce qui empêche deux agents de prendre le même ticket n'est pas un fichier de verrou que j'aurais inventé. C'est une référence Git que Git ne crée que si elle n'existe pas déjà. Sur un nombre quelconque d'agents tentant de réclamer un ticket au même instant, exactement un l'emporte, et c'est Git qui tranche. Pas de base de données, pas de service en arrière-plan, rien à maintenir en vie.
+
+## Comment il décide qui fait quoi
+
+Avant d'envoyer quoi que ce soit, Pathfinder évalue chaque ticket et note ce qu'il trouve :
 
 ```yaml
-estimate:
-  complexity:
-    value: medium
-    source: derived
-    reason: "5 bullets under ## Changes"
-  context:
-    value: small
-    source: derived
-    reason: "3 paths named under ## Context"
-  parallel-safety:
-    value: isolated
-    source: derived
-    reason: "no other ticket is in flight"
-  risk:
-    value: unassessed
-    source: derived
-    reason: "no risk rule applies"
-selection:
-  policy: static
-  role: developer
-  model: inherited
-  effort: inherited
+complexity:      medium      # 5 bullets under ## Changes
+context:         small       # 3 paths named under ## Context
+parallel-safety: isolated    # no other ticket is in flight
+risk:            unassessed  # no risk rule applies
 ```
 
-Fermé signifie qu'un champ inconnu, une valeur inconnue, un champ manquant ou une autre version du schéma sont refusés. Une forme différente est `/2`, jamais une modification de `/1`.
+Chacune de ces valeurs est un décompte sur le texte même du ticket, pas une supposition. La complexité compte les puces qui décrivent le travail. Le contexte compte le nombre de chemins de fichiers que le ticket nomme. Le même ticket donne toujours la même réponse.
 
-Chaque champ dérivé est un décompte sur le corps même du ticket, si bien que le même ticket et le même tableau donnent les mêmes octets. La complexité compte les éléments de liste de premier niveau sous la rubrique des changements du ticket : trois ou moins est `low`, sept ou moins est `medium`, au-delà c'est `high`. Le contexte compte les chemins distincts entre accents graves sous la rubrique de contexte : trois ou moins est `small`, huit ou moins est `medium`, au-delà c'est `large`.
+La plus intéressante est `parallel-safety`. Elle compare les fichiers que ce ticket annonce toucher à ceux qu'annoncent tous les autres tickets en vol, et répond l'une de trois choses : `isolated` s'il n'y a aucun recouvrement, `shared-surface` s'ils partagent un répertoire, et `serialize` s'ils nomment le même fichier, ce qui signifie ne pas lancer ces deux-là ensemble.
 
-Ce qui compte comme un chemin est défini et non deviné, et cette définition représente l'essentiel du travail. C'est un jeton entre accents graves comportant une barre oblique dont le premier segment ne porte pas de point, sauf s'il s'agit d'un répertoire à point, ou un jeton se terminant par une extension de fichier. Les versions et les clés de ticket comme `53.2` ne sont pas des chemins. Les accolades se développent, donc `src/{a,b}.mjs` en fait deux. Un motif glob est ramené à son répertoire littéral, donc `packages/*/test/` devient `packages`, et `**/*.md` ne nomme rien.
+C'est ce contrôle qui fait que lancer deux agents cesse de ressembler à un pari.
 
-Le profil est un état d'orchestration, pas un contenu de ticket. Le claim l'écrit dans le fichier de ticket courant propre au worker, et le corps du ticket ne le porte jamais.
+Ensuite, une politique de routage transforme ces constats en affectation : quel rôle joue l'agent, sur quel modèle il tourne, quel effort de raisonnement il reçoit.
 
-## La sûreté en parallèle est le champ qui justifie sa place
+## La version ennuyeuse, à dessein
 
-Elle est calculée contre chaque claim enregistré autre que celui de ce ticket, dont le ticket n'est pas terminé :
-
-```text
-serialize        nomme un fichier qu'un autre ticket en vol nomme aussi
-shared-surface   nomme un répertoire contenant, contenu dans, ou égal à un autre nommé ailleurs
-isolated         aucun recouvrement, rien en vol, ou aucune zone pertinente déclarée
-```
-
-Les tickets que le même plan a sélectionnés plus tôt dans la ronde comptent comme en vol, parce que deux tickets envoyés ensemble tournent ensemble.
-
-Le risque est dérivé par exactement deux règles. `low` correspond à une complexité `low` avec un contexte `small` et `isolated`. `high` correspond à une complexité `high` avec un contexte `large`. Tout le reste est `unassessed`, et le moteur ne devine pas de milieu. Je peux évaluer le risque moi-même avec une justification, et le profil marque alors cette valeur `assessed` et conserve la raison. Aucun autre champ ne peut être évalué ainsi, et l'orchestrateur ne choisit jamais un modèle.
-
-## L'emplacement pour les politiques, et pourquoi static est seul livré
-
-Une politique de routage est un module exportant un `select(estimate, session)` synchrone, où la session vaut `implementation` ou `review`. Le registre trouve les politiques par nom de fichier. Un projet nomme la sienne sur une seconde ligne de marqueur optionnelle dans son fichier de mode d'exécution, et sans marqueur la politique est `static`. Un nom que le moteur ne livre pas refuse le claim et liste ceux dont il dispose.
-
-Deux détails rendent cet emplacement utile. Une politique reçoit une copie profondément gelée de l'estimation, donc une écriture dessus est refusée et ne peut pas altérer ce que le profil consigne. Et aucun code d'ordonnanceur, de claim, d'état ou de brief ne nomme la moindre politique, avec un test qui le prouve en en ajoutant une.
-
-La version un livre `static` seul, et le voici en entier :
+Voici l'intégralité de la politique de routage livrée :
 
 ```js
-export function select(profile, { session }) {
-  return {
-    role: session === "review" ? "tester" : "developer",
-    model: "inherited",
-    effort: "inherited",
-  };
-}
+role:   session === "review" ? "tester" : "developer"
+model:  "inherited"
+effort: "inherited"
 ```
 
-`inherited` signifie ce sur quoi tourne déjà la session qui envoie le worker. Elle ne lit rien de l'estimation.
+Elle ne lit rien de l'estimation. `inherited` signifie que l'agent tourne simplement sur ce qu'utilisait déjà la session qui l'a envoyé.
 
-L'estimateur calcule donc des seuils que la politique livrée ignore. Ils sont grossiers à dessein. Leur travail dans cette version est d'être une entrée stable et inspectable contre laquelle écrire une politique ultérieure, et de rester visibles dans chaque profil pour que je puisse juger s'ils valaient quelque chose. Rien ne les a encore ajustés face à des résultats réels, et je ne vais pas laisser un nombre que je n'ai jamais validé se mettre à choisir des modèles.
+Pathfinder mesure donc quatre choses, puis les ignore. C'est délibéré. Ces mesures existent pour servir d'entrée stable à une politique plus fine plus tard, et pour rester visibles dans chaque profil afin que je puisse découvrir si elles valaient quelque chose. Rien n'a encore confronté ces seuils à des résultats réels, et je préfère livrer une politique dont je peux prédire le comportement plutôt que laisser un nombre non validé se mettre à choisir des modèles à ma place.
 
-La politique ennuyeuse est aussi la reproductible. Une exécution est relisable parce que la sélection ne dépend de rien d'autre que du type de session.
+Passer à une autre politique plus tard, c'est un nouveau fichier et une ligne dans le fichier de mode. Cet emplacement était le vrai livrable.
 
-## Il a survécu à la mort de ses workers
+## Et puis les deux agents sont morts
 
-Pendant le run d'acceptation, Pathfinder a envoyé deux workers en parallèle tandis qu'un troisième restait correctement bloqué. Les deux sessions Codex en direct ont atteint leurs limites d'usage et se sont arrêtées, leurs claims sont passés en obsolète avec le travail non commité préservé, et des sessions de remplacement ont repris les mêmes branches, worktrees et profils. Tout claim que le run courant n'a pas démarré lui-même est obsolète jusqu'à une reprise délibérée, et un claim obsolète n'est jamais envoyé deux fois.
+La meilleure preuve est venue d'un accident.
 
-Les limites, telles que le registre d'acceptation les énonce : les workers en direct n'ont jamais atteint de gate humain ni de conflit de fichiers, et rien dans cette version ne mesure la livraison concurrente face à la livraison en série. Donc rien ici ne prétend qu'elle est plus rapide.
+Pendant le run d'acceptation, Pathfinder a envoyé deux agents et retenu correctement un troisième ticket, parce qu'il dépendait des deux autres. Les deux agents ont alors atteint leurs limites d'usage et se sont arrêtés, en plein travail.
 
-## Ce qu'il ne fait pas
+Rien n'a été perdu. La branche, le répertoire de travail, les modifications non commitées et l'affectation vivent dans Git et dans le tracker de tickets, pas dans la mémoire de l'agent. De nouvelles sessions ont repris les mêmes claims exactement là où les agents morts les avaient laissés, et le run est allé à son terme.
 
-Pas de routage dynamique de modèles. Pas de démon, de broker, de file, de base de données ni de serveur. Pas de merge automatique, pas de revue contournée, pas d'agents illimités. Un ticket dont le moteur ne sait pas lire l'état n'est jamais éligible et ne débloque jamais un dépendant.
+Un agent est la pièce la moins chère du système. C'est celle qu'on devrait pouvoir perdre.
 
-La prochaine politique a où aller, ce qui était tout l'intérêt de livrer l'emplacement sans elle.
+Pour être net sur les limites : ces deux agents n'ont jamais atteint de gate d'approbation humaine ni de conflit de fichiers, donc ces deux cas ont été testés séparément dans des dépôts jetables. Et rien dans cette version ne mesure si faire tourner des agents en parallèle est réellement plus rapide, donc je ne prétends pas que ça l'est.
+
+## Ce qu'il ne fera pas
+
+Il ne merge rien. Il ne saute pas la revue. Il ne lance pas d'agents illimités. Un ticket dont il ne sait pas lire clairement l'état n'est jamais éligible, et ne débloque jamais rien d'autre.
+
+Pathfinder peut désormais faire tourner plusieurs agents en parallèle. Il ne peut toujours pas approuver, accepter, merger ni publier quoi que ce soit. C'est tout l'intérêt.
 
 **Pathfinder sur GitHub :** https://github.com/rikilamadrid/pathfinder
 
