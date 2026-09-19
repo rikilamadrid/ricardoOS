@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- New Field Notes post, "Pathfinder 4.4.0: a diagram you can drive, and workers
+  you can lose", on the 4.4.0 release: the Interactive Architecture Explorer and
+  the focus camera that admits what it cannot frame, the integrated acceptance
+  that found three defects every individual ticket had already passed, and the
+  orchestrator execution mode now that it has shipped. Available in English,
+  Spanish, and French.
+
 ## [1.12.1] - 2026-09-18
 
 ### Changed

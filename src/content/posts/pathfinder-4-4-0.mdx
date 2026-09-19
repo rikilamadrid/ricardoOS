@@ -1,0 +1,311 @@
+---
+title:
+  en: "Pathfinder 4.4.0: a diagram you can drive, and workers you can lose"
+  es: "Pathfinder 4.4.0: un diagrama que se conduce y workers que puedes perder"
+  fr: "Pathfinder 4.4.0 : un diagramme qui se pilote et des workers qu'on peut perdre"
+summary:
+  en: 4.4.0 adds a diagram that opens as an explorer and a second execution mode that runs isolated agent workers. Both were proven by something failing after every part of them had already passed.
+  es: La 4.4.0 añade un diagrama que se abre como explorador y un segundo modo de ejecución con workers aislados. Ambos quedaron probados por algo que falló después de que cada pieza ya hubiera pasado sus comprobaciones.
+  fr: La 4.4.0 ajoute un diagramme qui s'ouvre comme un explorateur et un second mode d'exécution avec des workers isolés. Les deux ont été prouvés par une panne survenue après que chaque pièce eut déjà passé ses contrôles.
+shareCaption:
+  en: "Pathfinder 4.4.0 is out. 🧭 A diagram you read by driving it, and a unit of work that survives the agent holding it."
+  es: "Pathfinder 4.4.0 ya está fuera. 🧭 Un diagrama que se lee conduciéndolo, y una unidad de trabajo que sobrevive al agente que la sostiene."
+  fr: "Pathfinder 4.4.0 est disponible. 🧭 Un diagramme qui se lit en le pilotant, et une unité de travail qui survit à l'agent qui la détient."
+date: "2026-09-19"
+tags: ["ai", "engineering", "pathfinder", "release", "open-source"]
+draft: false
+---
+
+<!-- locale:en -->
+
+Pathfinder 4.4.0 shipped on 18 September. It adds a diagram artifact that opens as an explorer instead of a document, and a second execution mode that runs several isolated agent workers over the same ticket lifecycle.
+
+Both are additive. A project with no mode file behaves exactly as before, and nothing needs migrating.
+
+What is worth writing about is not the feature list. It is that both capabilities were proven by something failing after every piece of them had already passed.
+
+## What shipped
+
+**Interactive Architecture Explorer.** A `diagram` now owns its viewport. You drag the map 1:1, zoom with explicit controls, select a component and the camera moves to it, its detail docks beside the map, and unrelated topology recedes. The graph, its coordinates, its citations and its provenance stay the deterministic build-time artifact they were. Camera, selection and detail are runtime layers that never enter the receipt or the digest.
+
+**Two execution modes.** `human-in-the-loop` keeps direct control of one ticket session. `orchestrator` coordinates dependency-aware concurrent workers, each in its own Git worktree and branch, with human gates, resume, and integration as a separate decision.
+
+```bash
+npx create-pathfinder@4.4.0
+npx create-pathfinder --mode orchestrator
+```
+
+I wrote about the orchestrator in detail when the Feature landed. This post gives the explorer the same treatment, then comes back to the orchestrator for the one thing that changed since: it is released.
+
+## The diagram was a 14,160px document
+
+Before 4.4.0 a `diagram` rendered in the same article column as a lesson. The map sat at the top of a 14,160px page, and activating a node scrolled the reader nearly four thousand pixels down to that component's written entry. It was a complete, correct, cited document that nobody could read as a map.
+
+The fix is structural. The shell resolves one choice, `article` or `explorer`, and the renderer picks it from the kind it is rendering. No producer field selects the layout, because the shell never reads a specification.
+
+Inside the explorer the camera is one `transform` on the SVG, and the `viewBox` is never rewritten again. A drag adds the pointer's own pixel delta to the offset, and that is the whole of it. The earlier version converted into user units, rounded into an integer attribute, and re-read the grabbed point from a clamped result, and each of those steps discarded a fraction of the movement.
+
+With scripting off, nothing is lost: every component, relationship, path, view and citation is in the delivered document, and the controls ship hidden. Nodes are promoted to `tabindex="0"` and `role="button"` at enhancement time rather than in the markup, because twenty tab stops in a document where nothing can answer a press is worse than none.
+
+## A camera that admits what it cannot show
+
+Selecting a component moves the camera to it. The obvious guarantee would be to frame the component with its neighbours, and on this map that guarantee is impossible. Across the twenty components of the acceptance specimen, a component's direct neighbours can span 1984 by 1476 of a 2148 by 1612 canvas. That fits only at overview scale, with five-pixel labels. Seventeen of the twenty neighbourhoods cannot be framed whole at a readable scale.
+
+So the camera guarantees the one thing it can. The floor is one painted pixel per user unit, which on this layout is exactly the statement "no smaller than authored". It frames as much context as that admits, and the status line reports how many related components are outside the frame.
+
+Where it aims was the part worth getting wrong first. The first version aimed at the neighbourhood centroid, which is correct when the neighbourhood fits and actively harmful when it does not, because the centroid is then the middle of a rectangle mostly off screen. The subject got pushed to a margin, containment caught it against the edge, and the context never arrived anyway. The human acceptance gate rejected it. The rule now is the neighbourhood centre when it fits at a readable scale, and the component's own centre when it does not.
+
+```text
+twenty focuses, same specimen, five window shapes
+
+mean offset from frame centre   298px  ->   75px
+worst offset                    632px  ->  272px
+neighbours visible              29/60  ->  30/60
+contained in the free rectangle 20/20  ->  20/20
+```
+
+The neighbour count barely moved, which is the honest reading. The fix put the subject where the reader is looking. It did not conjure context that does not fit.
+
+Two latent defects came out with it. The clamp kept content covering the whole frame, which made the bottom guarantee unreachable by construction. And `MAX_ZOOM = 4` sat above the 2.5 a desktop map cell needs and below the 4.3 a short laptop one needs: correct on the machine it was written on, silently broken on a smaller screen.
+
+## Three surfaces passed alone and failed together
+
+Camera, docked panel and de-emphasis each shipped through their own ticket with their own gate, and each passed. The last ticket of the Feature was the integrated acceptance: open the real specimen and use all three as one act. It found three defects.
+
+**The selected component was not dominant.** At focus scale most of the graph is off-frame, so the contest is the focused component against its direct neighbours, and those were separated by one thin border and 25% opacity while sharing a fill, a size and a typeface. Opacity is the weakest channel available here, because a white box on a near-white page barely moves when it is faded. The focused component is now a filled slab in the accent colour the skip link already ships, measured by the contrast suite at 4.97:1 in both themes rather than waved through as emphasis.
+
+**The graph sat in empty margins.** The layout chooses its axis by comparing counts, more columns than ranks, which picks the reading direction correctly and says nothing about the proportion of a canvas measured in extents. A node box is 208 wide against 76 tall. A deterministic layout profile now widens the step running along x toward a target aspect, and width utilisation went from 61.4% to 81.5%. Not to 100%, on purpose: at a 2.4 target the overview reaches 95.7% and no neighbourhood can be framed whole, so the off-frame notice fires on all twenty components and stops meaning anything.
+
+**The toolbar hid two of the twenty components** at the one state whose job is telling a reader where to explore next. It takes a row of its own at desktop now.
+
+A per-ticket gate cannot see any of these. That is the whole reason the acceptance ticket existed.
+
+## Why the checks run in a real browser
+
+Earlier in the same line of work, a shipped diagram's entire behaviour layer was dead behind a selector that matched nothing. The goldens were byte-identical, the script parsed, and stub-DOM execution passed. All three recorded a dead artifact as correct.
+
+So the observable contract is proven in a real browser against the delivered bytes, in one sequence: initial camera, zoom control, a 1:1 drag clamping at the pan bounds, activation moving the camera with the scroll position unchanged and no location written, and fit restoring the overview.
+
+That is also how the docked panel earned its one design decision. The script moves the component's existing card into the panel rather than rendering a copy, because a copy is a second thing to keep true and a second thing a screen reader announces. Measured in Chrome against the delivered HTML: 210 elements before a selection and 210 after clearing it, and 14,498 characters of producer text identical as a multiset across select, select, clear.
+
+## The orchestrator, now released
+
+The orchestrator's story is in the previous post, so briefly. A ticket claim is a Git worktree and a branch, not a lock file I invented. The plan is approved once, and that approval does not cover merging. A human gate stops that worker's dependents and nothing else. Integration is a separate decision from review: the integrator checks divergence, conflicts, review and CI, and answers `candidate`, `behind` or `conflict`.
+
+What proved it was not a drill. During the acceptance run both live Codex workers hit usage limits and ended. Their claims went stale with uncommitted work preserved, replacement sessions resumed the same branches, worktrees and profiles, and the run finished. One ticket integrated first, the second was reported behind, rebased against a fresh head, and only then landed.
+
+I should be as careful here as the acceptance record is. The live workers never hit a human gate or a file conflict. Those contracts were exercised deliberately in disposable scratch repositories, and the record declines to let the live run borrow their credibility. Nothing in this release measures concurrent against serial delivery, so nothing here claims it is faster.
+
+Release preparation had its own version of the same event. The Codex coordinator session that started it hit its usage limit, and a Claude Code session finished the verification, the commit and the pull request from the same untouched worktree.
+
+## What it still does not do
+
+Wheel and pinch zoom stay out until they can be added with no gesture conflict. Minimap, group collapse, drill-down, filtering, search and deep links are deferred. The orchestrator ships static routing only: `developer` implements, `tester` reviews, and model and effort are inherited from the dispatching session. There is no daemon, no broker, no queue, no database, no server, and no automatic merge.
+
+Suites at release: orchestration 166/166, installer 693/693, renderer 825 passing with 25 documented skips, kit validation across 25 skills, and 42 documentation pages from a pristine build.
+
+## Where that leaves it
+
+A diagram is now something you read by driving it, and it is still one self-contained HTML file that opens from the filesystem with no build step, no server and no network, still byte-identical across machines and timezones, still cited to a pinned commit. Turning it into an application changed none of that.
+
+And the unit of durable work in Pathfinder is now a claim rather than a conversation. Once that is true, the agent holding the claim is allowed to die. The release that made it true was itself finished by a different agent than the one that started it.
+
+**Pathfinder on GitHub:** https://github.com/rikilamadrid/pathfinder
+
+🧭 **The kit owns the workflow. The project owns the stack.**
+
+<!-- locale:es -->
+
+Pathfinder 4.4.0 salió el 18 de septiembre. Añade un artefacto de diagrama que se abre como explorador en vez de como documento, y un segundo modo de ejecución que corre varios workers de agente aislados sobre el mismo ciclo de vida de tickets.
+
+Ambos son aditivos. Un proyecto sin archivo de modo se comporta exactamente igual que antes, y no hay nada que migrar.
+
+Lo que merece la pena contar no es la lista de novedades. Es que ambas capacidades quedaron probadas por algo que falló después de que cada una de sus piezas ya hubiera pasado sus comprobaciones.
+
+## Qué salió
+
+**Explorador de arquitectura interactivo.** Un `diagram` ahora es dueño de su viewport. Arrastras el mapa 1:1, haces zoom con controles explícitos, seleccionas un componente y la cámara se mueve hacia él, su detalle se acopla al lado del mapa, y la topología no relacionada retrocede. El grafo, sus coordenadas, sus citas y su procedencia siguen siendo el artefacto determinista de tiempo de compilación que ya eran. Cámara, selección y detalle son capas de runtime que nunca entran en el recibo ni en el digest.
+
+**Dos modos de ejecución.** `human-in-the-loop` mantiene el control directo de una sesión de ticket. `orchestrator` coordina workers concurrentes conscientes de dependencias, cada uno en su propio worktree y rama de Git, con gates humanos, reanudación, e integración como decisión aparte.
+
+```bash
+npx create-pathfinder@4.4.0
+npx create-pathfinder --mode orchestrator
+```
+
+Del orquestador escribí en detalle cuando aterrizó la Feature. Este post le da al explorador el mismo tratamiento, y vuelve al orquestador solo por lo único que ha cambiado desde entonces: está publicado.
+
+## El diagrama era un documento de 14.160px
+
+Antes de la 4.4.0 un `diagram` se renderizaba en la misma columna de artículo que una lección. El mapa quedaba arriba de una página de 14.160px, y activar un nodo desplazaba al lector casi cuatro mil píxeles hacia abajo, hasta la entrada escrita de ese componente. Era un documento completo, correcto y citado que nadie podía leer como mapa.
+
+El arreglo es estructural. El shell resuelve una sola elección, `article` o `explorer`, y el renderizador la elige según el tipo que está renderizando. Ningún campo del productor selecciona el layout, porque el shell nunca lee una especificación.
+
+Dentro del explorador la cámara es un único `transform` sobre el SVG, y el `viewBox` ya no se reescribe nunca. Un arrastre suma al offset el propio delta en píxeles del puntero, y eso es todo. La versión anterior convertía a unidades de usuario, redondeaba a un atributo entero y volvía a leer el punto agarrado desde un resultado ya recortado, y cada uno de esos pasos descartaba una fracción del movimiento.
+
+Sin scripting no se pierde nada: cada componente, relación, ruta, vista y cita está en el documento entregado, y los controles se envían ocultos. Los nodos se promueven a `tabindex="0"` y `role="button"` en el momento del enhancement y no en el marcado, porque veinte paradas de tabulación en un documento donde nada puede responder a una pulsación es peor que ninguna.
+
+## Una cámara que admite lo que no puede mostrar
+
+Seleccionar un componente mueve la cámara hacia él. La garantía obvia sería encuadrar el componente junto a sus vecinos, y en este mapa esa garantía es imposible. Sobre los veinte componentes del espécimen de aceptación, los vecinos directos de un componente pueden abarcar 1984 por 1476 de un lienzo de 2148 por 1612. Eso solo cabe a escala de vista general, con etiquetas de cinco píxeles. Diecisiete de los veinte vecindarios no se pueden encuadrar enteros a una escala legible.
+
+Así que la cámara garantiza lo único que puede. El suelo es un píxel pintado por unidad de usuario, que en este layout es exactamente la afirmación "no más pequeño que lo autorizado". Encuadra todo el contexto que eso admita, y la línea de estado informa de cuántos componentes relacionados quedan fuera del encuadre.
+
+Hacia dónde apunta fue la parte que valía la pena equivocar primero. La primera versión apuntaba al centroide del vecindario, lo cual es correcto cuando el vecindario cabe y activamente dañino cuando no, porque entonces el centroide es el medio de un rectángulo que está mayormente fuera de pantalla. El sujeto acababa empujado a un margen, la contención lo atrapaba contra el borde, y el contexto no llegaba igualmente. El gate humano de aceptación lo rechazó. La regla ahora es el centro del vecindario cuando cabe a escala legible, y el centro del propio componente cuando no.
+
+```text
+veinte enfoques, mismo espécimen, cinco formas de ventana
+
+desviación media del centro     298px  ->   75px
+peor desviación                 632px  ->  272px
+vecinos visibles                29/60  ->  30/60
+contenidos en el rectángulo     20/20  ->  20/20
+```
+
+El recuento de vecinos apenas se movió, y esa es la lectura honesta. El arreglo puso al sujeto donde mira el lector. No conjuró contexto que no cabe.
+
+Con ello salieron dos defectos latentes. El recorte mantenía el contenido cubriendo todo el encuadre, lo que hacía la garantía inferior inalcanzable por construcción. Y `MAX_ZOOM = 4` quedaba por encima del 2,5 que necesita una celda de mapa en escritorio y por debajo del 4,3 que necesita un portátil bajo: correcto en la máquina donde se escribió, y silenciosamente roto en una pantalla más pequeña.
+
+## Tres superficies pasaron solas y fallaron juntas
+
+Cámara, panel acoplado y atenuación salieron cada una por su propio ticket con su propio gate, y cada una pasó. El último ticket de la Feature fue la aceptación integrada: abrir el espécimen real y usar las tres como un solo acto. Encontró tres defectos.
+
+**El componente seleccionado no era dominante.** A la escala en la que aterriza un enfoque, la mayor parte del grafo queda fuera del encuadre, así que la disputa es entre el componente enfocado y sus vecinos directos, y esos estaban separados por un borde fino y un 25% de opacidad mientras compartían relleno, tamaño y tipografía. La opacidad es el canal más débil disponible aquí, porque una caja blanca sobre una página casi blanca apenas se mueve al atenuarse. El componente enfocado es ahora una losa rellena con el color de acento que el enlace de salto ya envía, medida por la suite de contraste a 4,97:1 en ambos temas en vez de darse por buena como énfasis.
+
+**El grafo quedaba en márgenes vacíos.** El layout elige su eje comparando recuentos, más columnas que rangos, lo cual acierta con la dirección de lectura y no dice nada sobre la proporción de un lienzo medido en extensiones. Una caja de nodo mide 208 de ancho contra 76 de alto. Un perfil de layout determinista ensancha ahora el paso que corre a lo largo de x hacia una proporción objetivo, y el aprovechamiento de ancho pasó del 61,4% al 81,5%. No al 100%, y a propósito: con un objetivo de 2,4 la vista general llega al 95,7% y ningún vecindario se puede encuadrar entero, así que el aviso de "fuera de encuadre" se dispara en los veinte componentes y deja de significar nada.
+
+**La barra de herramientas tapaba dos de los veinte componentes** justo en el estado cuyo trabajo es decirle al lector por dónde explorar. Ahora ocupa una fila propia en escritorio.
+
+Un gate por ticket no puede ver ninguno de estos. Esa es la razón entera de que existiera el ticket de aceptación.
+
+## Por qué las comprobaciones corren en un navegador real
+
+Antes, en esta misma línea de trabajo, toda la capa de comportamiento de un diagrama publicado estaba muerta detrás de un selector que no casaba con nada. Los goldens eran idénticos byte a byte, el script parseaba, y la ejecución con DOM simulado pasaba. Los tres registraban como correcto un artefacto muerto.
+
+Así que el contrato observable se prueba en un navegador real contra los bytes entregados, en una sola secuencia: cámara inicial, control de zoom, un arrastre 1:1 que se detiene en los límites de paneo, activación moviendo la cámara con la posición de scroll intacta y sin escribir en la barra de direcciones, y el ajuste restaurando la vista general.
+
+Así también se ganó el panel acoplado su única decisión de diseño. El script mueve la ficha existente del componente al panel en vez de renderizar una copia, porque una copia es una segunda cosa que mantener verdadera y una segunda cosa que un lector de pantalla anuncia. Medido en Chrome contra el HTML entregado: 210 elementos antes de una selección y 210 después de limpiarla, y 14.498 caracteres de texto del productor idénticos como multiconjunto a lo largo de seleccionar, seleccionar, limpiar.
+
+## El orquestador, ya publicado
+
+La historia del orquestador está en el post anterior, así que en corto. Un claim de ticket es un worktree y una rama de Git, no un fichero de bloqueo inventado por mí. El plan se aprueba una vez, y esa aprobación no cubre el merge. Un gate humano detiene a los dependientes de ese worker y a nada más. La integración es una decisión separada de la revisión: el integrador comprueba divergencia, conflictos, revisión y CI, y responde `candidate`, `behind` o `conflict`.
+
+Lo que lo probó no fue un simulacro. Durante la ejecución de aceptación, los dos workers Codex en vivo alcanzaron sus límites de uso y terminaron. Sus claims quedaron obsoletos con el trabajo sin commitear preservado, sesiones de reemplazo reanudaron las mismas ramas, worktrees y perfiles, y la ejecución terminó. Un ticket integró primero, el segundo fue reportado como atrasado, se rebaseó contra una cabeza fresca, y solo entonces aterrizó.
+
+Aquí debería ser tan cuidadoso como lo es el registro de aceptación. Los workers en vivo nunca llegaron a un gate humano ni a un conflicto de ficheros. Esos contratos se ejercitaron deliberadamente en repositorios desechables, y el registro se niega a dejar que la ejecución en vivo tome prestada su credibilidad. Nada en esta release mide la entrega concurrente frente a la serial, así que nada aquí afirma que sea más rápida.
+
+La preparación de la release tuvo su propia versión del mismo suceso. La sesión coordinadora de Codex que la empezó alcanzó su límite de uso, y una sesión de Claude Code terminó la verificación, el commit y la pull request desde el mismo worktree intacto.
+
+## Lo que sigue sin hacer
+
+El zoom con rueda y con pellizco se quedan fuera hasta que puedan añadirse sin conflicto de gestos. Minimapa, colapso de grupos, drill-down, filtrado, búsqueda y enlaces profundos siguen aplazados. El orquestador publica solo enrutado estático: `developer` implementa, `tester` revisa, y modelo y esfuerzo se heredan de la sesión que despacha. No hay demonio, ni broker, ni cola, ni base de datos, ni servidor, ni merge automático.
+
+Suites en la release: orquestación 166/166, instalador 693/693, renderizador 825 pasando con 25 saltos documentados, validación del kit sobre 25 skills, y 42 páginas de documentación desde una construcción limpia.
+
+## Dónde queda esto
+
+Un diagrama es ahora algo que se lee conduciéndolo, y sigue siendo un único fichero HTML autocontenido que se abre desde el sistema de ficheros sin paso de build, sin servidor y sin red, sigue siendo idéntico byte a byte entre máquinas y zonas horarias, y sigue citado a un commit fijado. Convertirlo en una aplicación no cambió nada de eso.
+
+Y la unidad de trabajo duradero en Pathfinder es ahora un claim y no una conversación. Una vez que eso es cierto, al agente que sostiene el claim se le permite morir. La release que lo hizo cierto la terminó un agente distinto del que la empezó.
+
+**Pathfinder en GitHub:** https://github.com/rikilamadrid/pathfinder
+
+🧭 **El kit es dueño del flujo de trabajo. El proyecto es dueño del stack.**
+
+<!-- locale:fr -->
+
+Pathfinder 4.4.0 est sorti le 18 septembre. Il ajoute un artefact de diagramme qui s'ouvre comme un explorateur plutôt que comme un document, et un second mode d'exécution qui fait tourner plusieurs workers d'agent isolés sur le même cycle de vie de tickets.
+
+Les deux sont additifs. Un projet sans fichier de mode se comporte exactement comme avant, et il n'y a rien à migrer.
+
+Ce qui mérite d'être raconté n'est pas la liste des nouveautés. C'est que les deux capacités ont été prouvées par une panne survenue après que chacune de leurs pièces eut déjà passé ses contrôles.
+
+## Ce qui est sorti
+
+**Explorateur d'architecture interactif.** Un `diagram` est désormais maître de son viewport. On fait glisser la carte au 1:1, on zoome avec des contrôles explicites, on sélectionne un composant et la caméra s'y déplace, son détail vient s'ancrer à côté de la carte, et la topologie non concernée recule. Le graphe, ses coordonnées, ses citations et sa provenance restent l'artefact déterministe de build qu'ils étaient. Caméra, sélection et détail sont des couches d'exécution qui n'entrent jamais dans le reçu ni dans l'empreinte.
+
+**Deux modes d'exécution.** `human-in-the-loop` garde le contrôle direct d'une session de ticket. `orchestrator` coordonne des workers concurrents conscients des dépendances, chacun dans son propre worktree et sa propre branche Git, avec des gates humains, une reprise possible, et l'intégration comme décision distincte.
+
+```bash
+npx create-pathfinder@4.4.0
+npx create-pathfinder --mode orchestrator
+```
+
+J'ai écrit en détail sur l'orchestrateur quand la Feature a atterri. Ce billet donne le même traitement à l'explorateur, puis revient à l'orchestrateur pour la seule chose qui a changé depuis : il est publié.
+
+## Le diagramme était un document de 14 160px
+
+Avant la 4.4.0, un `diagram` se rendait dans la même colonne d'article qu'une leçon. La carte trônait en haut d'une page de 14 160px, et activer un nœud propulsait le lecteur près de quatre mille pixels plus bas, jusqu'à l'entrée écrite de ce composant. C'était un document complet, correct et sourcé que personne ne pouvait lire comme une carte.
+
+Le correctif est structurel. Le shell tranche un seul choix, `article` ou `explorer`, et le moteur de rendu le choisit d'après le type qu'il rend. Aucun champ du producteur ne sélectionne la mise en page, parce que le shell ne lit jamais une spécification.
+
+Dans l'explorateur, la caméra est un seul `transform` sur le SVG, et le `viewBox` n'est plus jamais réécrit. Un glissement ajoute à l'offset le delta en pixels du pointeur lui-même, et c'est tout. La version précédente convertissait en unités utilisateur, arrondissait vers un attribut entier et relisait le point saisi depuis un résultat déjà borné, et chacune de ces étapes jetait une fraction du mouvement.
+
+Sans scripting, rien n'est perdu : chaque composant, relation, chemin, vue et citation est dans le document livré, et les contrôles partent masqués. Les nœuds sont promus en `tabindex="0"` et `role="button"` au moment de l'enrichissement et non dans le balisage, parce que vingt arrêts de tabulation dans un document où rien ne peut répondre à une pression valent moins que zéro.
+
+## Une caméra qui avoue ce qu'elle ne peut pas montrer
+
+Sélectionner un composant y déplace la caméra. La garantie évidente serait de cadrer le composant avec ses voisins, et sur cette carte cette garantie est impossible. Sur les vingt composants du spécimen d'acceptation, les voisins directs d'un composant peuvent occuper 1984 sur 1476 d'un canevas de 2148 sur 1612. Cela ne rentre qu'à l'échelle de la vue d'ensemble, avec des étiquettes de cinq pixels. Dix-sept des vingt voisinages ne peuvent pas être cadrés entiers à une échelle lisible.
+
+La caméra garantit donc la seule chose qu'elle peut. Le plancher est d'un pixel peint par unité utilisateur, ce qui sur cette mise en page est exactement l'énoncé « pas plus petit que la taille d'origine ». Elle cadre tout le contexte que cela permet, et la ligne d'état indique combien de composants liés restent hors du cadre.
+
+Où elle vise était la partie qu'il valait mieux rater en premier. La première version visait le centroïde du voisinage, ce qui est juste quand le voisinage rentre et franchement nuisible quand il ne rentre pas, car le centroïde est alors le milieu d'un rectangle majoritairement hors écran. Le sujet se retrouvait poussé vers une marge, le confinement le bloquait contre le bord, et le contexte n'arrivait pas pour autant. Le gate humain d'acceptation l'a rejetée. La règle est désormais le centre du voisinage quand il rentre à une échelle lisible, et le centre du composant lui-même sinon.
+
+```text
+vingt focus, même spécimen, cinq formes de fenêtre
+
+écart moyen au centre du cadre  298px  ->   75px
+pire écart                      632px  ->  272px
+voisins visibles                29/60  ->  30/60
+contenus dans le rectangle      20/20  ->  20/20
+```
+
+Le nombre de voisins a à peine bougé, et c'est la lecture honnête. Le correctif a placé le sujet là où le lecteur regarde. Il n'a pas fait apparaître un contexte qui ne rentre pas.
+
+Deux défauts latents sont sortis avec lui. Le bornage maintenait le contenu couvrant tout le cadre, ce qui rendait la garantie du bas inatteignable par construction. Et `MAX_ZOOM = 4` se situait au-dessus du 2,5 dont une cellule de carte a besoin sur un bureau et en dessous du 4,3 qu'exige un portable bas : correct sur la machine où il avait été écrit, et silencieusement cassé sur un écran plus petit.
+
+## Trois surfaces ont passé seules et ont échoué ensemble
+
+Caméra, panneau ancré et atténuation sont sortis chacun par son propre ticket avec son propre gate, et chacun a passé. Le dernier ticket de la Feature était l'acceptation intégrée : ouvrir le spécimen réel et utiliser les trois comme un seul geste. Elle a trouvé trois défauts.
+
+**Le composant sélectionné n'était pas dominant.** À l'échelle où un focus atterrit, la majeure partie du graphe est hors cadre, donc la confrontation se joue entre le composant ciblé et ses voisins directs, et ceux-là étaient séparés par une fine bordure et 25% d'opacité tout en partageant un remplissage, une taille et une typographie. L'opacité est le canal le plus faible disponible ici, car une boîte blanche sur une page presque blanche bouge à peine quand on l'atténue. Le composant ciblé est maintenant un bloc plein dans la couleur d'accent que le lien d'évitement embarque déjà, mesuré par la suite de contraste à 4,97:1 dans les deux thèmes au lieu d'être validé à vue comme emphase.
+
+**Le graphe flottait dans des marges vides.** La mise en page choisit son axe en comparant des effectifs, plus de colonnes que de rangs, ce qui trouve correctement le sens de lecture et ne dit rien de la proportion d'un canevas mesuré en étendues. Une boîte de nœud fait 208 de large contre 76 de haut. Un profil de mise en page déterministe élargit désormais le pas qui court le long de x vers un rapport cible, et l'utilisation de la largeur est passée de 61,4% à 81,5%. Pas jusqu'à 100%, et c'est voulu : avec une cible de 2,4, la vue d'ensemble atteint 95,7% et plus aucun voisinage ne peut être cadré entier, si bien que l'avis « hors cadre » se déclenche sur les vingt composants et cesse de vouloir dire quoi que ce soit.
+
+**La barre d'outils cachait deux des vingt composants** précisément dans l'état dont le travail est d'indiquer au lecteur où explorer ensuite. Elle occupe maintenant sa propre rangée sur un bureau.
+
+Un gate par ticket ne peut voir aucun de ces défauts. C'est toute la raison d'être du ticket d'acceptation.
+
+## Pourquoi les contrôles tournent dans un vrai navigateur
+
+Plus tôt dans la même ligne de travail, toute la couche de comportement d'un diagramme publié était morte derrière un sélecteur qui ne correspondait à rien. Les goldens étaient identiques octet pour octet, le script s'analysait, et l'exécution sur DOM simulé passait. Les trois enregistraient comme correct un artefact mort.
+
+Le contrat observable est donc prouvé dans un vrai navigateur contre les octets livrés, en une seule séquence : caméra initiale, contrôle de zoom, un glissement au 1:1 qui bute sur les limites de déplacement, une activation qui déplace la caméra sans changer la position de défilement ni écrire dans la barre d'adresse, et l'ajustement qui restaure la vue d'ensemble.
+
+C'est aussi ainsi que le panneau ancré a gagné sa seule décision de conception. Le script déplace la fiche existante du composant vers le panneau au lieu d'en rendre une copie, parce qu'une copie est une deuxième chose à garder vraie et une deuxième chose qu'un lecteur d'écran annonce. Mesuré dans Chrome contre le HTML livré : 210 éléments avant une sélection et 210 après l'avoir effacée, et 14 498 caractères de texte du producteur identiques en tant que multiensemble sur sélectionner, sélectionner, effacer.
+
+## L'orchestrateur, désormais publié
+
+L'histoire de l'orchestrateur est dans le billet précédent, donc en bref. Un claim de ticket est un worktree et une branche Git, pas un fichier de verrou que j'aurais inventé. Le plan est approuvé une fois, et cette approbation ne couvre pas le merge. Un gate humain arrête les dépendants de ce worker et rien d'autre. L'intégration est une décision distincte de la revue : l'intégrateur vérifie la divergence, les conflits, la revue et la CI, et répond `candidate`, `behind` ou `conflict`.
+
+Ce qui l'a prouvé n'était pas un exercice. Pendant le run d'acceptation, les deux workers Codex en direct ont atteint leurs limites d'usage et se sont arrêtés. Leurs claims sont passés en obsolète avec le travail non commité préservé, des sessions de remplacement ont repris les mêmes branches, worktrees et profils, et le run est allé à son terme. Un ticket a intégré en premier, le second a été signalé en retard, rebasé sur une tête fraîche, et n'a atterri qu'ensuite.
+
+Je devrais être ici aussi prudent que l'est le registre d'acceptation. Les workers en direct n'ont jamais atteint de gate humain ni de conflit de fichiers. Ces contrats ont été exercés délibérément dans des dépôts jetables, et le registre refuse de laisser le run en direct emprunter leur crédibilité. Rien dans cette version ne mesure la livraison concurrente face à la livraison en série, donc rien ici ne prétend qu'elle est plus rapide.
+
+La préparation de la version a eu sa propre version du même événement. La session coordinatrice Codex qui l'avait commencée a atteint sa limite d'usage, et une session Claude Code a terminé la vérification, le commit et la pull request depuis le même worktree intact.
+
+## Ce qu'il ne fait toujours pas
+
+Le zoom à la molette et au pincement restent dehors tant qu'ils ne peuvent pas être ajoutés sans conflit de gestes. Minicarte, repli de groupes, exploration en profondeur, filtrage, recherche et liens profonds restent reportés. L'orchestrateur ne publie que du routage statique : `developer` implémente, `tester` relit, et le modèle et l'effort sont hérités de la session qui dépêche. Pas de démon, pas de broker, pas de file, pas de base de données, pas de serveur, et pas de merge automatique.
+
+Suites à la sortie : orchestration 166/166, installeur 693/693, moteur de rendu 825 passants avec 25 sauts documentés, validation du kit sur 25 skills, et 42 pages de documentation depuis une construction vierge.
+
+## Où cela nous laisse
+
+Un diagramme est maintenant quelque chose qu'on lit en le pilotant, et il reste un unique fichier HTML autonome qui s'ouvre depuis le système de fichiers sans étape de build, sans serveur et sans réseau, toujours identique octet pour octet d'une machine et d'un fuseau à l'autre, toujours sourcé sur un commit épinglé. En faire une application n'a rien changé à cela.
+
+Et l'unité de travail durable dans Pathfinder est désormais un claim et non une conversation. Une fois que c'est vrai, l'agent qui détient le claim a le droit de mourir. La version qui l'a rendu vrai a elle-même été terminée par un agent différent de celui qui l'avait commencée.
+
+**Pathfinder sur GitHub :** https://github.com/rikilamadrid/pathfinder
+
+🧭 **Le kit possède le workflow. Le projet possède la stack.**
