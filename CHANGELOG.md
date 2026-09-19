@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.13.0] - 2026-09-19
+
 ### Added
 - New Field Notes post, "Pathfinder 4.4.0: a diagram you can drive, and workers
   you can lose", on the 4.4.0 release: the Interactive Architecture Explorer and
@@ -238,7 +240,8 @@ Initial public release — RicardoOS goes live at https://ricardolamadrid.com.
 - Static export (`output: "export"`) and automated deployment to Hostinger via GitHub Actions.
 - On-brand bubble-R favicon.
 
-[Unreleased]: https://github.com/rikilamadrid/ricardoOS/compare/v1.12.1...HEAD
+[Unreleased]: https://github.com/rikilamadrid/ricardoOS/compare/v1.13.0...HEAD
+[1.13.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.12.1...v1.13.0
 [1.12.1]: https://github.com/rikilamadrid/ricardoOS/compare/v1.12.0...v1.12.1
 [1.12.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.11.0...v1.12.0
 [1.11.0]: https://github.com/rikilamadrid/ricardoOS/compare/v1.10.0...v1.11.0
