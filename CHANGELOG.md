@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+- The Pathfinder 4.4.0 Field Notes post is refocused on the orchestrator
+  execution mode and its routing layer, and cut by about a third. It now
+  covers the estimate, select and dispatch steps, the closed execution-profile
+  schema and how each field is derived, parallel safety, and the policy socket
+  that ships with `static` as its only policy. The Interactive Architecture
+  Explorer material is removed. English, Spanish, and French.
+
 ## [1.13.0] - 2026-09-19
 
 ### Added
