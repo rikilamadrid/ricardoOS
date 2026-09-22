@@ -29,8 +29,8 @@ export interface ContactLink {
   id: string;
   /** Localized human label (e.g. "Email", "Correo"). */
   label: Localized<string>;
-  /** Display value — usually locale-independent. */
-  value: string;
+  /** Localized display value. */
+  value: Localized<string>;
   /** Actionable href (mailto:, tel:, https://). */
   href: string;
   /** Emoji or icon key used by the UI. */
@@ -56,7 +56,6 @@ export interface SkillGroup {
 export interface Skill {
   /** Mostly brand names, so a single label is fine; localized for edge cases. */
   name: Localized<string>;
-  level: Level;
 }
 
 export interface Experience {
@@ -82,7 +81,7 @@ export interface ExperienceHighlight {
 export interface Education {
   id: string;
   degree: Localized<string>;
-  institution: string;
+  institution: Localized<string>;
 }
 
 export interface LanguageProficiency {
@@ -91,4 +90,10 @@ export interface LanguageProficiency {
   level: Level;
   /** CEFR-ish note for tooltips. */
   note: Localized<string>;
+}
+
+export interface ResumeProject {
+  id: string;
+  name: string;
+  description: Localized<string>;
 }

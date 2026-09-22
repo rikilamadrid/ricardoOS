@@ -5,23 +5,31 @@ export const education: Education[] = [
     id: "cs-upr",
     degree: {
       en: "Bachelor of Computer Science",
-      es: "Licenciatura en Ciencias de la Computación",
-      fr: "Licence en Informatique",
+      es: "Grado en Ciencias de la Computación",
+      fr: "Licence en informatique",
     },
-    institution: "University of Puerto Rico",
+    institution: {
+      en: "University of Puerto Rico",
+      es: "Universidad de Puerto Rico",
+      fr: "Université de Porto Rico",
+    },
   },
   {
     id: "bfa-aau",
     degree: {
       en: "Bachelor of Fine Arts",
-      es: "Licenciatura en Bellas Artes",
-      fr: "Licence en Beaux-Arts",
+      es: "Grado en Bellas Artes",
+      fr: "Licence en beaux-arts",
     },
-    institution: "Academy of Art University",
+    institution: {
+      en: "Academy of Art University",
+      es: "Academy of Art University",
+      fr: "Academy of Art University",
+    },
   },
 ];
 
-/** Spoken languages with self-rated proficiency (out of 5). */
+/** Spoken languages and proficiency from the September 2026 résumé. */
 export const languageProficiency: LanguageProficiency[] = [
   {
     id: "spanish",
@@ -33,12 +41,12 @@ export const languageProficiency: LanguageProficiency[] = [
     id: "english",
     name: { en: "English", es: "Inglés", fr: "Anglais" },
     level: 5,
-    note: { en: "Native", es: "Nativo", fr: "Langue maternelle" },
+    note: { en: "Fluent", es: "Fluido", fr: "Courant" },
   },
   {
     id: "french",
     name: { en: "French", es: "Francés", fr: "Français" },
-    level: 5,
-    note: { en: "Fluent", es: "Fluido", fr: "Courant" },
+    level: 3,
+    note: { en: "Working", es: "Profesional", fr: "Professionnel" },
   },
 ];

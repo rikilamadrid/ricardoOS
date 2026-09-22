@@ -1,8 +1,8 @@
 # Ricardo OS — mock data
 
-Seed/mock content for the portfolio, kept apart from UI so phases can build
-against stable data. Sourced from the 2026 résumés (EN/ES) and the Aqua-style
-desktop mockups. French is translated and ready for the language toggle.
+Content for the portfolio, kept apart from UI so the interface can build
+against stable data. Résumé content is sourced from the September 2026
+résumés in English, Spanish, and French.
 
 ## Localization
 
@@ -27,9 +27,10 @@ Locales live in `types.ts`: `LOCALES`, `Locale`, `DEFAULT_LOCALE`,
 | `types.ts`      | Shared types, `Locale`, `Localized<T>`, `Level`                     |
 | `i18n.ts`       | `t()` localization helper                                           |
 | `profile.ts`    | Name, title, summary, contact links                                 |
-| `skills.ts`     | Skill groups + 1–5 levels                                           |
+| `skills.ts`     | Skill groups shown as unranked tags                                 |
 | `experience.ts` | Work history with localized highlights                              |
 | `education.ts`  | Degrees + spoken-language proficiency                               |
+| `resume-projects.ts` | Selected projects shown in the Résumé app                     |
 | `about.ts`      | "About Me" window copy ("Hi, I'm Ricardo 👋")                       |
 | `projects.ts`   | "Projects" window (placeholders for now)                            |
 | `music.ts`      | "Aero Amp" mini player                                              |

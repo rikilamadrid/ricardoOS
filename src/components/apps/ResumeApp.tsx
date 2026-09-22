@@ -6,6 +6,7 @@ import {
   experiences,
   education,
   languageProficiency,
+  resumeProjects,
   skillGroups,
   t,
   type Locale,
@@ -26,6 +27,7 @@ const SECTION: Record<string, Record<Locale, string>> = {
   education: { en: "Education", es: "Educación", fr: "Formation" },
   skills: { en: "Skills", es: "Habilidades", fr: "Compétences" },
   languages: { en: "Languages", es: "Idiomas", fr: "Langues" },
+  projects: { en: "Selected Projects", es: "Proyectos seleccionados", fr: "Projets sélectionnés" },
   download: { en: "Download PDF", es: "Descargar PDF", fr: "Télécharger le PDF" },
   open: { en: "Open in new tab", es: "Abrir en pestaña nueva", fr: "Ouvrir dans un onglet" },
 };
@@ -46,6 +48,9 @@ export function ResumeApp() {
         <div>
           <h2 className="font-brand text-2xl tracking-tight">{profile.name}</h2>
           <p className="mt-0.5 text-[13px] font-semibold text-aqua-deep">{t(profile.title, locale)}</p>
+          <p className="mt-1 text-[11px] font-bold uppercase tracking-[0.12em] text-ink-soft">
+            {t(profile.tagline, locale)}
+          </p>
         </div>
         <div className="flex flex-none gap-2">
           <AquaButton
@@ -73,7 +78,7 @@ export function ResumeApp() {
       <div className="mt-2 flex flex-wrap gap-x-3 gap-y-1 text-[12.5px] text-ink-soft">
         {profile.contact.map((c) => (
           <a key={c.id} href={c.href} className="hover:text-aqua-deep" target="_blank" rel="noopener noreferrer">
-            <span aria-hidden="true">{c.icon}</span> {c.value}
+            <span aria-hidden="true">{c.icon}</span> {t(c.value, locale)}
           </a>
         ))}
       </div>
@@ -94,6 +99,7 @@ export function ResumeApp() {
                   {t(job.period, locale)}
                 </span>
               </div>
+              <div className="text-[12px] text-ink-soft">{t(job.location, locale)}</div>
               <ul className="mt-1 flex flex-col gap-1">
                 {job.highlights.map((h, i) => (
                   <li key={i} className="flex gap-2 text-[13px] text-ink-soft">
@@ -134,7 +140,7 @@ export function ResumeApp() {
             {education.map((e) => (
               <div key={e.id}>
                 <div className="font-semibold">{t(e.degree, locale)}</div>
-                <div className="text-[13px] text-ink-soft">{e.institution}</div>
+                <div className="text-[13px] text-ink-soft">{t(e.institution, locale)}</div>
               </div>
             ))}
           </div>
@@ -150,6 +156,17 @@ export function ResumeApp() {
           </div>
         </Section>
       </div>
+
+      <Section label={SECTION.projects[locale]}>
+        <div className="flex flex-col gap-2.5">
+          {resumeProjects.map((project) => (
+            <div key={project.id} className="grid gap-0.5 sm:grid-cols-[7rem_1fr] sm:gap-3">
+              <div className="font-brand text-[14px] text-aqua-deep">{project.name}</div>
+              <div className="text-[13px] text-ink-soft">{t(project.description, locale)}</div>
+            </div>
+          ))}
+        </div>
+      </Section>
     </div>
   );
 }

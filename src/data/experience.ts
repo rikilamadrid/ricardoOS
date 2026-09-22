@@ -6,56 +6,103 @@ import type { Experience } from "./types";
  */
 export const experiences: Experience[] = [
   {
-    id: "builders-first-source",
-    company: "Builder's First Source",
-    location: { en: "Dallas, TX", es: "Dallas, TX (EE. UU.)", fr: "Dallas, TX (États-Unis)" },
-    role: {
-      en: "Senior Software Engineer",
-      es: "Ingeniero de Software Senior",
-      fr: "Ingénieur Logiciel Senior",
+    id: "tecdata",
+    company: "TECDATA",
+    location: { en: "Madrid, Spain", es: "Madrid, España", fr: "Madrid, Espagne" },
+    role: { en: "AI Engineer", es: "Ingeniero de IA", fr: "Ingénieur IA" },
+    period: {
+      en: "Sep 2026 – Present",
+      es: "Sep 2026 – Actualidad",
+      fr: "Sept. 2026 – Aujourd'hui",
     },
-    period: { en: "Oct 2019 – Present", es: "Oct 2019 – Presente", fr: "Oct. 2019 – Présent" },
-    startDate: "2019-10",
+    startDate: "2026-09",
     endDate: null,
     highlights: [
       {
-        kind: "feature",
-        text: {
-          en: "I built and shipped a warehouse-scanning PWA (React, Redux, Node services) that distribution teams now lean on every single day.",
-          es: "Construí y lancé una PWA de escaneo de almacén (React, Redux, servicios en Node) que los equipos de distribución usan cada día.",
-          fr: "J'ai construit et livré une PWA de scan en entrepôt (React, Redux, services Node) que les équipes de distribution utilisent chaque jour.",
-        },
-      },
-      {
-        kind: "feature",
-        text: {
-          en: "I grew a Storybook component catalog from scratch and moved the team toward component-driven development and one shared design system.",
-          es: "Levanté un catálogo de componentes en Storybook desde cero y llevé al equipo hacia el desarrollo basado en componentes y un único sistema de diseño compartido.",
-          fr: "J'ai bâti un catalogue de composants Storybook à partir de zéro et fait basculer l'équipe vers le développement orienté composants et un seul design system partagé.",
-        },
-      },
-      {
-        kind: "feature",
-        text: {
-          en: "I split the front end into micro-frontends with Webpack Module Federation, so each team could ship on its own schedule without the app feeling stitched together.",
-          es: "Dividí el front en micro-frontends con Webpack Module Federation, para que cada equipo desplegara a su ritmo sin que la app pareciera un collage.",
-          fr: "J'ai découpé le front en micro-frontends avec Webpack Module Federation, pour que chaque équipe déploie à son rythme sans que l'app paraisse rapiécée.",
-        },
-      },
-      {
         kind: "ai",
         text: {
-          en: "I brought AI into how the team actually works (Claude Code, MCP servers, real context engineering for scaffolding, refactors, and faster reviews) with one hard rule: a human reviews every AI-written change before it merges.",
-          es: "Metí la IA en el trabajo real del equipo (Claude Code, servidores MCP e ingeniería de contexto de verdad para scaffolding, refactors y revisiones más rápidas) con una regla firme: una persona revisa cada cambio escrito por IA antes de que entre.",
-          fr: "J'ai intégré l'IA dans le travail réel de l'équipe (Claude Code, serveurs MCP, vraie ingénierie de contexte pour le scaffolding, les refactors et des revues plus rapides) avec une règle stricte : un humain relit chaque changement écrit par l'IA avant qu'il ne soit fusionné.",
+          en: "AI-powered software modernization for Carrefour.",
+          es: "Modernización de software con IA para Carrefour.",
+          fr: "Modernisation logicielle par l'IA pour Carrefour.",
+        },
+      },
+      {
+        kind: "feature",
+        text: {
+          en: "Designed agentic modernization workflows decomposing legacy migration into discovery, contract-reconstruction, conversion and verification agents.",
+          es: "Diseñé flujos de modernización agénticos que descomponen la migración de sistemas heredados en agentes de descubrimiento, reconstrucción de contratos, conversión y verificación.",
+          fr: "Conçu des workflows de modernisation agentiques décomposant la migration de systèmes legacy en agents de découverte, de reconstruction des contrats, de conversion et de vérification.",
+        },
+      },
+      {
+        kind: "feature",
+        text: {
+          en: "Architected the orchestration layer: tool contracts, context boundaries, deterministic checkpoints and resumable runs that survive interruption.",
+          es: "Diseñé la capa de orquestación: contratos de herramientas, límites de contexto, puntos de control deterministas y ejecuciones reanudables resistentes a interrupciones.",
+          fr: "Conçu la couche d'orchestration : contrats d'outils, limites de contexte, points de contrôle déterministes et exécutions reprenables résistantes aux interruptions.",
+        },
+      },
+      {
+        kind: "feature",
+        text: {
+          en: "Built RAG and context-isolation architecture separating reusable engineering knowledge from application-specific legacy context.",
+          es: "Construí arquitecturas RAG y de aislamiento de contexto que separan el conocimiento de ingeniería reutilizable del contexto específico de cada sistema heredado.",
+          fr: "Développé des architectures RAG et d'isolation du contexte séparant les connaissances d'ingénierie réutilisables du contexte propre à chaque application legacy.",
         },
       },
       {
         kind: "outcome",
         text: {
-          en: "I coach the team on pairing that AI speed with solid design, so we reach for the tools on purpose instead of on reflex.",
-          es: "Acompaño al equipo para combinar esa velocidad con un buen diseño, para que usemos las herramientas a propósito y no por reflejo.",
-          fr: "J'accompagne l'équipe pour marier cette vitesse avec une conception solide, afin qu'on utilise ces outils volontairement et non par réflexe.",
+          en: "Established verification-first pipelines — characterization tests, contract checks, Playwright UI and accessibility validation — gating every migration.",
+          es: "Establecí pipelines centrados en la verificación — pruebas de caracterización, comprobaciones de contratos y validación de interfaz y accesibilidad con Playwright — como requisito para cada migración.",
+          fr: "Mis en place des pipelines centrés sur la vérification — tests de caractérisation, contrôles de contrats, validation UI et accessibilité avec Playwright — pour sécuriser chaque migration.",
+        },
+      },
+      {
+        kind: "outcome",
+        text: {
+          en: "Delivered migration pilots with Claude Code, OpenAI Codex and MCP servers, under human approval gates at architectural and release decisions.",
+          es: "Entregué pilotos de migración con Claude Code, OpenAI Codex y servidores MCP, con aprobación humana en las decisiones de arquitectura y lanzamiento.",
+          fr: "Livré des pilotes de migration avec Claude Code, OpenAI Codex et des serveurs MCP, avec validation humaine des décisions d'architecture et de mise en production.",
+        },
+      },
+    ],
+  },
+  {
+    id: "builders-first-source",
+    company: "Builder's FirstSource",
+    location: { en: "Dallas, TX", es: "Dallas, TX", fr: "Dallas, TX" },
+    role: {
+      en: "Senior Software Engineer",
+      es: "Ingeniero de Software Senior",
+      fr: "Ingénieur Logiciel Senior",
+    },
+    period: { en: "Oct 2019 – Jul 2026", es: "Oct 2019 – Jul 2026", fr: "Oct. 2019 – Juil. 2026" },
+    startDate: "2019-10",
+    endDate: "2026-07",
+    highlights: [
+      {
+        kind: "feature",
+        text: {
+          en: "Architected a React, Redux and Node.js Progressive Web App for daily warehouse scanning operations.",
+          es: "Diseñé la arquitectura de una aplicación web progresiva con React, Redux y Node.js para las operaciones diarias de escaneo en almacenes.",
+          fr: "Conçu l'architecture d'une Progressive Web App en React, Redux et Node.js pour les opérations quotidiennes de scan en entrepôt.",
+        },
+      },
+      {
+        kind: "feature",
+        text: {
+          en: "Implemented micro-frontends with Webpack Module Federation and scaled a Storybook component catalog and design system.",
+          es: "Implementé micro-frontends con Webpack Module Federation y amplié un catálogo de componentes en Storybook y un sistema de diseño.",
+          fr: "Mis en œuvre des micro-frontends avec Webpack Module Federation et développé un catalogue de composants Storybook et un système de design.",
+        },
+      },
+      {
+        kind: "ai",
+        text: {
+          en: "Introduced AI-assisted development under a mandatory human-review gate, mentoring engineers on pairing AI velocity with SOLID design.",
+          es: "Introduje el desarrollo asistido por IA con revisión humana obligatoria y formé a ingenieros para combinar la velocidad de la IA con diseño SOLID.",
+          fr: "Introduit le développement assisté par l'IA avec revue humaine obligatoire et accompagné les ingénieurs pour allier la vitesse de l'IA à une conception SOLID.",
         },
       },
     ],
@@ -63,7 +110,7 @@ export const experiences: Experience[] = [
   {
     id: "sngular",
     company: "Sngular",
-    location: { en: "Dallas, TX", es: "Dallas, TX (EE. UU.)", fr: "Dallas, TX (États-Unis)" },
+    location: { en: "Dallas, TX", es: "Dallas, TX", fr: "Dallas, TX" },
     role: {
       en: "Senior Software Engineer",
       es: "Ingeniero de Software Senior",
@@ -76,17 +123,9 @@ export const experiences: Experience[] = [
       {
         kind: "feature",
         text: {
-          en: "I helped build a web component catalog, with a built-in generator and design system, that several banking clients shipped their products on.",
-          es: "Ayudé a construir un catálogo de componentes web, con un generador integrado y un sistema de diseño, sobre el que varios clientes bancarios lanzaron sus productos.",
-          fr: "J'ai aidé à construire un catalogue de composants web, avec générateur intégré et design system, sur lequel plusieurs clients bancaires ont livré leurs produits.",
-        },
-      },
-      {
-        kind: "outcome",
-        text: {
-          en: "Each client kept its own brand look while reusing the same architecture underneath, so nobody had to rebuild the wheel.",
-          es: "Cada cliente mantuvo su propia identidad de marca reutilizando la misma arquitectura por debajo, así nadie tuvo que reinventar la rueda.",
-          fr: "Chaque client gardait son identité de marque tout en réutilisant la même architecture en dessous, sans que personne ait à réinventer la roue.",
+          en: "Built a shared web component catalog and design system for banking clients.",
+          es: "Construí un catálogo compartido de componentes web y un sistema de diseño para clientes del sector bancario.",
+          fr: "Créé un catalogue partagé de composants web et un système de design pour des clients du secteur bancaire.",
         },
       },
     ],
@@ -94,7 +133,7 @@ export const experiences: Experience[] = [
   {
     id: "everis",
     company: "Everis",
-    location: { en: "Dallas, TX", es: "Dallas, TX (EE. UU.)", fr: "Dallas, TX (États-Unis)" },
+    location: { en: "Dallas, TX", es: "Dallas, TX", fr: "Dallas, TX" },
     role: {
       en: "Software Engineer",
       es: "Ingeniero de Software",
@@ -107,17 +146,9 @@ export const experiences: Experience[] = [
       {
         kind: "feature",
         text: {
-          en: "I designed and built features for an internal banking app that opened new accounts and credit cards.",
-          es: "Diseñé y construí funcionalidades para una app bancaria interna que abría cuentas y tarjetas de crédito.",
-          fr: "J'ai conçu et construit des fonctionnalités pour une app bancaire interne qui ouvrait des comptes et des cartes de crédit.",
-        },
-      },
-      {
-        kind: "feature",
-        text: {
-          en: "I worked on the Balance Transfer and ACH product, handling real money and live transactions while making it faster and safer.",
-          es: "Trabajé en el producto de Balance Transfer y ACH, manejando dinero real y transacciones en vivo mientras lo hacía más rápido y seguro.",
-          fr: "J'ai travaillé sur le produit Balance Transfer et ACH, en gérant de l'argent réel et des transactions en direct tout en le rendant plus rapide et plus sûr.",
+          en: "Built Balance Transfer and ACH features for a banking origination platform.",
+          es: "Desarrollé funcionalidades de transferencia de saldos y ACH para una plataforma de originación bancaria.",
+          fr: "Développé les fonctionnalités de transfert de solde et ACH pour une plateforme d'octroi bancaire.",
         },
       },
     ],
