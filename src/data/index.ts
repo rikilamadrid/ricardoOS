@@ -17,6 +17,7 @@ export { profile } from "./profile";
 export { skillGroups } from "./skills";
 export { experiences } from "./experience";
 export { education, languageProficiency } from "./education";
+export { resumeProjects } from "./resume-projects";
 export { about } from "./about";
 export { projects, projectList, getProject, projectSlug } from "./projects";
 export { experienceContent } from "./chapters";
