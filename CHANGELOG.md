@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.15.0] - 2026-09-25
+
 ### Added
 - A Field Notes post, "Shipping Lorekeeper: from a note I couldn't find to
   npm", on taking Lorekeeper from idea to `create-lorekeeper@0.1.0`: passage
