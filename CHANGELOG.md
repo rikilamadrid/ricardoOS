@@ -7,6 +7,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- A Field Notes post, "Shipping Lorekeeper: from a note I couldn't find to
+  npm", on taking Lorekeeper from idea to `create-lorekeeper@0.1.0`: passage
+  retrieval without a relevance cutoff, the Wonder Wagon identity and its drift
+  checks, bundling a private core into one public package, and a release
+  process whose copy waits for the registry. Includes live screenshots of the
+  documentation site. English, Spanish, and French.
+
 ## [1.14.0] - 2026-09-22
 
 ### Changed
