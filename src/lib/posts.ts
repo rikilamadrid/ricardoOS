@@ -2,6 +2,7 @@ import fs from "node:fs";
 import path from "node:path";
 import matter from "gray-matter";
 import { DEFAULT_LOCALE, LOCALES, type Locale, type Localized } from "@/data/types";
+import { readingMinutes } from "./reading-time";
 
 /**
  * Filesystem-backed Writing content. MDX files in `src/content/posts/*.mdx`
@@ -18,6 +19,8 @@ export interface PostMeta {
   date: string;
   tags: string[];
   draft: boolean;
+  /** Estimated reading time per locale, in whole minutes. */
+  readingMinutes: Localized<number>;
 }
 
 export interface Post {
@@ -85,7 +88,11 @@ function normalizeLocalizedContent(content: string): Localized<string> {
   );
 }
 
-function normalizeMeta(slug: string, data: Record<string, unknown>): PostMeta {
+function normalizeMeta(
+  slug: string,
+  data: Record<string, unknown>,
+  content: Localized<string>,
+): PostMeta {
   const summary = normalizeLocalizedString(data.summary, "");
 
   return {
@@ -99,6 +106,10 @@ function normalizeMeta(slug: string, data: Record<string, unknown>): PostMeta {
     date: normalizeDate(data.date),
     tags: Array.isArray(data.tags) ? data.tags.map(String) : [],
     draft: data.draft === true,
+    readingMinutes: LOCALES.reduce(
+      (minutes, locale) => ({ ...minutes, [locale]: readingMinutes(content[locale]) }),
+      {} as Localized<number>,
+    ),
   };
 }
 
@@ -115,7 +126,8 @@ export function getAllPosts(): PostMeta[] {
     .filter((file) => file.endsWith(".mdx"))
     .map((file) => {
       const slug = file.replace(/\.mdx$/, "");
-      return normalizeMeta(slug, readRaw(slug).data);
+      const { data, content } = readRaw(slug);
+      return normalizeMeta(slug, data, normalizeLocalizedContent(content));
     })
     .filter((post) => !post.draft)
     .sort((a, b) => b.date.localeCompare(a.date));
@@ -125,7 +137,8 @@ export function getAllPosts(): PostMeta[] {
 export function getPost(slug: string): Post | null {
   try {
     const { data, content } = readRaw(slug);
-    return { meta: normalizeMeta(slug, data), content: normalizeLocalizedContent(content) };
+    const localized = normalizeLocalizedContent(content);
+    return { meta: normalizeMeta(slug, data, localized), content: localized };
   } catch {
     return null;
   }

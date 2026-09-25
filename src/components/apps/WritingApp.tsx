@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePosts } from "@/components/os/posts-store";
 import { useLocale } from "@/components/os/locale-store";
 import { t, type Locale, type Localized } from "@/data";
+import { formatReadingTime } from "@/lib/reading-time";
 
 const COPY: Record<string, Localized<string>> = {
   eyebrow: {
@@ -60,7 +61,7 @@ export function WritingApp() {
                     dateTime={post.date}
                     className="shrink-0 whitespace-nowrap text-[12px] font-semibold text-ink-soft"
                   >
-                    {formatDate(post.date, locale)}
+                    {formatDate(post.date, locale)} · {formatReadingTime(post.readingMinutes[locale], locale)}
                   </time>
                 </div>
                 <p className="mt-1 text-[13px] text-ink-soft">{t(post.summary, locale)}</p>
