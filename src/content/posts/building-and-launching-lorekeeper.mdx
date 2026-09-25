@@ -20,39 +20,27 @@ draft: false
 
 I have said "I already wrote this down somewhere" more times than I'd like to admit.
 
-The frustrating part is that it's usually true. The note exists. It's in a Markdown file I wrote months ago, under a heading I don't remember, in a file I wouldn't think to open. The knowledge is there. It's just not *recoverable*, and knowledge you can't recover is about as useful as knowledge you never had.
+It's usually true. The note exists, in a Markdown file I wrote months ago, under a heading I don't remember. The knowledge is there. It just isn't *recoverable*, and knowledge you can't recover is about as useful as knowledge you never had.
 
-Lorekeeper started as my answer to that sentence. This week it became a real thing: a package on npm, a documentation site, its own identity, a release pipeline, and a seat in the Wonder Wagon family of tools I've been building.
-
-This isn't a changelog. It's what it took to get a small tool from "works on my machine" to "a stranger can install it", and the handful of decisions I'd make again.
-
-## The product in one sentence
-
-The tagline changed late. The earlier version ended with "…You cannot find it again." Accurate, and a little bleak. The one I approved is this:
+Lorekeeper started as my answer to that sentence. This week it became a real thing: an npm package, a documentation site, its own identity and a release pipeline. Here are the four decisions I'd make again.
 
 **You already wrote it down. Find the passage that answers.**
 
-The important word is *passage*.
+That's the tagline, and the important word is *passage*.
 
-Lorekeeper is a CLI with three commands. `lore init` creates a brain, which is just a directory of Markdown, or adopts a vault you already have without rewriting a single file. `lore capture` files a thought or a URL. `lore search` ranks the passages of that brain against a question.
-
-Trying it takes one line:
+Lorekeeper is a CLI with three commands. `lore init` creates a brain, which is just a directory of Markdown, or adopts a vault you already have without rewriting a file. `lore capture` files a thought or a URL. `lore search` ranks the passages of that brain against a question.
 
 ```sh
 npx create-lorekeeper@0.1.0 init ~/brain
 ```
 
-That gives you five folders (`inbox/`, `daily/`, `notes/`, `sources/`, `entities/`), seven starter files, an `AGENTS.md` that tells a coding agent the directory is searchable, and a manifest at `.lorekeeper/manifest.json` recording which files the toolkit wrote. Everything else in that directory is yours, and `lore` won't touch it.
+It runs offline. No account, no API key, no network call, no language model. Node 24+, macOS or Linux.
 
-It runs offline. No account, no API key, no network call, no language model. It needs Node 24 or newer, on macOS or Linux. Windows is out of scope for v0.1, and CI says so in a comment next to the matrix.
+## 1. The passage is the unit, not the file
 
-## Decision 1: the passage, not the file, is the unit
+A three-thousand-word note about deployments isn't one fact. It's forty. Return the whole file and you get the answer plus thirty-nine things competing with it, which is bad for me and worse for an agent paying for every byte of context. (The longer version is in [Lorekeeper retrieves spans](/writing/lorekeeper-retrieves-spans).)
 
-I wrote a whole post on [why Lorekeeper retrieves spans](/writing/lorekeeper-retrieves-spans), so here's the short version.
-
-A three-thousand-word note about deployments isn't one fact. It's forty. If search returns the file, you get the answer plus thirty-nine things competing with it for attention. That's bad for me reading it, and worse for an agent paying for every byte of context.
-
-So every result is an address: a path, the heading it sits under, a line range, a score, and the text. Here's a real run against a small note I wrote for this post, asking the same question two ways in one call:
+So every result is an address: path, heading, line range, score and text. A real run, asking one question two ways:
 
 ```sh
 $ npx create-lorekeeper@0.1.0 search ~/brain \
@@ -68,147 +56,83 @@ notes/README.md#notes:3-8  score 0.0161
     ...
 ```
 
-Two lines of a file, not the file. The note never says "retry policy". The second wording found it, and fusion put it first.
+Two lines, not the file. The note never says "retry policy". The second wording found it.
 
-Look at the second result too, because it's the honest part.
+## No fake certainty
 
-## Why I refused to fake certainty
+Look at the second hit. It's a README with nothing to do with retries, scoring 0.0161 against the right answer's 0.0164.
 
-That second hit is the `notes/` folder's README. It has nothing to do with retries. It scored 0.0161 against the right answer's 0.0164.
+Those numbers aren't confidence. Lorekeeper fuses the ranked lists with Reciprocal Rank Fusion, and 0.0164 is just 1/61, the score for ranking first. **A ranking score cannot prove that something is absent.** In evaluation, a control question with no answer anywhere outranked real questions that had one.
 
-Those numbers aren't confidence. With several wordings, Lorekeeper fuses ranked lists with Reciprocal Rank Fusion, and 0.0164 is 1/61: the fused score for ranking first. It tells you where a passage placed, not whether it's correct.
-
-This is the part of retrieval that's easy to lie about. **A ranking score cannot prove that something is absent.** During evaluation, a control question with no answer anywhere in the corpus outranked genuine questions that did have one. The top result can simply be the best of a bad field.
-
-So Lorekeeper has no relevance threshold. Anywhere. A threshold would feel responsible, and it would turn an honest miss into a confident "nothing found". Instead, the `AGENTS.md` it writes tells the calling agent to treat results as evidence, search again in other words when the evidence doesn't settle the question, and say "the evidence is insufficient" rather than "your notes don't cover this".
-
-The retrieval itself is deterministic lexical ranking. The intelligence is whatever agent you were already using. I'd rather ship a tool that is exactly as smart as it is than one that sounds smarter.
+So there's no relevance threshold. A cutoff would turn an honest miss into a confident "nothing found". Instead, the `AGENTS.md` that `lore init` writes tells agents to treat results as evidence, search again in other words, and say "the evidence is insufficient" rather than "your notes don't cover this". I'd rather ship a tool exactly as smart as it is.
 
 ## Giving it a face
 
-Lorekeeper is one of four tools in a family I call Wonder Wagon, alongside Pathfinder, Forge and Lama. `lore --help` puts the relationship in one line: "Pathfinder finds the way; Lorekeeper remembers the journey." In the family brief, Lorekeeper's interface is a reading room, deliberately the quietest of the four.
+Lorekeeper is one of four tools in my Wonder Wagon family, with Pathfinder, Forge and Lama. Its role is the reading room, the quietest of the four. The mark is a four-point star held in a ring: what was found, and what keeps it.
 
-The mark is a four-point star held in a ring: what was found, and what keeps it. The four-point sparkle is the current AI cliché, so it never floats free. It's always enclosed. No brain, no node graph, no glow.
+![The Lorekeeper documentation site in day mode.](/writing/building-and-launching-lorekeeper/home-day.png)
 
-A few things didn't survive contact with reality. An earlier straight-sided star resolved into a cross at 16 pixels, so the flanks got curved. A brass that measured 2.70:1 against its background was changed, not shipped with a footnote. Review caught the wordmark being clipped by its own viewBox, about two units of the final R's leg sliced flat, before any favicon was rendered from it.
-
-![The Lorekeeper documentation site in day mode, headline reading "You already wrote it down. Find the passage that answers."](/writing/building-and-launching-lorekeeper/home-day.png)
-
-Day and night each get their own palette, and both are measured. The README ships a day and a night header in a `<picture>`, so GitHub dark mode gets the night one and npm falls back to day. At a colour terminal, `lore --help` paints the word `Lorekeeper` in periwinkle `#99A2F0` and closes with a dimmed serial, `LK-047`. Pathfinder is `PF-047`, Forge is `FG-047`. Piped output, `NO_COLOR`, `TERM=dumb` and `--json` carry no escape codes at all.
+Day and night each get a measured palette. At a colour terminal, `lore --help` paints `Lorekeeper` in periwinkle `#99A2F0` and ends with a dimmed serial, `LK-047`, next to Pathfinder's `PF-047` and Forge's `FG-047`. Piped output and `--json` carry no escape codes.
 
 ![The same page at night.](/writing/building-and-launching-lorekeeper/home-night.png)
 
-I didn't use the terminal adapter's default signal colour, a gilt `#E2B45C`. At 16 colours it degrades to yellow, which is the family's `warn` severity and Forge's floor. The periwinkle degrades to bright blue, which means nothing else. That's the kind of decision that only shows up when you test the ugly terminals too.
+## 2. Brand consistency as a failing test
 
-## Decision 2: brand consistency as a failing test
+The colours live in two repositories. Lorekeeper's `tokens.json` is the source, and the Wonder Wagon UI library restates nine of those values in its `lorekeeper` theme. When I promoted that theme from `draft` to `pilot`, the night accent changed.
 
-Here's a problem I didn't expect from a brand exercise. The colours live in two repositories.
+Copied values drift, so both sides now check the same nine-value map. Run against the old Wonder Wagon pin, Lorekeeper's check fails on `accent.night` and `accentInk.night`, which is exactly right. Add measured contrast (52 pairs) and byte-for-byte checks on the README images, and "on brand" stops being a review opinion. It's a CI step.
 
-Lorekeeper's `brand/tokens/tokens.json` is the source. The Wonder Wagon UI library has its own `lorekeeper` theme that restates nine of those values, across day and night. When I promoted that theme from `draft` to `pilot`, the night accent changed from `#5D64C3` to `#99A2F0` with dark ink `#141521`, at 7.58:1.
+## 3. One public package, private core
 
-Copied values drift. So both sides check the same nine-value map.
+`@lorekeeper/core` does the real work and is private. The CLI imports it by name, and that import can't survive publishing. npm would look for a package that doesn't exist, and the install would die with a 404.
 
-On the Lorekeeper side, `brand/terminal/build.mjs --check` used to compare only one value, `link`. It now compares all nine. On the Wonder Wagon side, `proof/lorekeeper.ts` checks the same nine against a pinned Lorekeeper fixture, with a test that is meant to fail on drift. Run against the old Wonder Wagon pin, the extended Lorekeeper check fails on `accent.night` and `accentInk.night`. Correctly. That was the promotion showing up as a red build until the pin moved.
+So the build inlines core into one file, `dist/lore.js`, with esbuild, then checks its own output: only `node:*` and `yaml` imports allowed, and core must actually be inside. A package check on every PR installs the tarball into a fresh prefix and runs the real `lore`. The build is deterministic, so the sha1 I approved, `3ef401e3…`, is the one npm serves today.
 
-The docs site has the same problem with a twist. Vercel has no sibling checkout of the UI library, so the theme arrives as a generated file, and `theme:check` fails if it's stale.
+## 4. Release evidence describes what happened
 
-Between those, measured contrast (`brand:check`, 52 pairs), and byte-for-byte checks on the README images and terminal recording, "on brand" stopped being an opinion someone has in review. It's a CI step.
+Before the release, the README said Lorekeeper installed from source. True, until release day. I didn't "fix" it early. It changed in the release PR itself, and the docs site waited until the package was actually on npm.
 
-## Decision 3: one public package, private core
+The site enforces this mechanically. Every command output on it is generated from the built binary, and a Vercel build refuses to deploy if that binary reports `0.0.0`.
 
-The monorepo has two packages. `@lorekeeper/core` does the real work and is private. The CLI imports it by name.
+![The live CLI reference page showing lore --help reading Lorekeeper 0.1.0.](/writing/building-and-launching-lorekeeper/cli-night.png)
 
-That import can't survive publication. If the published CLI says `import ... from '@lorekeeper/core'`, npm goes looking for a package that doesn't exist and the install dies with a 404 before `lore` prints its help.
+The version comes from one place, the newest `CHANGELOG.md` heading, and the release workflow refuses if the manifest, tag or Release disagree. Every step skips work that's already done, so a failed run is re-run, never patched with a new version.
 
-I could have published core as a second public package. I'd decided early that core stays private, and I wanted that decision to hold. So the build takes the exact `tsc` output the tests saw and inlines core into one file, `dist/lore.js`, with esbuild. Then it checks its own output. The bundle may import only `node:*` built-ins and `yaml`, the one runtime dependency, and core must actually be inside it. Either failure stops the build.
-
-A package check runs on every PR. It packs the tarball, inspects it, installs it into a fresh prefix, and runs the installed `lore` through `--version`, `--help`, `init` and `search --json`. Sixteen checks. The result is `create-lorekeeper-0.1.0.tgz`: four files, 20,402 bytes packed.
-
-The build is deterministic, so the tarball has a fingerprint. The sha1 recorded when I approved the packaging, `3ef401e3…`, is the same one the registry serves today.
-
-About the name. `lorekeeper` on npm belongs to an unrelated project, so the package is `create-lorekeeper` and the command it installs is `lore`. Not ideal. It also means `npx create-lorekeeper` reads naturally, which I'll take.
-
-## Decision 4: release evidence describes what happened
-
-This is the one I care most about, and it's mostly about copy.
-
-Before the release, the README said Lorekeeper wasn't on a registry and installed from source. That was true. It would become false on release day, and the tempting move is to "fix" it early so everything looks ready. I didn't. The PR that built the README listed that line as deliberately deferred, along with a terminal screenshot that still read `Lorekeeper 0.0.0`. Both changed in the release PR itself, the one that set the version, with the screenshot re-recorded from the bundled binary. The docs site, which is where people actually land, waited longer. Its PR merged after the package was on the registry, and its description opens with a section titled "Publication is proven".
-
-The docs site enforces the same idea mechanically. Every command output on it, including `lore --help` and `--version`, is generated from the built binary at build time. And a Vercel build refuses to deploy if that binary reports `0.0.0`. The site can't claim a release the binary doesn't have.
-
-![The live CLI reference page, showing real lore --help output reading Lorekeeper 0.1.0.](/writing/building-and-launching-lorekeeper/cli-night.png)
-
-The release process follows the same rule. The version comes from one place, the newest heading in `CHANGELOG.md`. The manifest, the Git tag and the GitHub Release must agree with it, and the workflow refuses otherwise.
-
-npm can only bind a trusted publisher to a package that already exists, so `0.1.0` was published once by hand, from the verified tarball. Future releases go through `release.yml`, which is built to publish through npm trusted publishing with provenance, read the version back from the registry, and only then push the tag and create the Release. Every step skips an effect that already exists, so a failed run gets re-dispatched, never "fixed" with a new version number.
-
-That design got tested sooner than I planned.
-
-The first release dispatch failed. The workflow installs `npm@latest`, which was npm 12.1.0, and npm 12 prints `npm pack --json` as an object keyed by package name instead of an array. My verification script expected the array. Nothing was published, tagged or released by that run, because the checks come first. The fix taught the script both shapes. Under npm 12 the tarball's sha1 was byte-identical to the one already on the registry, which is exactly what you want to know before you tag it.
-
-Re-dispatched, the run saw `create-lorekeeper@0.1.0 is already on the registry; publish will be skipped`, confirmed the registry served it, tagged `v0.1.0`, and created the Release.
-
-For the record, CI runs every pull request on both macOS and Linux.
-
-## The site
-
-The documentation lives at [lorekeeper-bay.vercel.app](https://lorekeeper-bay.vercel.app). It's plain static Astro. No docs theme, no React. Twelve content pages in one reading column with a plain index beside it, which is what "reading room" turned out to mean in practice.
-
-It also works offline. A service worker, generated from the site's own page list, saves every page and its assets on the first visit. After that, the pages open with no connection. Online, it goes to the network first, so you never read a stale page while connected. It requests nothing but the site's own files. A documentation site for an offline tool that stops working on a plane felt like a small betrayal.
+That got tested immediately. The first release run failed because `npm@latest` installed npm 12, which prints `npm pack --json` as an object instead of an array. Checks run before publishing, so nothing half-shipped. I taught the script both shapes, re-ran it, and it tagged `v0.1.0`.
 
 ## What I learned
 
-Getting `lore search` to rank the right passage was the part I expected to be hard. Most of the pull requests after it worked were about something else, making every public statement about it true: the colour on the README, the version on the help screen, the install line on the site, the tag on the commit.
+Ranking the right passage was the part I expected to be hard. Most of the work after that was making every public claim true: the README colour, the help-screen version, the install line, the tag.
 
-What worked was turning each of those claims into something a machine checks. Contrast pairs get measured. Theme values get compared across repositories. Doc specimens get generated from the binary. The tarball gets a fingerprint. The release copy waits for the registry.
+What worked was giving each claim a check a machine runs. None of it is glamorous, but when the release broke on a JSON shape I never touched, nothing shipped broken. It stopped and told me why.
 
-None of that is glamorous. But when the release broke on a JSON shape I never touched, nothing half-shipped. It just stopped, and told me why.
-
-Lorekeeper does one small thing: it finds the passage you already wrote. Taking it all the way from idea to identity to a package a stranger can install taught me more than the ranking did, and I'm keeping the checks for the next tool.
-
-```sh
-npx create-lorekeeper@0.1.0 init ~/brain
-```
-
-The code is on [GitHub](https://github.com/rikilamadrid/lorekeeper). If it finds something you forgot you wrote, I'd like to hear about it.
+The docs are at [lorekeeper-bay.vercel.app](https://lorekeeper-bay.vercel.app) and work offline after one visit. The code is on [GitHub](https://github.com/rikilamadrid/lorekeeper). If Lorekeeper finds something you forgot you wrote, I'd like to hear about it.
 
 <!-- locale:es -->
 
 He dicho "esto ya lo apunté en algún sitio" más veces de las que me gustaría admitir.
 
-Lo frustrante es que suele ser verdad. La nota existe. Está en un fichero Markdown que escribí hace meses, bajo un encabezado que no recuerdo, en un fichero que no se me ocurriría abrir. El conocimiento está ahí. Simplemente no se puede *recuperar*, y un conocimiento que no puedes recuperar vale más o menos lo mismo que uno que nunca tuviste.
+Suele ser verdad. La nota existe, en un fichero Markdown que escribí hace meses, bajo un encabezado que no recuerdo. El conocimiento está ahí. Simplemente no se puede *recuperar*, y un conocimiento que no puedes recuperar vale más o menos lo mismo que uno que nunca tuviste.
 
-Lorekeeper nació como mi respuesta a esa frase. Esta semana se convirtió en algo real: un paquete en npm, un sitio de documentación, una identidad propia, un pipeline de releases y un sitio en Wonder Wagon, la familia de herramientas que estoy construyendo.
-
-Esto no es un changelog. Es lo que hizo falta para llevar una herramienta pequeña de "funciona en mi máquina" a "un desconocido puede instalarla", y el puñado de decisiones que volvería a tomar.
-
-## El producto en una frase
-
-El eslogan cambió tarde. La versión anterior terminaba con "…No puedes volver a encontrarlo." Exacto, y un poco sombrío. El que aprobé es este:
+Lorekeeper nació como mi respuesta a esa frase. Esta semana se convirtió en algo real: un paquete npm, un sitio de documentación, una identidad propia y un pipeline de releases. Estas son las cuatro decisiones que volvería a tomar.
 
 **You already wrote it down. Find the passage that answers.** Ya lo escribiste. Encuentra el pasaje que responde.
 
-La palabra importante es *pasaje*.
+Ese es el eslogan, y la palabra importante es *pasaje*.
 
-Lorekeeper es una CLI con tres comandos. `lore init` crea un cerebro, que no es más que un directorio de Markdown, o adopta una bóveda que ya tienes sin reescribir ni un solo fichero. `lore capture` archiva una idea o una URL. `lore search` ordena los pasajes de ese cerebro frente a una pregunta.
-
-Probarlo cuesta una línea:
+Lorekeeper es una CLI con tres comandos. `lore init` crea un cerebro, que no es más que un directorio de Markdown, o adopta una bóveda que ya tienes sin reescribir ningún fichero. `lore capture` archiva una idea o una URL. `lore search` ordena los pasajes de ese cerebro frente a una pregunta.
 
 ```sh
 npx create-lorekeeper@0.1.0 init ~/brain
 ```
 
-Eso te da cinco carpetas (`inbox/`, `daily/`, `notes/`, `sources/`, `entities/`), siete ficheros iniciales, un `AGENTS.md` que le dice a un agente de código que el directorio se puede buscar, y un manifiesto en `.lorekeeper/manifest.json` que registra qué ficheros escribió la herramienta. Todo lo demás en ese directorio es tuyo, y `lore` no lo toca.
+Funciona sin conexión. Sin cuenta, sin API key, sin llamadas de red, sin modelo de lenguaje. Node 24+, macOS o Linux.
 
-Funciona sin conexión. Sin cuenta, sin API key, sin llamadas de red, sin modelo de lenguaje. Necesita Node 24 o superior, en macOS o Linux. Windows queda fuera de la v0.1, y la CI lo dice en un comentario junto a la matriz.
+## 1. La unidad es el pasaje, no el fichero
 
-## Decisión 1: la unidad es el pasaje, no el fichero
+Una nota de tres mil palabras sobre despliegues no es un dato. Son cuarenta. Si devuelves el fichero entero, recibes la respuesta más treinta y nueve cosas compitiendo con ella, lo cual es malo para mí y peor para un agente que paga cada byte de contexto. (La versión larga está en [Lorekeeper recupera fragmentos](/writing/lorekeeper-retrieves-spans).)
 
-Ya escribí un post entero sobre [por qué Lorekeeper recupera fragmentos](/writing/lorekeeper-retrieves-spans), así que aquí va la versión corta.
-
-Una nota de tres mil palabras sobre despliegues no es un dato. Son cuarenta. Si la búsqueda devuelve el fichero, recibes la respuesta más treinta y nueve cosas compitiendo con ella por la atención. Eso es malo para mí cuando lo leo, y peor para un agente que paga cada byte de contexto.
-
-Así que cada resultado es una dirección: una ruta, el encabezado bajo el que está, un rango de líneas, una puntuación y el texto. Aquí tienes una ejecución real contra una nota pequeña que escribí para este post, haciendo la misma pregunta de dos formas en una sola llamada:
+Así que cada resultado es una dirección: ruta, encabezado, rango de líneas, puntuación y texto. Una ejecución real, con la misma pregunta formulada de dos maneras:
 
 ```sh
 $ npx create-lorekeeper@0.1.0 search ~/brain \
@@ -224,147 +148,83 @@ notes/README.md#notes:3-8  score 0.0161
     ...
 ```
 
-Dos líneas de un fichero, no el fichero. La nota nunca dice "retry policy". La segunda formulación la encontró, y la fusión la puso primera.
+Dos líneas, no el fichero. La nota nunca dice "retry policy". La segunda formulación la encontró.
 
-Mira también el segundo resultado, porque es la parte honesta.
+## Sin certezas falsas
 
-## Por qué me negué a fingir certeza
+Mira el segundo resultado. Es un README que no tiene nada que ver con reintentos, con 0,0161 frente al 0,0164 de la respuesta correcta.
 
-Ese segundo resultado es el README de la carpeta `notes/`. No tiene nada que ver con reintentos. Sacó 0,0161 frente al 0,0164 de la respuesta correcta.
+Esos números no son confianza. Lorekeeper fusiona las listas con Reciprocal Rank Fusion, y 0,0164 es simplemente 1/61, la puntuación de quedar primero. **Una puntuación de ranking no puede demostrar que algo no está.** En la evaluación, una pregunta de control sin respuesta en ningún sitio quedó por encima de preguntas reales que sí la tenían.
 
-Esos números no son confianza. Con varias formulaciones, Lorekeeper fusiona listas ordenadas con Reciprocal Rank Fusion, y 0,0164 es 1/61: la puntuación fusionada de quedar primero. Te dice en qué posición quedó un pasaje, no si es correcto.
-
-Esta es la parte de la recuperación en la que es fácil mentir. **Una puntuación de ranking no puede demostrar que algo no está.** Durante la evaluación, una pregunta de control sin respuesta en ningún lugar del corpus quedó por encima de preguntas reales que sí la tenían. El primer resultado puede ser simplemente el mejor de un mal grupo.
-
-Por eso Lorekeeper no tiene umbral de relevancia. En ningún sitio. Un umbral parecería responsable, y convertiría un fallo honesto en un "no se encontró nada" muy seguro de sí mismo. En su lugar, el `AGENTS.md` que escribe le dice al agente que trate los resultados como evidencia, que vuelva a buscar con otras palabras si la evidencia no resuelve la pregunta, y que diga "la evidencia es insuficiente" en vez de "tus notas no cubren esto".
-
-La recuperación en sí es un ranking léxico determinista. La inteligencia es el agente que ya estabas usando. Prefiero publicar una herramienta exactamente tan lista como es que una que suena más lista.
+Por eso no hay umbral de relevancia. Un corte convertiría un fallo honesto en un "no se encontró nada" muy seguro de sí mismo. En su lugar, el `AGENTS.md` que escribe `lore init` le dice a los agentes que traten los resultados como evidencia, que vuelvan a buscar con otras palabras y que digan "la evidencia es insuficiente" en vez de "tus notas no cubren esto". Prefiero publicar una herramienta exactamente tan lista como es.
 
 ## Darle una cara
 
-Lorekeeper es una de las cuatro herramientas de una familia que llamo Wonder Wagon, junto a Pathfinder, Forge y Lama. `lore --help` resume la relación en una línea: "Pathfinder finds the way; Lorekeeper remembers the journey." En el brief de la familia, la interfaz de Lorekeeper es una sala de lectura, deliberadamente la más silenciosa de las cuatro.
+Lorekeeper es una de las cuatro herramientas de mi familia Wonder Wagon, junto a Pathfinder, Forge y Lama. Su papel es la sala de lectura, la más silenciosa de las cuatro. La marca es una estrella de cuatro puntas dentro de un anillo: lo que se encontró y lo que lo guarda.
 
-La marca es una estrella de cuatro puntas dentro de un anillo: lo que se encontró y lo que lo guarda. El destello de cuatro puntas es el cliché actual de la IA, así que nunca flota suelto. Siempre va encerrado. Nada de cerebros, grafos de nodos ni brillos.
+![El sitio de documentación de Lorekeeper en modo día.](/writing/building-and-launching-lorekeeper/home-day.png)
 
-Algunas cosas no sobrevivieron al contacto con la realidad. Una estrella anterior de lados rectos se convertía en una cruz a 16 píxeles, así que los flancos se curvaron. Un latón que medía 2,70:1 contra su fondo se cambió, no se publicó con una nota al pie. La revisión detectó que el wordmark quedaba recortado por su propio viewBox, unas dos unidades de la pata de la R final cortadas en seco, antes de generar ningún favicon a partir de él.
-
-![El sitio de documentación de Lorekeeper en modo día, con el titular "You already wrote it down. Find the passage that answers."](/writing/building-and-launching-lorekeeper/home-day.png)
-
-Día y noche tienen cada uno su propia paleta, y las dos están medidas. El README incluye una cabecera de día y otra de noche dentro de un `<picture>`, así que el modo oscuro de GitHub recibe la de noche y npm cae en la de día. En un terminal con color, `lore --help` pinta la palabra `Lorekeeper` en pervinca `#99A2F0` y cierra con un número de serie atenuado, `LK-047`. Pathfinder es `PF-047`, Forge es `FG-047`. La salida por tubería, `NO_COLOR`, `TERM=dumb` y `--json` no llevan ningún código de escape.
+Día y noche tienen cada uno una paleta medida. En un terminal con color, `lore --help` pinta `Lorekeeper` en pervinca `#99A2F0` y termina con un número de serie atenuado, `LK-047`, junto al `PF-047` de Pathfinder y el `FG-047` de Forge. La salida por tubería y `--json` no llevan códigos de escape.
 
 ![La misma página de noche.](/writing/building-and-launching-lorekeeper/home-night.png)
 
-No usé el color de señal por defecto del adaptador de terminal, un dorado `#E2B45C`. A 16 colores se degrada a amarillo, que es la severidad `warn` de la familia y el suelo de Forge. El pervinca se degrada a azul brillante, que no significa nada más. Es el tipo de decisión que solo aparece cuando pruebas también los terminales feos.
+## 2. La coherencia de marca como un test que falla
 
-## Decisión 2: la coherencia de marca como un test que falla
+Los colores viven en dos repositorios. El `tokens.json` de Lorekeeper es la fuente, y la librería de UI de Wonder Wagon repite nueve de esos valores en su tema `lorekeeper`. Cuando promoví ese tema de `draft` a `pilot`, el acento nocturno cambió.
 
-Este es un problema que no esperaba de un ejercicio de marca. Los colores viven en dos repositorios.
+Los valores copiados se desvían, así que ahora los dos lados comprueban el mismo mapa de nueve valores. Ejecutado contra el pin antiguo de Wonder Wagon, el check de Lorekeeper falla en `accent.night` y `accentInk.night`, que es exactamente lo correcto. Súmale el contraste medido (52 pares) y las comprobaciones byte a byte de las imágenes del README, y "estar en marca" deja de ser una opinión de revisión. Es un paso de CI.
 
-El `brand/tokens/tokens.json` de Lorekeeper es la fuente. La librería de UI de Wonder Wagon tiene su propio tema `lorekeeper` que repite nueve de esos valores, entre día y noche. Cuando promoví ese tema de `draft` a `pilot`, el acento nocturno pasó de `#5D64C3` a `#99A2F0` con tinta oscura `#141521`, a 7,58:1.
+## 3. Un paquete público, un núcleo privado
 
-Los valores copiados se desvían. Así que los dos lados comprueban el mismo mapa de nueve valores.
+`@lorekeeper/core` hace el trabajo de verdad y es privado. La CLI lo importa por nombre, y ese import no sobrevive a la publicación. npm buscaría un paquete que no existe y la instalación moriría con un 404.
 
-En el lado de Lorekeeper, `brand/terminal/build.mjs --check` antes comparaba un solo valor, `link`. Ahora compara los nueve. En el lado de Wonder Wagon, `proof/lorekeeper.ts` comprueba los mismos nueve contra un fixture fijado de Lorekeeper, con un test pensado para fallar si hay deriva. Ejecutado contra el pin antiguo de Wonder Wagon, el check ampliado de Lorekeeper falla en `accent.night` y `accentInk.night`. Correctamente. Era la promoción apareciendo como una build en rojo hasta que se movió el pin.
+Así que la build integra el núcleo en un único fichero, `dist/lore.js`, con esbuild, y luego comprueba su propia salida: solo se permiten imports `node:*` y `yaml`, y el núcleo tiene que estar realmente dentro. Una verificación del paquete en cada PR instala el tarball en un prefijo limpio y ejecuta el `lore` real. La build es determinista, así que el sha1 que aprobé, `3ef401e3…`, es el que sirve npm hoy.
 
-El sitio de documentación tiene el mismo problema con un giro. Vercel no tiene una copia hermana de la librería de UI, así que el tema llega como un fichero generado, y `theme:check` falla si está desactualizado.
+## 4. La evidencia de una release describe lo que pasó
 
-Entre eso, el contraste medido (`brand:check`, 52 pares) y las comprobaciones byte a byte de las imágenes del README y la grabación del terminal, "estar en marca" dejó de ser una opinión en una revisión. Es un paso de CI.
+Antes de la release, el README decía que Lorekeeper se instalaba desde el código fuente. Era verdad, hasta el día de la release. No lo "arreglé" antes. Cambió en el propio PR de la release, y el sitio de documentación esperó a que el paquete estuviera de verdad en npm.
 
-## Decisión 3: un paquete público, un núcleo privado
+El sitio lo aplica de forma mecánica. Cada salida de comando que muestra se genera desde el binario construido, y una build de Vercel se niega a desplegar si ese binario dice `0.0.0`.
 
-El monorepo tiene dos paquetes. `@lorekeeper/core` hace el trabajo de verdad y es privado. La CLI lo importa por nombre.
+![La página de referencia de la CLI en producción, con lore --help mostrando Lorekeeper 0.1.0.](/writing/building-and-launching-lorekeeper/cli-night.png)
 
-Ese import no sobrevive a la publicación. Si la CLI publicada dice `import ... from '@lorekeeper/core'`, npm busca un paquete que no existe y la instalación muere con un 404 antes de que `lore` imprima su ayuda.
+La versión sale de un único sitio, el encabezado más reciente de `CHANGELOG.md`, y el workflow de release se niega a seguir si el manifiesto, el tag o la Release no coinciden. Cada paso se salta el trabajo que ya está hecho, así que una ejecución fallida se relanza, nunca se parchea con una versión nueva.
 
-Podría haber publicado el núcleo como un segundo paquete público. Había decidido pronto que el núcleo se queda privado, y quería que esa decisión se mantuviera. Así que la build toma exactamente la salida de `tsc` que vieron los tests e integra el núcleo en un único fichero, `dist/lore.js`, con esbuild. Luego comprueba su propia salida. El bundle solo puede importar módulos `node:*` y `yaml`, la única dependencia en tiempo de ejecución, y el núcleo tiene que estar realmente dentro. Cualquiera de los dos fallos detiene la build.
-
-En cada PR se ejecuta una verificación del paquete. Empaqueta el tarball, lo inspecciona, lo instala en un prefijo limpio y ejecuta el `lore` instalado con `--version`, `--help`, `init` y `search --json`. Dieciséis comprobaciones. El resultado es `create-lorekeeper-0.1.0.tgz`: cuatro ficheros, 20.402 bytes empaquetado.
-
-La build es determinista, así que el tarball tiene una huella. El sha1 registrado cuando aprobé el empaquetado, `3ef401e3…`, es el mismo que sirve hoy el registro.
-
-Sobre el nombre. `lorekeeper` en npm pertenece a un proyecto que no tiene nada que ver, así que el paquete es `create-lorekeeper` y el comando que instala es `lore`. No es lo ideal. También hace que `npx create-lorekeeper` se lea con naturalidad, y eso me lo quedo.
-
-## Decisión 4: la evidencia de una release describe lo que pasó
-
-Esta es la que más me importa, y va sobre todo de textos.
-
-Antes de la release, el README decía que Lorekeeper no estaba en ningún registro y se instalaba desde el código fuente. Era verdad. Iba a dejar de serlo el día de la release, y lo tentador es "arreglarlo" antes para que todo parezca listo. No lo hice. El PR que construyó el README dejó esa línea aplazada a propósito, junto con una captura del terminal que todavía decía `Lorekeeper 0.0.0`. Las dos cambiaron en el propio PR de la release, el que fijó la versión, con la captura regrabada desde el binario empaquetado. El sitio de documentación, que es donde la gente llega de verdad, esperó más. Su PR se fusionó cuando el paquete ya estaba en el registro, y su descripción empieza con una sección titulada "Publication is proven".
-
-El sitio de documentación aplica la misma idea de forma mecánica. Cada salida de comando que aparece en él, incluidos `lore --help` y `--version`, se genera desde el binario construido en tiempo de build. Y una build de Vercel se niega a desplegar si ese binario dice `0.0.0`. El sitio no puede anunciar una release que el binario no tiene.
-
-![La página de referencia de la CLI en producción, con la salida real de lore --help que dice Lorekeeper 0.1.0.](/writing/building-and-launching-lorekeeper/cli-night.png)
-
-El proceso de release sigue la misma regla. La versión sale de un único sitio, el encabezado más reciente de `CHANGELOG.md`. El manifiesto, el tag de Git y la GitHub Release tienen que coincidir con él, y el workflow se niega a ejecutarse si no.
-
-npm solo puede vincular un trusted publisher a un paquete que ya existe, así que `0.1.0` se publicó una vez a mano, desde el tarball verificado. Las próximas releases pasan por `release.yml`, que está hecho para publicar mediante trusted publishing de npm con provenance, leer la versión de vuelta desde el registro y solo entonces subir el tag y crear la Release. Cada paso se salta un efecto que ya existe, así que una ejecución fallida se vuelve a lanzar, nunca se "arregla" con un número de versión nuevo.
-
-Ese diseño se puso a prueba antes de lo previsto.
-
-El primer lanzamiento de la release falló. El workflow instala `npm@latest`, que era npm 12.1.0, y npm 12 imprime `npm pack --json` como un objeto indexado por nombre de paquete en lugar de un array. Mi script de verificación esperaba el array. Esa ejecución no publicó, etiquetó ni creó nada, porque las comprobaciones van primero. El arreglo le enseñó al script las dos formas. Con npm 12, el sha1 del tarball era idéntico byte a byte al que ya estaba en el registro, que es justo lo que quieres saber antes de etiquetarlo.
-
-Relanzada, la ejecución vio `create-lorekeeper@0.1.0 is already on the registry; publish will be skipped`, confirmó que el registro lo servía, etiquetó `v0.1.0` y creó la Release.
-
-Para que conste, la CI ejecuta cada pull request en macOS y en Linux.
-
-## El sitio
-
-La documentación está en [lorekeeper-bay.vercel.app](https://lorekeeper-bay.vercel.app). Es Astro estático, sin más. Sin tema de documentación, sin React. Doce páginas de contenido en una sola columna de lectura con un índice sencillo al lado, que es lo que "sala de lectura" acabó significando en la práctica.
-
-También funciona sin conexión. Un service worker, generado a partir de la propia lista de páginas del sitio, guarda cada página y sus recursos en la primera visita. A partir de ahí, las páginas se abren sin conexión. Con conexión, va primero a la red, así que nunca lees una página desactualizada mientras estás online. No pide nada que no sean los ficheros del propio sitio. Un sitio de documentación de una herramienta offline que deja de funcionar en un avión me parecía una pequeña traición.
+Eso se puso a prueba enseguida. La primera ejecución de la release falló porque `npm@latest` instaló npm 12, que imprime `npm pack --json` como un objeto en vez de un array. Las comprobaciones van antes de publicar, así que nada quedó a medias. Le enseñé al script las dos formas, la relancé y etiquetó `v0.1.0`.
 
 ## Lo que aprendí
 
-Conseguir que `lore search` ordenara bien el pasaje correcto era la parte que esperaba que fuera difícil. La mayoría de los pull requests que vinieron después trataban de otra cosa, de hacer verdad cada afirmación pública sobre la herramienta: el color del README, la versión en la pantalla de ayuda, la línea de instalación en el sitio, el tag en el commit.
+Ordenar bien el pasaje correcto era la parte que esperaba que fuera difícil. La mayor parte del trabajo posterior fue hacer verdad cada afirmación pública: el color del README, la versión de la ayuda, la línea de instalación, el tag.
 
-Lo que funcionó fue convertir cada una de esas afirmaciones en algo que comprueba una máquina. Los pares de contraste se miden. Los valores del tema se comparan entre repositorios. Los ejemplos de la documentación se generan desde el binario. El tarball tiene una huella. El texto de la release espera al registro.
+Lo que funcionó fue darle a cada afirmación una comprobación que ejecuta una máquina. Nada de eso es glamuroso, pero cuando la release se rompió por la forma de un JSON que yo nunca toqué, no se publicó nada roto. Se paró y me dijo por qué.
 
-Nada de eso es glamuroso. Pero cuando la release se rompió por la forma de un JSON que yo nunca toqué, nada quedó publicado a medias. Simplemente se paró y me dijo por qué.
-
-Lorekeeper hace una cosa pequeña: encuentra el pasaje que ya escribiste. Llevarlo desde la idea hasta la identidad y hasta un paquete que un desconocido puede instalar me enseñó más que el ranking, y me quedo con las comprobaciones para la próxima herramienta.
-
-```sh
-npx create-lorekeeper@0.1.0 init ~/brain
-```
-
-El código está en [GitHub](https://github.com/rikilamadrid/lorekeeper). Si encuentra algo que habías olvidado que escribiste, me gustaría saberlo.
+La documentación está en [lorekeeper-bay.vercel.app](https://lorekeeper-bay.vercel.app) y funciona sin conexión tras una visita. El código está en [GitHub](https://github.com/rikilamadrid/lorekeeper). Si Lorekeeper encuentra algo que habías olvidado que escribiste, me gustaría saberlo.
 
 <!-- locale:fr -->
 
 J'ai dit "je l'ai déjà noté quelque part" plus souvent que je ne voudrais l'admettre.
 
-Le plus frustrant, c'est que c'est généralement vrai. La note existe. Elle est dans un fichier Markdown écrit il y a des mois, sous un titre dont je ne me souviens pas, dans un fichier que je n'aurais pas l'idée d'ouvrir. Le savoir est là. Il n'est simplement pas *récupérable*, et un savoir qu'on ne peut pas récupérer vaut à peu près autant qu'un savoir qu'on n'a jamais eu.
+C'est généralement vrai. La note existe, dans un fichier Markdown écrit il y a des mois, sous un titre dont je ne me souviens pas. Le savoir est là. Il n'est simplement pas *récupérable*, et un savoir qu'on ne peut pas récupérer vaut à peu près autant qu'un savoir qu'on n'a jamais eu.
 
-Lorekeeper est né comme ma réponse à cette phrase. Cette semaine, c'est devenu quelque chose de réel : un package sur npm, un site de documentation, une identité propre, un pipeline de release, et une place dans Wonder Wagon, la famille d'outils que je construis.
-
-Ce n'est pas un changelog. C'est ce qu'il a fallu pour faire passer un petit outil de "ça marche sur ma machine" à "un inconnu peut l'installer", et la poignée de décisions que je reprendrais.
-
-## Le produit en une phrase
-
-Le slogan a changé tard. La version précédente se terminait par "…Vous ne le retrouvez pas." Exact, et un peu sombre. Celui que j'ai validé est celui-ci :
+Lorekeeper est né comme ma réponse à cette phrase. Cette semaine, c'est devenu quelque chose de réel : un package npm, un site de documentation, une identité propre et un pipeline de release. Voici les quatre décisions que je reprendrais.
 
 **You already wrote it down. Find the passage that answers.** Vous l'avez déjà écrit. Trouvez le passage qui répond.
 
-Le mot important, c'est *passage*.
+C'est le slogan, et le mot important, c'est *passage*.
 
-Lorekeeper est une CLI à trois commandes. `lore init` crée un cerveau, qui n'est qu'un répertoire de Markdown, ou adopte un coffre que vous avez déjà sans réécrire un seul fichier. `lore capture` range une idée ou une URL. `lore search` classe les passages de ce cerveau par rapport à une question.
-
-L'essayer tient en une ligne :
+Lorekeeper est une CLI à trois commandes. `lore init` crée un cerveau, qui n'est qu'un répertoire de Markdown, ou adopte un coffre existant sans réécrire un seul fichier. `lore capture` range une idée ou une URL. `lore search` classe les passages de ce cerveau par rapport à une question.
 
 ```sh
 npx create-lorekeeper@0.1.0 init ~/brain
 ```
 
-Vous obtenez cinq dossiers (`inbox/`, `daily/`, `notes/`, `sources/`, `entities/`), sept fichiers de départ, un `AGENTS.md` qui indique à un agent de code que le répertoire est interrogeable, et un manifeste dans `.lorekeeper/manifest.json` qui enregistre les fichiers écrits par l'outil. Tout le reste du répertoire vous appartient, et `lore` n'y touche pas.
+Il fonctionne hors ligne. Pas de compte, pas de clé d'API, pas d'appel réseau, pas de modèle de langage. Node 24+, macOS ou Linux.
 
-Il fonctionne hors ligne. Pas de compte, pas de clé d'API, pas d'appel réseau, pas de modèle de langage. Il faut Node 24 ou plus, sur macOS ou Linux. Windows est hors du périmètre de la v0.1, et la CI le dit dans un commentaire à côté de la matrice.
+## 1. L'unité, c'est le passage, pas le fichier
 
-## Décision 1 : l'unité, c'est le passage, pas le fichier
+Une note de trois mille mots sur les déploiements n'est pas un fait. C'en est quarante. Renvoyez le fichier entier et vous obtenez la réponse plus trente-neuf choses qui lui font concurrence, ce qui est gênant pour moi et pire pour un agent qui paie chaque octet de contexte. (La version longue est dans [Lorekeeper récupère des fragments](/writing/lorekeeper-retrieves-spans).)
 
-J'ai déjà écrit un article entier sur [pourquoi Lorekeeper récupère des fragments](/writing/lorekeeper-retrieves-spans), alors voici la version courte.
-
-Une note de trois mille mots sur les déploiements n'est pas un fait. C'en est quarante. Si la recherche renvoie le fichier, vous obtenez la réponse plus trente-neuf choses qui lui disputent l'attention. C'est gênant pour moi quand je lis, et pire pour un agent qui paie chaque octet de contexte.
-
-Chaque résultat est donc une adresse : un chemin, le titre sous lequel il se trouve, une plage de lignes, un score et le texte. Voici une exécution réelle sur une petite note écrite pour cet article, en posant la même question de deux façons dans un seul appel :
+Chaque résultat est donc une adresse : chemin, titre, plage de lignes, score et texte. Une exécution réelle, avec la même question posée de deux façons :
 
 ```sh
 $ npx create-lorekeeper@0.1.0 search ~/brain \
@@ -380,106 +240,54 @@ notes/README.md#notes:3-8  score 0.0161
     ...
 ```
 
-Deux lignes d'un fichier, pas le fichier. La note ne dit jamais "retry policy". C'est la deuxième formulation qui l'a trouvée, et la fusion l'a placée en tête.
+Deux lignes, pas le fichier. La note ne dit jamais "retry policy". C'est la deuxième formulation qui l'a trouvée.
 
-Regardez aussi le deuxième résultat, parce que c'est la partie honnête.
+## Pas de fausse certitude
 
-## Pourquoi j'ai refusé de simuler la certitude
+Regardez le deuxième résultat. C'est un README sans aucun rapport avec les nouvelles tentatives, à 0,0161 contre 0,0164 pour la bonne réponse.
 
-Ce deuxième résultat, c'est le README du dossier `notes/`. Il n'a rien à voir avec les nouvelles tentatives. Il obtient 0,0161 contre 0,0164 pour la bonne réponse.
+Ces chiffres ne sont pas une confiance. Lorekeeper fusionne les listes par Reciprocal Rank Fusion, et 0,0164 vaut simplement 1/61, le score d'une première place. **Un score de classement ne peut pas prouver qu'une chose est absente.** Pendant l'évaluation, une question témoin sans réponse nulle part s'est classée au-dessus de vraies questions qui en avaient une.
 
-Ces chiffres ne sont pas une confiance. Avec plusieurs formulations, Lorekeeper fusionne des listes classées par Reciprocal Rank Fusion, et 0,0164 vaut 1/61 : le score fusionné d'une première place. Il dit où un passage s'est classé, pas s'il est juste.
-
-C'est la partie de la recherche où il est facile de mentir. **Un score de classement ne peut pas prouver qu'une chose est absente.** Pendant l'évaluation, une question témoin sans réponse nulle part dans le corpus s'est classée au-dessus de vraies questions qui en avaient une. Le premier résultat peut simplement être le meilleur d'un mauvais lot.
-
-Lorekeeper n'a donc aucun seuil de pertinence. Nulle part. Un seuil aurait l'air responsable, et il transformerait un échec honnête en un "rien trouvé" plein d'assurance. À la place, le `AGENTS.md` qu'il écrit dit à l'agent de traiter les résultats comme des indices, de chercher à nouveau avec d'autres mots si les indices ne tranchent pas, et de dire "les éléments sont insuffisants" plutôt que "vos notes n'en parlent pas".
-
-La recherche elle-même est un classement lexical déterministe. L'intelligence, c'est l'agent que vous utilisiez déjà. Je préfère livrer un outil exactement aussi malin qu'il l'est plutôt qu'un outil qui a l'air plus malin.
+Il n'y a donc aucun seuil de pertinence. Un seuil transformerait un échec honnête en un "rien trouvé" plein d'assurance. À la place, le `AGENTS.md` écrit par `lore init` dit aux agents de traiter les résultats comme des indices, de chercher à nouveau avec d'autres mots et de dire "les éléments sont insuffisants" plutôt que "vos notes n'en parlent pas". Je préfère livrer un outil exactement aussi malin qu'il l'est.
 
 ## Lui donner un visage
 
-Lorekeeper est l'un des quatre outils d'une famille que j'appelle Wonder Wagon, avec Pathfinder, Forge et Lama. `lore --help` résume la relation en une ligne : "Pathfinder finds the way; Lorekeeper remembers the journey." Dans le brief de la famille, l'interface de Lorekeeper est une salle de lecture, volontairement la plus calme des quatre.
+Lorekeeper est l'un des quatre outils de ma famille Wonder Wagon, avec Pathfinder, Forge et Lama. Son rôle, c'est la salle de lecture, la plus calme des quatre. La marque est une étoile à quatre branches tenue dans un anneau : ce qui a été trouvé, et ce qui le garde.
 
-La marque est une étoile à quatre branches tenue dans un anneau : ce qui a été trouvé, et ce qui le garde. L'étincelle à quatre branches est le cliché actuel de l'IA, alors elle ne flotte jamais seule. Elle est toujours enclose. Pas de cerveau, pas de graphe de nœuds, pas de halo.
+![Le site de documentation de Lorekeeper en mode jour.](/writing/building-and-launching-lorekeeper/home-day.png)
 
-Certaines choses n'ont pas survécu au contact du réel. Une première étoile à côtés droits devenait une croix à 16 pixels, alors les flancs ont été courbés. Un laiton qui mesurait 2,70:1 contre son fond a été changé, pas livré avec une note de bas de page. La revue a repéré que le logotype était rogné par sa propre viewBox, environ deux unités de la jambe du R final coupées net, avant qu'aucun favicon n'en soit tiré.
-
-![Le site de documentation de Lorekeeper en mode jour, avec le titre "You already wrote it down. Find the passage that answers."](/writing/building-and-launching-lorekeeper/home-day.png)
-
-Le jour et la nuit ont chacun leur palette, et les deux sont mesurées. Le README embarque un en-tête de jour et un de nuit dans un `<picture>`, si bien que le mode sombre de GitHub reçoit celui de nuit et npm se rabat sur celui de jour. Dans un terminal couleur, `lore --help` peint le mot `Lorekeeper` en pervenche `#99A2F0` et se termine par un numéro de série atténué, `LK-047`. Pathfinder est `PF-047`, Forge est `FG-047`. La sortie redirigée, `NO_COLOR`, `TERM=dumb` et `--json` ne contiennent aucun code d'échappement.
+Le jour et la nuit ont chacun une palette mesurée. Dans un terminal couleur, `lore --help` peint `Lorekeeper` en pervenche `#99A2F0` et se termine par un numéro de série atténué, `LK-047`, à côté du `PF-047` de Pathfinder et du `FG-047` de Forge. La sortie redirigée et `--json` ne contiennent aucun code d'échappement.
 
 ![La même page, la nuit.](/writing/building-and-launching-lorekeeper/home-night.png)
 
-Je n'ai pas utilisé la couleur de signal par défaut de l'adaptateur terminal, un doré `#E2B45C`. En 16 couleurs, elle retombe sur le jaune, qui est la sévérité `warn` de la famille et le plancher de Forge. La pervenche retombe sur un bleu vif, qui ne signifie rien d'autre. C'est le genre de décision qui n'apparaît que quand on teste aussi les terminaux ingrats.
+## 2. La cohérence de marque comme un test qui échoue
 
-## Décision 2 : la cohérence de marque comme un test qui échoue
+Les couleurs vivent dans deux dépôts. Le `tokens.json` de Lorekeeper est la source, et la bibliothèque d'UI de Wonder Wagon reprend neuf de ces valeurs dans son thème `lorekeeper`. Quand j'ai promu ce thème de `draft` à `pilot`, l'accent de nuit a changé.
 
-Voici un problème que je n'attendais pas d'un exercice de marque. Les couleurs vivent dans deux dépôts.
+Les valeurs copiées dérivent, donc les deux côtés vérifient désormais la même table de neuf valeurs. Lancée contre l'ancien pin de Wonder Wagon, la vérification de Lorekeeper échoue sur `accent.night` et `accentInk.night`, ce qui est exactement le bon comportement. Ajoutez le contraste mesuré (52 paires) et les vérifications octet par octet des images du README, et "respecter la marque" cesse d'être une opinion de revue. C'est une étape de CI.
 
-Le `brand/tokens/tokens.json` de Lorekeeper est la source. La bibliothèque d'UI de Wonder Wagon a son propre thème `lorekeeper` qui reprend neuf de ces valeurs, entre jour et nuit. Quand j'ai promu ce thème de `draft` à `pilot`, l'accent de nuit est passé de `#5D64C3` à `#99A2F0` avec une encre sombre `#141521`, à 7,58:1.
+## 3. Un package public, un cœur privé
 
-Les valeurs copiées dérivent. Les deux côtés vérifient donc la même table de neuf valeurs.
+`@lorekeeper/core` fait le vrai travail et reste privé. La CLI l'importe par son nom, et cet import ne survit pas à la publication. npm chercherait un package qui n'existe pas, et l'installation mourrait sur un 404.
 
-Côté Lorekeeper, `brand/terminal/build.mjs --check` ne comparait qu'une seule valeur, `link`. Il compare maintenant les neuf. Côté Wonder Wagon, `proof/lorekeeper.ts` vérifie les mêmes neuf contre une fixture Lorekeeper épinglée, avec un test conçu pour échouer en cas de dérive. Lancée contre l'ancien pin de Wonder Wagon, la vérification élargie de Lorekeeper échoue sur `accent.night` et `accentInk.night`. À juste titre. C'était la promotion qui apparaissait comme un build rouge jusqu'au déplacement du pin.
+Le build intègre donc le cœur dans un seul fichier, `dist/lore.js`, avec esbuild, puis vérifie sa propre sortie : seuls les imports `node:*` et `yaml` sont autorisés, et le cœur doit réellement s'y trouver. Une vérification du package sur chaque PR installe le tarball dans un préfixe vierge et lance le vrai `lore`. Le build est déterministe, donc le sha1 que j'ai validé, `3ef401e3…`, est celui que npm sert aujourd'hui.
 
-Le site de documentation a le même problème, avec une variante. Vercel n'a pas de copie voisine de la bibliothèque d'UI, donc le thème arrive sous forme de fichier généré, et `theme:check` échoue s'il est périmé.
+## 4. Les preuves d'une release décrivent ce qui s'est passé
 
-Entre tout cela, le contraste mesuré (`brand:check`, 52 paires) et les vérifications octet par octet des images du README et de l'enregistrement du terminal, "respecter la marque" a cessé d'être une opinion émise en revue. C'est une étape de CI.
+Avant la release, le README disait que Lorekeeper s'installait depuis les sources. C'était vrai, jusqu'au jour de la release. Je ne l'ai pas "corrigé" en avance. Il a changé dans la PR de release elle-même, et le site de documentation a attendu que le package soit réellement sur npm.
 
-## Décision 3 : un package public, un cœur privé
+Le site l'applique de façon mécanique. Chaque sortie de commande qu'il affiche est générée depuis le binaire construit, et un build Vercel refuse de déployer si ce binaire annonce `0.0.0`.
 
-Le monorepo contient deux packages. `@lorekeeper/core` fait le vrai travail et reste privé. La CLI l'importe par son nom.
+![La page de référence de la CLI en production, avec lore --help qui affiche Lorekeeper 0.1.0.](/writing/building-and-launching-lorekeeper/cli-night.png)
 
-Cet import ne survit pas à la publication. Si la CLI publiée contient `import ... from '@lorekeeper/core'`, npm cherche un package qui n'existe pas et l'installation meurt sur un 404 avant que `lore` n'affiche son aide.
+La version vient d'un seul endroit, le titre le plus récent de `CHANGELOG.md`, et le workflow de release refuse de continuer si le manifeste, le tag ou la Release ne concordent pas. Chaque étape saute le travail déjà fait, donc une exécution ratée est relancée, jamais rafistolée avec une nouvelle version.
 
-J'aurais pu publier le cœur comme second package public. J'avais décidé tôt que le cœur resterait privé, et je voulais que cette décision tienne. Le build prend donc exactement la sortie de `tsc` que les tests ont vue et y intègre le cœur dans un seul fichier, `dist/lore.js`, avec esbuild. Puis il vérifie sa propre sortie. Le bundle ne peut importer que des modules `node:*` et `yaml`, l'unique dépendance d'exécution, et le cœur doit réellement s'y trouver. L'un ou l'autre échec arrête le build.
-
-Une vérification du package tourne sur chaque PR. Elle empaquette le tarball, l'inspecte, l'installe dans un préfixe vierge et lance le `lore` installé avec `--version`, `--help`, `init` et `search --json`. Seize vérifications. Le résultat est `create-lorekeeper-0.1.0.tgz` : quatre fichiers, 20 402 octets compressés.
-
-Le build est déterministe, donc le tarball a une empreinte. Le sha1 enregistré quand j'ai validé l'empaquetage, `3ef401e3…`, est celui que le registre sert aujourd'hui.
-
-À propos du nom. `lorekeeper` sur npm appartient à un projet sans rapport, donc le package s'appelle `create-lorekeeper` et la commande qu'il installe est `lore`. Pas idéal. Ça rend aussi `npx create-lorekeeper` naturel à lire, et je prends.
-
-## Décision 4 : les preuves d'une release décrivent ce qui s'est passé
-
-C'est celle qui me tient le plus à cœur, et elle concerne surtout du texte.
-
-Avant la release, le README disait que Lorekeeper n'était sur aucun registre et s'installait depuis les sources. C'était vrai. Ça allait devenir faux le jour de la release, et la tentation est de "corriger" en avance pour que tout ait l'air prêt. Je ne l'ai pas fait. La PR qui a construit le README a laissé cette ligne volontairement en attente, avec une capture du terminal qui affichait encore `Lorekeeper 0.0.0`. Les deux ont changé dans la PR de release elle-même, celle qui fixait la version, avec la capture réenregistrée depuis le binaire empaqueté. Le site de documentation, là où les gens arrivent vraiment, a attendu plus longtemps. Sa PR a été fusionnée une fois le package sur le registre, et sa description s'ouvre sur une section intitulée "Publication is proven".
-
-Le site de documentation applique la même idée de façon mécanique. Chaque sortie de commande qu'il affiche, y compris `lore --help` et `--version`, est générée depuis le binaire construit au moment du build. Et un build Vercel refuse de déployer si ce binaire annonce `0.0.0`. Le site ne peut pas revendiquer une release que le binaire n'a pas.
-
-![La page de référence de la CLI en production, avec la vraie sortie de lore --help qui affiche Lorekeeper 0.1.0.](/writing/building-and-launching-lorekeeper/cli-night.png)
-
-Le processus de release suit la même règle. La version vient d'un seul endroit, le titre le plus récent de `CHANGELOG.md`. Le manifeste, le tag Git et la GitHub Release doivent concorder avec lui, sinon le workflow refuse de tourner.
-
-npm ne peut lier un trusted publisher qu'à un package qui existe déjà, donc `0.1.0` a été publié une fois à la main, depuis le tarball vérifié. Les releases suivantes passent par `release.yml`, conçu pour publier via le trusted publishing de npm avec provenance, relire la version depuis le registre, et seulement ensuite pousser le tag et créer la Release. Chaque étape saute un effet qui existe déjà, donc une exécution ratée est relancée, jamais "réparée" avec un nouveau numéro de version.
-
-Ce design a été mis à l'épreuve plus tôt que prévu.
-
-Le premier lancement de la release a échoué. Le workflow installe `npm@latest`, qui était npm 12.1.0, et npm 12 affiche `npm pack --json` sous forme d'objet indexé par nom de package au lieu d'un tableau. Mon script de vérification attendait le tableau. Cette exécution n'a rien publié, tagué ni créé, parce que les vérifications passent d'abord. Le correctif a appris les deux formes au script. Sous npm 12, le sha1 du tarball était identique octet pour octet à celui déjà sur le registre, ce qui est exactement ce qu'on veut savoir avant de taguer.
-
-Relancée, l'exécution a vu `create-lorekeeper@0.1.0 is already on the registry; publish will be skipped`, a confirmé que le registre le servait, a tagué `v0.1.0` et créé la Release.
-
-Pour mémoire, la CI exécute chaque pull request sur macOS et sur Linux.
-
-## Le site
-
-La documentation est sur [lorekeeper-bay.vercel.app](https://lorekeeper-bay.vercel.app). C'est de l'Astro statique, tout simplement. Pas de thème de documentation, pas de React. Douze pages de contenu dans une seule colonne de lecture avec un index sobre à côté, ce que "salle de lecture" a fini par vouloir dire en pratique.
-
-Il fonctionne aussi hors ligne. Un service worker, généré à partir de la liste des pages du site, enregistre chaque page et ses ressources à la première visite. Ensuite, les pages s'ouvrent sans connexion. En ligne, il passe d'abord par le réseau, donc on ne lit jamais une page périmée quand on est connecté. Il ne demande rien d'autre que les fichiers du site. Un site de documentation pour un outil hors ligne qui cesse de marcher dans un avion m'aurait semblé une petite trahison.
+Ça a été mis à l'épreuve tout de suite. La première exécution de la release a échoué parce que `npm@latest` a installé npm 12, qui affiche `npm pack --json` sous forme d'objet au lieu d'un tableau. Les vérifications passent avant la publication, donc rien n'a été livré à moitié. J'ai appris les deux formes au script, relancé, et il a tagué `v0.1.0`.
 
 ## Ce que j'ai appris
 
-Faire classer le bon passage par `lore search`, c'était la partie que je pensais difficile. La plupart des pull requests suivantes portaient sur autre chose : rendre vraie chaque affirmation publique sur l'outil. La couleur du README, la version sur l'écran d'aide, la ligne d'installation sur le site, le tag sur le commit.
+Bien classer le bon passage, c'était la partie que je pensais difficile. L'essentiel du travail ensuite a consisté à rendre vraie chaque affirmation publique : la couleur du README, la version de l'aide, la ligne d'installation, le tag.
 
-Ce qui a marché, c'est de transformer chacune de ces affirmations en quelque chose qu'une machine vérifie. Les paires de contraste sont mesurées. Les valeurs du thème sont comparées entre dépôts. Les exemples de la documentation sont générés depuis le binaire. Le tarball a une empreinte. Le texte de la release attend le registre.
+Ce qui a marché, c'est de donner à chaque affirmation une vérification qu'une machine exécute. Rien de glamour, mais quand la release a cassé à cause de la forme d'un JSON auquel je n'avais jamais touché, rien de cassé n'a été livré. Elle s'est arrêtée et m'a dit pourquoi.
 
-Rien de tout cela n'est glamour. Mais quand la release a cassé à cause de la forme d'un JSON auquel je n'avais jamais touché, rien n'a été livré à moitié. Elle s'est juste arrêtée, et m'a dit pourquoi.
-
-Lorekeeper fait une petite chose : il retrouve le passage que vous avez déjà écrit. L'amener de l'idée à l'identité puis à un package qu'un inconnu peut installer m'a appris plus que le classement, et je garde les vérifications pour le prochain outil.
-
-```sh
-npx create-lorekeeper@0.1.0 init ~/brain
-```
-
-Le code est sur [GitHub](https://github.com/rikilamadrid/lorekeeper). S'il retrouve quelque chose que vous aviez oublié avoir écrit, j'aimerais le savoir.
+La documentation est sur [lorekeeper-bay.vercel.app](https://lorekeeper-bay.vercel.app) et fonctionne hors ligne après une visite. Le code est sur [GitHub](https://github.com/rikilamadrid/lorekeeper). Si Lorekeeper retrouve quelque chose que vous aviez oublié avoir écrit, j'aimerais le savoir.

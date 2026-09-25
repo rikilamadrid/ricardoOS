@@ -2,6 +2,7 @@ import Link from "next/link";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { t, type Locale, type Localized } from "@/data";
 import type { Post } from "@/lib/posts";
+import { formatReadingTime } from "@/lib/reading-time";
 import { ContentPage } from "./ContentPage";
 import { ShareActions } from "./ShareActions";
 
@@ -48,6 +49,7 @@ export function WritingPostContent({ post, locale }: { post: Post; locale: Local
       <article className="content-article" lang={locale}>
         <div className="mt-5 flex flex-wrap items-center gap-2 text-[13px] font-semibold text-ink-soft">
           <time dateTime={meta.date}>{formatDate(meta.date, locale)}</time>
+          <span>· {formatReadingTime(meta.readingMinutes[locale], locale)}</span>
           {meta.tags.map((tag) => (
             <span key={tag} className="os-tag">
               {tag}

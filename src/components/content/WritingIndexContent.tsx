@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { DEFAULT_LOCALE, LOCALES, t, type Locale, type Localized } from "@/data";
 import type { PostMeta } from "@/lib/posts";
+import { formatReadingTime } from "@/lib/reading-time";
 
 const STORAGE_KEY = "ricardo-os:locale";
 
@@ -94,7 +95,7 @@ export function WritingIndexContent({ posts }: { posts: PostMeta[] }) {
                   dateTime={post.date}
                   className="ml-auto shrink-0 whitespace-nowrap text-[12px] font-semibold text-ink-soft"
                 >
-                  {formatDate(post.date, locale)}
+                  {formatDate(post.date, locale)} · {formatReadingTime(post.readingMinutes[locale], locale)}
                 </time>
               </Link>
             </li>

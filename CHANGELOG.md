@@ -7,6 +7,19 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.16.0] - 2026-09-25
+
+### Added
+- Every Field Notes post shows an estimated reading time (for example "4 min
+  read") next to its date: on the post page, the Writing index, and the
+  in-window Writing app. It is computed per locale from the post's prose at
+  230 words per minute, skipping code blocks and images.
+
+### Changed
+- The Lorekeeper launch post is cut from about ten minutes to about four,
+  keeping the four decisions, the real search example, and the failed first
+  release run. English, Spanish, and French.
+
 ## [1.15.0] - 2026-09-25
 
 ### Added
