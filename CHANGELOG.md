@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- A Field Notes post, "I built these tools for myself. Then other people
+  downloaded them.", on four packages built for personal use reaching 1,831
+  weekly npm downloads, and why that isn't 1,831 people. English, Spanish, and
+  French.
+
 ## [1.16.0] - 2026-09-25
 
 ### Added

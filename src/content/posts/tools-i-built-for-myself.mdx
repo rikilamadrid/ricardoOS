@@ -1,0 +1,173 @@
+---
+title:
+  en: I built these tools for myself. Then other people downloaded them.
+  es: Construí estas herramientas para mí. Después otras personas las descargaron.
+  fr: J'ai construit ces outils pour moi. Puis d'autres personnes les ont téléchargés.
+summary:
+  en: Four packages that started as things I wanted on my own machine now add up to 1,831 weekly downloads on npm. That isn't 1,831 people, and it still feels enormous.
+  es: Cuatro paquetes que empezaron como cosas que quería en mi propia máquina suman ahora 1.831 descargas semanales en npm. No son 1.831 personas, y aun así se siente enorme.
+  fr: Quatre packages qui ont commencé comme des choses que je voulais sur ma propre machine totalisent maintenant 1 831 téléchargements hebdomadaires sur npm. Ce ne sont pas 1 831 personnes, et pourtant ça paraît énorme.
+shareCaption:
+  en: "I built four tools for myself. npm now counts 1,831 downloads a week across them. That isn't 1,831 people, but it's a lot more than me. 📦"
+  es: "Construí cuatro herramientas para mí. npm cuenta ahora 1.831 descargas semanales entre todas. No son 1.831 personas, pero son muchas más que yo. 📦"
+  fr: "J'ai construit quatre outils pour moi. npm compte maintenant 1 831 téléchargements par semaine pour l'ensemble. Ce ne sont pas 1 831 personnes, mais c'est bien plus que moi. 📦"
+date: "2026-10-02"
+tags: ["open-source", "craft", "lorekeeper", "pathfinder"]
+draft: false
+---
+
+<!-- locale:en -->
+
+I have four packages on npm. This week I looked at their download counters and couldn't stop smiling.
+
+| Package | Weekly downloads |
+| --- | --- |
+| [`wonder-wagon-ui`](https://www.npmjs.com/package/wonder-wagon-ui) | 681 |
+| [`create-lorekeeper`](https://www.npmjs.com/package/create-lorekeeper) | 680 |
+| [`create-pathfinder`](https://www.npmjs.com/package/create-pathfinder) | 262 |
+| [`forge-local-ai-kit`](https://www.npmjs.com/package/forge-local-ai-kit) | 208 |
+| **Total** | **1,831** |
+
+None of them started as a product.
+
+## They were for me
+
+**Lorekeeper** started with a note I couldn't find. I knew I had written the answer down somewhere in my Markdown, and I wanted a command that would hand me the passage. Offline, no API key.
+
+**Pathfinder** is the workflow kit I use to build with AI agents without handing them the keys. It does the repetitive parts of delivery and leaves the decisions with me.
+
+**Forge** is the plumbing I pulled out of LAMA, the old Mac I turned into an AI server, once I noticed every app I wrote was going to need the same timeouts and errors to talk to a local model.
+
+**Wonder Wagon UI** is the design system that makes the other three look like they belong to the same family. It's the least practical of the four, and it's the most downloaded. I don't understand that, and I like it.
+
+It's also exactly one download ahead of Lorekeeper. Neither depends on the other. I have no theory. I just keep checking.
+
+## What the numbers are not
+
+1,831 is not 1,831 people.
+
+npm counts downloads, not humans. A CI pipeline that installs a package on every run counts every time. So do registry mirrors, so do bots, and so do my own machines. The two `create-` packages are installers you run with `npx`, so one curious person trying it twice is two downloads.
+
+I don't know how many of these are real developers, and I'm not going to pretend I do.
+
+## What they are
+
+What I do know is roughly how often I install my own packages, and it isn't 1,831 times a week.
+
+So the rest is somebody else. Some of it is surely a robot. Some of it, I'd like to think, is a person who typed `npx create-lorekeeper` and pointed it at their own notes, or tried Pathfinder on a real repository just to see what it would do.
+
+I'll never know which. That's fine. The thing that gets me is simpler: **these tools left my laptop.** They're running, or at least being unpacked, on machines I'll never see, for reasons I'll never hear about.
+
+Building for yourself is a closed loop. You have the problem, you write the fix, you're the only user, and the only feedback is whether it works for you. A download counter cracks that loop open just a little. It's a conversation where I only hear one side, and the side I hear is a number going up.
+
+## Small number, big feeling
+
+1,831 is not a big internet number. Plenty of packages do that before lunch.
+
+But I made these. I named the commands, picked the colours, wrote the docs, broke a release pipeline and fixed it. Every one of those downloads lands on something I sat down and built because I wanted it to exist.
+
+From where I'm sitting, it's enormous.
+
+<!-- locale:es -->
+
+Tengo cuatro paquetes en npm. Esta semana miré sus contadores de descargas y no podía dejar de sonreír.
+
+| Paquete | Descargas semanales |
+| --- | --- |
+| [`wonder-wagon-ui`](https://www.npmjs.com/package/wonder-wagon-ui) | 681 |
+| [`create-lorekeeper`](https://www.npmjs.com/package/create-lorekeeper) | 680 |
+| [`create-pathfinder`](https://www.npmjs.com/package/create-pathfinder) | 262 |
+| [`forge-local-ai-kit`](https://www.npmjs.com/package/forge-local-ai-kit) | 208 |
+| **Total** | **1.831** |
+
+Ninguno empezó como un producto.
+
+## Eran para mí
+
+**Lorekeeper** empezó con una nota que no encontraba. Sabía que había escrito la respuesta en algún lugar de mi Markdown, y quería un comando que me devolviera el pasaje. Offline, sin API key.
+
+**Pathfinder** es el kit de flujo de trabajo que uso para construir con agentes de IA sin darles las llaves. Hace las partes repetitivas de la entrega y me deja a mí las decisiones.
+
+**Forge** es la infraestructura que saqué de LAMA, el Mac viejo que convertí en servidor de IA, cuando me di cuenta de que cada aplicación que escribiera iba a necesitar los mismos timeouts y los mismos errores para hablar con un modelo local.
+
+**Wonder Wagon UI** es el sistema de diseño que hace que las otras tres parezcan de la misma familia. Es la menos práctica de las cuatro, y es la más descargada. No lo entiendo, y me encanta.
+
+Además va exactamente una descarga por delante de Lorekeeper. Ninguna depende de la otra. No tengo ninguna teoría. Simplemente sigo mirando.
+
+## Lo que los números no son
+
+1.831 no son 1.831 personas.
+
+npm cuenta descargas, no humanos. Un pipeline de CI que instala un paquete en cada ejecución cuenta cada vez. También cuentan los mirrors del registro, los bots y mis propias máquinas. Los dos paquetes `create-` son instaladores que se ejecutan con `npx`, así que una persona curiosa que lo prueba dos veces son dos descargas.
+
+No sé cuántas de estas son desarrolladores reales, y no voy a fingir que lo sé.
+
+## Lo que sí son
+
+Lo que sí sé es más o menos cuántas veces instalo mis propios paquetes, y no son 1.831 veces por semana.
+
+Así que el resto es otra persona. Una parte seguro que es un robot. Otra parte, me gusta pensar, es alguien que escribió `npx create-lorekeeper` y lo apuntó a sus propias notas, o que probó Pathfinder en un repositorio real solo para ver qué hacía.
+
+Nunca sabré cuál es cuál. Y está bien. Lo que me llega es más simple: **estas herramientas salieron de mi portátil.** Se están ejecutando, o al menos desempaquetando, en máquinas que nunca veré, por razones de las que nunca me enteraré.
+
+Construir para uno mismo es un circuito cerrado. Tienes el problema, escribes la solución, eres el único usuario, y el único feedback es si te funciona a ti. Un contador de descargas abre ese circuito un poquito. Es una conversación en la que solo oigo un lado, y el lado que oigo es un número que sube.
+
+## Número pequeño, sensación enorme
+
+1.831 no es un número grande en internet. Muchos paquetes hacen eso antes de comer.
+
+Pero estos los hice yo. Puse nombre a los comandos, elegí los colores, escribí la documentación, rompí un pipeline de releases y lo arreglé. Cada una de esas descargas cae sobre algo que me senté a construir porque quería que existiera.
+
+Desde donde yo lo veo, es enorme.
+
+<!-- locale:fr -->
+
+J'ai quatre packages sur npm. Cette semaine, j'ai regardé leurs compteurs de téléchargements et je n'arrivais pas à arrêter de sourire.
+
+| Package | Téléchargements hebdomadaires |
+| --- | --- |
+| [`wonder-wagon-ui`](https://www.npmjs.com/package/wonder-wagon-ui) | 681 |
+| [`create-lorekeeper`](https://www.npmjs.com/package/create-lorekeeper) | 680 |
+| [`create-pathfinder`](https://www.npmjs.com/package/create-pathfinder) | 262 |
+| [`forge-local-ai-kit`](https://www.npmjs.com/package/forge-local-ai-kit) | 208 |
+| **Total** | **1 831** |
+
+Aucun n'a commencé comme un produit.
+
+## Ils étaient pour moi
+
+**Lorekeeper** a commencé avec une note introuvable. Je savais que j'avais écrit la réponse quelque part dans mon Markdown, et je voulais une commande qui me rende le passage. Hors ligne, sans clé d'API.
+
+**Pathfinder** est le kit de workflow que j'utilise pour construire avec des agents IA sans leur donner les clés. Il fait les parties répétitives de la livraison et me laisse les décisions.
+
+**Forge** est la plomberie que j'ai extraite de LAMA, le vieux Mac que j'ai transformé en serveur d'IA, quand j'ai compris que chaque application que j'écrirais aurait besoin des mêmes timeouts et des mêmes erreurs pour parler à un modèle local.
+
+**Wonder Wagon UI** est le design system qui donne aux trois autres un air de famille. C'est le moins pratique des quatre, et c'est le plus téléchargé. Je ne comprends pas pourquoi, et ça me plaît.
+
+Il a aussi exactement un téléchargement d'avance sur Lorekeeper. Aucun ne dépend de l'autre. Je n'ai aucune théorie. Je continue juste à vérifier.
+
+## Ce que les chiffres ne sont pas
+
+1 831, ce ne sont pas 1 831 personnes.
+
+npm compte des téléchargements, pas des humains. Un pipeline de CI qui installe un package à chaque exécution compte à chaque fois. Les miroirs du registre aussi, les bots aussi, et mes propres machines aussi. Les deux packages `create-` sont des installeurs qu'on lance avec `npx`, donc une personne curieuse qui essaie deux fois, ce sont deux téléchargements.
+
+Je ne sais pas combien sont de vrais développeurs, et je ne vais pas faire semblant de le savoir.
+
+## Ce qu'ils sont
+
+Ce que je sais, c'est à peu près combien de fois j'installe mes propres packages, et ce n'est pas 1 831 fois par semaine.
+
+Le reste, c'est donc quelqu'un d'autre. Une partie est sûrement un robot. Une autre partie, j'aime le croire, est une personne qui a tapé `npx create-lorekeeper` et l'a pointé vers ses propres notes, ou qui a essayé Pathfinder sur un vrai dépôt juste pour voir ce qu'il ferait.
+
+Je ne saurai jamais lesquels. Ce n'est pas grave. Ce qui me touche est plus simple : **ces outils ont quitté mon ordinateur.** Ils tournent, ou du moins ils sont décompressés, sur des machines que je ne verrai jamais, pour des raisons dont je n'entendrai jamais parler.
+
+Construire pour soi, c'est une boucle fermée. On a le problème, on écrit la solution, on est le seul utilisateur, et le seul retour, c'est de savoir si ça marche chez soi. Un compteur de téléchargements entrouvre cette boucle. C'est une conversation dont je n'entends qu'un côté, et ce côté-là, c'est un chiffre qui monte.
+
+## Petit chiffre, grande émotion
+
+1 831, ce n'est pas un grand chiffre à l'échelle d'internet. Beaucoup de packages font ça avant midi.
+
+Mais ceux-là, je les ai faits. J'ai nommé les commandes, choisi les couleurs, écrit la documentation, cassé un pipeline de release et je l'ai réparé. Chacun de ces téléchargements atterrit sur quelque chose que je me suis assis pour construire parce que je voulais que ça existe.
+
+De là où je suis, c'est énorme.
