@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.17.0] - 2026-10-02
+
 ### Added
 - A Field Notes post, "I built these tools for myself. Then other people
   downloaded them.", on four packages built for personal use reaching 1,831
