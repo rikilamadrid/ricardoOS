@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.18.1] - 2026-10-08
+
 ### Changed
 - Trimmed the "Letting the model judge without letting it drive" Field Notes
   post to a four to five minute read and removed configuration names and code
