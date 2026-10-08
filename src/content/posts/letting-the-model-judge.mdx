@@ -1,0 +1,458 @@
+---
+title:
+  en: Letting the model judge without letting it drive
+  es: Dejar que el modelo juzgue sin dejar que conduzca
+  fr: Laisser le modèle juger sans le laisser conduire
+summary:
+  en: Pathfinder now asks a model two narrow questions about evidence. Every answer goes through deterministic code before anything happens, and nothing happens without me.
+  es: Pathfinder ahora le hace a un modelo dos preguntas acotadas sobre la evidencia. Cada respuesta pasa por código determinista antes de que ocurra algo, y nada ocurre sin mí.
+  fr: Pathfinder pose désormais à un modèle deux questions étroites sur les preuves. Chaque réponse passe par du code déterministe avant que quoi que ce soit n'arrive, et rien n'arrive sans moi.
+shareCaption:
+  en: "model = epistemic authority, code = procedural authority. 🧭 How Pathfinder uses Jev to read evidence and suggest the next investigation, while code and a human keep every decision."
+  es: "model = autoridad epistémica, code = autoridad procedimental. 🧭 Cómo Pathfinder usa Jev para leer evidencia y sugerir la siguiente investigación, mientras el código y una persona conservan cada decisión."
+  fr: "model = autorité épistémique, code = autorité procédurale. 🧭 Comment Pathfinder utilise Jev pour lire les preuves et suggérer la prochaine investigation, pendant que le code et un humain gardent chaque décision."
+date: "2026-10-08"
+tags: ["ai", "engineering", "pathfinder", "agents", "security"]
+draft: false
+---
+
+<!-- locale:en -->
+
+Pathfinder is the workflow kit I use to build software with coding agents. In orchestrator mode each ticket goes through a Developer, an Adversary that tries to break the work, and an independent Tester, and then it stops at a gate where I decide whether it gets accepted and merged. I wrote about how that works in [the 4.4.0 post](/writing/pathfinder-4-4-0).
+
+Most of that loop is procedure. Which role runs next, whether a report belongs to the current PR head, whether a claim is done: code answers those questions, and it should, because they have right answers.
+
+Two places in the loop kept asking a different kind of question. Not "what state are we in?" but "what does this evidence mean?" Those are the two places where I've started using a model. Not as an orchestrator. As a reader.
+
+The rule is written at the top of the Feature 57 spec:
+
+```text
+model = epistemic authority
+code  = procedural authority
+```
+
+The model can say what it thinks the evidence means. Code decides what is allowed to happen because of that. I decide whether it happens.
+
+## Feature 56: a second reader for the evidence
+
+The first place is the end of a ticket. A Tester PASS puts a claim into Pathfinder's internal `done` state. `done` is not acceptance: the ticket is still In Progress and waits for me. Before it reaches me, Feature 56 can ask Jev, TypeSafe's structured-decision model, one question per verification item: does the recorded Tester and Adversary evidence support this criterion?
+
+```text
+Developer → Adversary → Tester PASS (done) → optional Evidence Judge → Pathfinder policy → human gate
+```
+
+Jev answers with typed choices and confidences, not prose. That shape is why I picked it. I can validate a choice from a closed set. I can't validate an essay.
+
+The list of what the judge cannot do is longer than the list of what it can. It is not a Tester, an Adversary or a reviewer, and it is not a source of PASS/FAIL, acceptance, rejection, merge approval or lifecycle state. It can't dispatch an agent. Any failure, timeout, malformed answer or refused request escalates to me. It is off by default: one marker line in `context/execution-mode.md` turns it on, and a `TYPESAFE_API_KEY` sitting in the environment never does.
+
+### The detector that didn't work
+
+The hard part of Feature 56 wasn't the question. It was deciding what to send.
+
+The obvious approach was to send the Tester's and Adversary's recorded evidence and run a secret detector over it first. That detector went through eight adversarial rounds, and they kept finding syntax it missed. The decision record from October 2 is blunt about where that ended: the evidence requirement is met "through a judge-facing projection, not the raw records."
+
+So the boundary became a projection instead of a filter. Beside their raw evidence, the Tester and the Adversary each write a short summary for the judge in what the code calls judge prose:
+
+- one line, at most 280 characters
+- only letters, digits, spaces and `. , ; ( ) ' % -`
+- no token-shaped words, no command-line flags, no value right after a word like `password` or `token`
+
+With no colon, equals sign, slash, quote, brace, pipe or newline available, the shapes a credential usually travels in (`user:pass`, `KEY=value`, URLs, headers, JSON, shell pipelines, multi-line logs) can't be written at all. "The expired token was rejected with HTTP 401." is judge prose. A curl command is not.
+
+The raw evidence stays in the claim's local checkpoint. The ids the provider sees, like `tester:verification:2` or `adversary:1`, are generated by Pathfinder and map back to local records. The PR URL, the head SHA, commands, file locators and the Tester's PASS/FAIL word never leave the machine.
+
+The limit is written down, and I'll repeat it here: this prevents accidental transmission of raw technical payloads and common credential material. It is not data-loss prevention against a short secret typed as an ordinary sentence. I made that call about the threat model, and the docs record it as a human decision rather than a guarantee.
+
+### Validated bytes are transmitted bytes
+
+The second boundary is the transport. A provider declares its exact endpoint and headers up front. Pathfinder hands it a guarded fetch that checks every call against that declaration: the destination, `POST`, `redirect: "error"`, the same headers and no others, and a body that is exactly the canonical serialization of its own content. Then the fetch sends the values it validated: the same URL string, a copy of the declared headers, the same body string.
+
+If you check one object and then serialize another, the check is decoration. Feature 57 found a real instance of that. In ticket 57.3 the Adversary confirmed two findings where caller-controlled serialization hooks, or reads that changed between validation and sending, could replace the content that had been checked. The repair freezes the input into a snapshot before validation and builds the transmitted request from that same snapshot.
+
+Feature 56 merged with 250/250 judgment tests and 437/437 orchestration tests passing on `main`. No test calls a live provider. Jev's response parsing is checked against a response recorded during one live synthetic smoke test on October 1. One follow-up is still open: the 0.8 confidence threshold hasn't been calibrated on real Pathfinder evidence.
+
+## Feature 57: a concern that won't resolve
+
+The second semantic question shows up earlier and is messier. Review is complete at the current head, but a concern is still open, and nothing deterministic says what to do about it. The example in the docs is "Repeated boundary input lacks an observation." Is that a test nobody ran? An assumption somebody should try to break? Or a requirement only I can clarify?
+
+Feature 57 asks Jev that question and nothing broader. There are three possible answers:
+
+- **Tester**: gather more observed evidence
+- **Adversary**: run an experiment that challenges an assumption
+- **Human**: clarify or decide
+
+There is no Developer route. The spec says confirmed current-head Tester findings remain the only source of repair authority, and "suspicions, provider classifications, and provider confidence are not repair authority." There's also no `continue`, `next_state`, `dispatch`, `accept` or `merge`. A response that carries any field outside the contract is rejected.
+
+The Jev adapter asks four typed questions: what would resolve this concern, why it is still unresolved, which evidence item most directly supports that, and whether there is a concern that needs human clarification. The assessment's confidence is the lowest of the four answers, not their average.
+
+Then deterministic policy maps the validated answer:
+
+- Tester, missing observation, no concern, supporting refs, confidence ≥ 0.8 → **Recommend Tester, pending my direction**
+- Adversary, untested assumption, no concern, supporting refs, confidence ≥ 0.8 → **Recommend Adversary, pending my direction**
+- Route Human, at any confidence → **Human**
+- Any security, high-risk or scope concern, at any confidence → **Human**
+- Low confidence, bad refs, malformed output, wrong model, missing credential, timeout, provider failure, refused request → **Human**
+
+Security or uncertainty can only make the result more conservative. A confident answer that flags a security concern still goes to Human, and so does a timeout.
+
+The whole path looks like this:
+
+```text
+local workflow evidence      raw reports, commands, logs, PR URL, head SHA: stay local
+        │
+        ▼
+bounded projection           restricted prose and generated ids             (57.2)
+        │
+        ▼
+guarded Jev transport        pinned jev-1.13.0, one request, no retry       (57.3)
+        │
+        ▼
+strict validation            closed contract, refs must resolve             (57.1)
+        │
+        ▼
+deterministic policy         Tester | Adversary | Human, threshold 0.8      (57.1)
+        │
+        ▼
+human-authorized follow-up   separate command, separate authorization       (57.5)
+```
+
+Every arrow is a place that can refuse, and every refusal lands on Human.
+
+## Why it is built in slices
+
+The order of the tickets is the design.
+
+**57.1: contract and policy, no network at all.** Before a model is anywhere in the loop, every combination can be table-tested. That PR reports all 4,094 combined restriction cases resolving to Human. The Adversary also found a real defect: crafted arrays with inherited iteration, accessor members or holes could run code during validation. That was repaired before merge.
+
+**57.2: a routing-only projection, still no network.** It works with the Evidence Judge turned off. Routing and judging are configured separately and use separate credentials: routing reads `PATHFINDER_ROUTING_API_KEY` and never falls back to the judge's `TYPESAFE_*` key.
+
+**57.3: guarded Jev transport.** This is the first ticket that can make an HTTP call, and it was tested only against a loopback double. The ticket itself says that building it does not authorize a live call.
+
+**57.4: budget and cache.** Two fresh attempts per ticket by default, and only after I initialize that allowance explicitly. An attempt is reserved durably before anything is sent, failures still count, local refusals and valid cache hits don't, and an interrupted attempt is never refunded quietly. Routing writes into the same checkpoint file as Tester findings and gate updates, so this ticket put every checkpoint writer in the orchestrator behind one shared lock with atomic replacement.
+
+**57.5: same-head follow-up.** This one fixed a bug that existed before routing did. From the PR: "A human request for more investigation at an unchanged PR head previously left the old Adversary report and Tester PASS eligible, so resume could return directly to done." The same commit SHA was standing in for fresh review. Now an explicit follow-up retires the active reports (Tester follow-up retires the Tester report, Adversary follow-up retires both), keeps them as history, and requires new reports tied to the concern before the claim can be `done` again.
+
+**57.6: the explicit entrypoint.** Routing has its own config file, and each invocation needs its own consent record naming the ticket, concern, provider and fingerprint. After the provider answers, the coordinator rereads identity, configuration, live workers, requirements and evidence. If anything changed, the response is rejected.
+
+## What has shipped and what hasn't
+
+- Feature 56 is merged to `main` (PR #151).
+- Feature 57 tickets 57.1 to 57.6 are merged (PRs #168 to #173). The last one landed today.
+- 57.7, which runs hostile and interrupted scenarios across components, is in progress. 57.8, the documentation and acceptance proof, hasn't started. The Feature 57 spec still says In Progress.
+- Neither feature is in a tagged release. If you install Pathfinder from npm today, you don't get either of them.
+- No routing test has called live Jev. Every one uses a provider double.
+- Both 0.8 thresholds are provisional abstention thresholds. Neither is a calibrated accuracy claim.
+
+## Tradeoffs
+
+**Friction is the point, and it's still friction.** Asking for one routing assessment takes a prepared request, an explicit allowance, a consent file for that invocation, and then a second, separate human direction before any follow-up happens. A recommendation is cheap to produce and should be expensive to act on by accident.
+
+**The model sees a thin slice.** Judge prose can't hold a stack trace. Some concerns will come back as insufficient context and go to Human. That is the right way for this to fail, and it's still a limit.
+
+**The residual risk is real.** A short secret written as an ordinary sentence can get through. The threat model says so instead of claiming otherwise.
+
+**Cost is estimated, not measured.** The spec's bounds are zero routing calls for an ordinary ticket, one for an eligible ambiguous concern, and zero when identical valid input hits the cache. Those are design bounds. You also need your own TypeSafe account, which is separate from any coding-agent subscription. Feature 56 also has a known inefficiency: the questions make up about 85% of each Jev request, because every criterion repeats every evidence option.
+
+## What this makes possible
+
+The goal isn't more AI in the loop. Most of the loop shouldn't have a model in it. Freshness, ownership, which role runs next, whether a report is still valid: those have right answers, and code computes them.
+
+The places where I use a model are the ones where the question really is about meaning, and where a confident wrong answer is cheap because it reaches me as a recommendation rather than a state change. What 57.7 and 57.8 still have to prove is that this holds when inputs are hostile, interrupted or stale. Once they do, an open review concern stops being a dead end where I have to work out the next step from scratch. It becomes a question with three possible answers, a cited piece of evidence, and a default of asking me.
+
+Jev reads. Pathfinder decides what's allowed. I decide what happens.
+
+**Pathfinder on GitHub:** https://github.com/rikilamadrid/pathfinder
+
+<!-- locale:es -->
+
+Pathfinder es el kit de flujo de trabajo que uso para construir software con agentes de código. En modo orquestador, cada ticket pasa por un Developer, un Adversary que intenta romper el trabajo y un Tester independiente, y luego se detiene en una puerta donde yo decido si se acepta y se mergea. Escribí sobre cómo funciona eso en [el post de la 4.4.0](/writing/pathfinder-4-4-0).
+
+La mayor parte de ese ciclo es procedimiento. Qué rol va después, si un reporte pertenece al head actual del PR, si un claim está terminado: el código responde esas preguntas, y debe hacerlo, porque tienen respuestas correctas.
+
+Dos puntos del ciclo seguían haciendo otro tipo de pregunta. No "¿en qué estado estamos?" sino "¿qué significa esta evidencia?". Esos son los dos puntos donde empecé a usar un modelo. No como orquestador. Como lector.
+
+La regla está escrita al principio de la spec de la Feature 57:
+
+```text
+model = epistemic authority
+code  = procedural authority
+```
+
+El modelo puede decir qué cree que significa la evidencia. El código decide qué se permite que pase por eso. Yo decido si pasa.
+
+## Feature 56: un segundo lector para la evidencia
+
+El primer punto es el final de un ticket. Un PASS del Tester pone el claim en el estado interno `done` de Pathfinder. `done` no es aceptación: el ticket sigue In Progress y me espera. Antes de llegar a mí, la Feature 56 puede preguntarle a Jev, el modelo de decisiones estructuradas de TypeSafe, una pregunta por cada ítem de verificación: ¿la evidencia registrada por el Tester y el Adversary respalda este criterio?
+
+```text
+Developer → Adversary → Tester PASS (done) → optional Evidence Judge → Pathfinder policy → human gate
+```
+
+Jev responde con opciones tipadas y niveles de confianza, no con prosa. Por esa forma lo elegí. Puedo validar una opción de un conjunto cerrado. No puedo validar un ensayo.
+
+La lista de lo que el juez no puede hacer es más larga que la de lo que sí puede. No es un Tester, ni un Adversary, ni un revisor, y no es fuente de PASS/FAIL, aceptación, rechazo, aprobación de merge ni estado del ciclo de vida. No puede despachar un agente. Cualquier fallo, timeout, respuesta malformada o solicitud rechazada me escala a mí. Viene apagado por defecto: una línea marcador en `context/execution-mode.md` lo activa, y una `TYPESAFE_API_KEY` en el entorno nunca lo hace.
+
+### El detector que no funcionó
+
+Lo difícil de la Feature 56 no fue la pregunta. Fue decidir qué enviar.
+
+Lo obvio era enviar la evidencia registrada del Tester y del Adversary y pasarle antes un detector de secretos. Ese detector pasó por ocho rondas adversariales, y seguían encontrando sintaxis que se le escapaba. El registro de decisión del 2 de octubre es directo sobre cómo terminó: el requisito de evidencia se cumple "through a judge-facing projection, not the raw records".
+
+Así que el límite pasó a ser una proyección en lugar de un filtro. Junto a su evidencia cruda, el Tester y el Adversary escriben cada uno un resumen corto para el juez en lo que el código llama judge prose:
+
+- una línea, como máximo 280 caracteres
+- solo letras, dígitos, espacios y `. , ; ( ) ' % -`
+- nada de palabras con forma de token, nada de flags de línea de comandos, ningún valor justo después de una palabra como `password` o `token`
+
+Sin dos puntos, signo igual, barra, comillas, llaves, pipe ni salto de línea, las formas en que suele viajar una credencial (`user:pass`, `KEY=value`, URLs, headers, JSON, pipelines de shell, logs de varias líneas) directamente no se pueden escribir. "The expired token was rejected with HTTP 401." es judge prose. Un comando curl no lo es.
+
+La evidencia cruda se queda en el checkpoint local del claim. Los ids que ve el proveedor, como `tester:verification:2` o `adversary:1`, los genera Pathfinder y apuntan a registros locales. La URL del PR, el SHA del head, los comandos, las rutas de archivos y la palabra PASS/FAIL del Tester nunca salen de la máquina.
+
+El límite está escrito, y lo repito aquí: esto evita la transmisión accidental de payloads técnicos crudos y de material de credenciales común. No es prevención de pérdida de datos frente a un secreto corto escrito como una frase normal. Esa decisión sobre el modelo de amenazas la tomé yo, y la documentación la registra como una decisión humana, no como una garantía.
+
+### Los bytes validados son los bytes transmitidos
+
+El segundo límite es el transporte. Un proveedor declara de antemano su endpoint y sus headers exactos. Pathfinder le entrega un fetch protegido que compara cada llamada con esa declaración: el destino, `POST`, `redirect: "error"`, los mismos headers y ningún otro, y un body que es exactamente la serialización canónica de su propio contenido. Después el fetch envía los valores que validó: la misma cadena de URL, una copia de los headers declarados, la misma cadena de body.
+
+Si validas un objeto y luego serializas otro, la validación es decoración. La Feature 57 encontró un caso real de eso. En el ticket 57.3 el Adversary confirmó dos hallazgos en los que hooks de serialización controlados por quien llama, o lecturas que cambiaban entre la validación y el envío, podían reemplazar el contenido que ya se había comprobado. La reparación congela la entrada en un snapshot antes de validar y construye la solicitud transmitida a partir de ese mismo snapshot.
+
+La Feature 56 se mergeó con 250/250 tests de juicio y 437/437 tests de orquestación pasando en `main`. Ningún test llama a un proveedor real. El parseo de respuestas de Jev se comprueba contra una respuesta grabada durante una única prueba sintética en vivo el 1 de octubre. Queda un seguimiento abierto: el umbral de confianza de 0.8 todavía no se ha calibrado con evidencia real de Pathfinder.
+
+## Feature 57: una preocupación que no se resuelve
+
+La segunda pregunta semántica aparece antes y es más desordenada. La revisión está completa en el head actual, pero sigue abierta una preocupación, y nada determinista dice qué hacer con ella. El ejemplo de la documentación es "Repeated boundary input lacks an observation." ¿Es un test que nadie ejecutó? ¿Una suposición que alguien debería intentar romper? ¿O un requisito que solo yo puedo aclarar?
+
+La Feature 57 le hace a Jev esa pregunta y nada más amplio. Hay tres respuestas posibles:
+
+- **Tester**: reunir más evidencia observada
+- **Adversary**: ejecutar un experimento que ponga a prueba una suposición
+- **Human**: aclarar o decidir
+
+No existe una ruta Developer. La spec dice que los hallazgos confirmados del Tester en el head actual siguen siendo la única fuente de autoridad para reparar, y que "suspicions, provider classifications, and provider confidence are not repair authority." Tampoco hay `continue`, `next_state`, `dispatch`, `accept` ni `merge`. Una respuesta que trae cualquier campo fuera del contrato se rechaza.
+
+El adaptador de Jev hace cuatro preguntas tipadas: qué resolvería esta preocupación, por qué sigue sin resolverse, qué ítem de evidencia lo respalda más directamente y si hay una preocupación que necesite aclaración humana. La confianza de la evaluación es la más baja de las cuatro respuestas, no su promedio.
+
+Después, la política determinista traduce la respuesta validada:
+
+- Tester, observación faltante, sin preocupación, refs de respaldo, confianza ≥ 0.8 → **Recomendar Tester, pendiente de mi decisión**
+- Adversary, suposición sin probar, sin preocupación, refs de respaldo, confianza ≥ 0.8 → **Recomendar Adversary, pendiente de mi decisión**
+- Ruta Human, con cualquier confianza → **Human**
+- Cualquier preocupación de seguridad, alto riesgo o alcance, con cualquier confianza → **Human**
+- Baja confianza, refs inválidas, salida malformada, modelo incorrecto, credencial ausente, timeout, fallo del proveedor, solicitud rechazada → **Human**
+
+La seguridad o la incertidumbre solo pueden hacer el resultado más conservador. Una respuesta segura que señala una preocupación de seguridad igual va a Human, y un timeout también.
+
+El recorrido completo se ve así:
+
+```text
+local workflow evidence      raw reports, commands, logs, PR URL, head SHA: stay local
+        │
+        ▼
+bounded projection           restricted prose and generated ids             (57.2)
+        │
+        ▼
+guarded Jev transport        pinned jev-1.13.0, one request, no retry       (57.3)
+        │
+        ▼
+strict validation            closed contract, refs must resolve             (57.1)
+        │
+        ▼
+deterministic policy         Tester | Adversary | Human, threshold 0.8      (57.1)
+        │
+        ▼
+human-authorized follow-up   separate command, separate authorization       (57.5)
+```
+
+Cada flecha es un punto que puede rechazar, y cada rechazo termina en Human.
+
+## Por qué se construye por partes
+
+El orden de los tickets es el diseño.
+
+**57.1: contrato y política, sin red.** Antes de que haya un modelo en el ciclo, se puede probar cada combinación con tablas. Ese PR reporta que los 4.094 casos combinados de restricción terminan en Human. El Adversary también encontró un defecto real: arrays fabricados con iteración heredada, miembros accessor o huecos podían ejecutar código durante la validación. Se reparó antes del merge.
+
+**57.2: una proyección solo para routing, todavía sin red.** Funciona con el Evidence Judge apagado. Routing y juicio se configuran por separado y usan credenciales distintas: routing lee `PATHFINDER_ROUTING_API_KEY` y nunca recurre a la clave `TYPESAFE_*` del juez.
+
+**57.3: transporte protegido hacia Jev.** Es el primer ticket que puede hacer una llamada HTTP, y solo se probó contra un doble en loopback. El propio ticket dice que construirlo no autoriza una llamada real.
+
+**57.4: presupuesto y caché.** Dos intentos nuevos por ticket por defecto, y solo después de que yo inicialice ese margen explícitamente. Un intento se reserva de forma durable antes de enviar nada, los fallos cuentan, los rechazos locales y los aciertos válidos de caché no, y un intento interrumpido nunca se devuelve en silencio. Routing escribe en el mismo archivo de checkpoint que los hallazgos del Tester y las actualizaciones de puertas, así que este ticket puso a todos los escritores de checkpoint del orquestador detrás de un único lock compartido con reemplazo atómico.
+
+**57.5: seguimiento en el mismo head.** Este arregló un bug que existía antes que el routing. Del PR: "A human request for more investigation at an unchanged PR head previously left the old Adversary report and Tester PASS eligible, so resume could return directly to done." El mismo SHA de commit estaba haciendo de revisión fresca. Ahora un seguimiento explícito retira los reportes activos (un seguimiento de Tester retira el reporte del Tester, uno de Adversary retira ambos), los conserva como historial y exige reportes nuevos ligados a la preocupación antes de que el claim pueda volver a `done`.
+
+**57.6: el punto de entrada explícito.** Routing tiene su propio archivo de configuración, y cada invocación necesita su propio registro de consentimiento que nombre el ticket, la preocupación, el proveedor y la huella. Cuando el proveedor responde, el coordinador vuelve a leer identidad, configuración, workers vivos, requisitos y evidencia. Si algo cambió, la respuesta se rechaza.
+
+## Qué está entregado y qué no
+
+- La Feature 56 está mergeada en `main` (PR #151).
+- Los tickets 57.1 a 57.6 de la Feature 57 están mergeados (PRs #168 a #173). El último entró hoy.
+- 57.7, que ejecuta escenarios hostiles e interrumpidos entre componentes, está en curso. 57.8, la documentación y la prueba de aceptación, no ha empezado. La spec de la Feature 57 sigue diciendo In Progress.
+- Ninguna de las dos está en una versión etiquetada. Si instalas Pathfinder desde npm hoy, no obtienes ninguna.
+- Ningún test de routing ha llamado a Jev en vivo. Todos usan un doble del proveedor.
+- Los dos umbrales de 0.8 son umbrales provisionales de abstención. Ninguno es una afirmación de precisión calibrada.
+
+## Compromisos
+
+**La fricción es el objetivo, y sigue siendo fricción.** Pedir una evaluación de routing requiere una solicitud preparada, un margen explícito, un archivo de consentimiento para esa invocación y después una segunda indicación humana, separada, antes de cualquier seguimiento. Una recomendación es barata de producir y debería ser cara de ejecutar por accidente.
+
+**El modelo ve una porción estrecha.** Judge prose no puede contener un stack trace. Algunas preocupaciones volverán como contexto insuficiente e irán a Human. Es la forma correcta de fallar, y aun así es un límite.
+
+**El riesgo residual es real.** Un secreto corto escrito como frase normal puede pasar. El modelo de amenazas lo dice en lugar de afirmar lo contrario.
+
+**El costo es estimado, no medido.** Los límites de la spec son cero llamadas de routing para un ticket normal, una para una preocupación ambigua elegible y cero cuando una entrada válida idéntica acierta en caché. Son límites de diseño. Además necesitas tu propia cuenta de TypeSafe, separada de cualquier suscripción de agente de código. La Feature 56 también tiene una ineficiencia conocida: las preguntas son cerca del 85% de cada solicitud a Jev, porque cada criterio repite cada opción de evidencia.
+
+## Lo que esto hace posible
+
+El objetivo no es más IA en el ciclo. La mayor parte del ciclo no debería tener un modelo. Frescura, propiedad, qué rol va después, si un reporte sigue siendo válido: eso tiene respuestas correctas, y las calcula el código.
+
+Los lugares donde uso un modelo son aquellos donde la pregunta es de verdad sobre significado, y donde una respuesta equivocada pero segura sale barata porque me llega como recomendación y no como cambio de estado. Lo que 57.7 y 57.8 todavía tienen que demostrar es que esto se sostiene cuando las entradas son hostiles, interrumpidas o viejas. Cuando lo demuestren, una preocupación abierta en una revisión deja de ser un callejón sin salida donde tengo que deducir el siguiente paso desde cero. Pasa a ser una pregunta con tres respuestas posibles, una evidencia citada y, por defecto, preguntarme a mí.
+
+Jev lee. Pathfinder decide qué está permitido. Yo decido qué pasa.
+
+**Pathfinder en GitHub:** https://github.com/rikilamadrid/pathfinder
+
+<!-- locale:fr -->
+
+Pathfinder est le kit de workflow que j'utilise pour construire du logiciel avec des agents de code. En mode orchestrateur, chaque ticket passe par un Developer, un Adversary qui essaie de casser le travail et un Tester indépendant, puis s'arrête à une porte où je décide s'il est accepté et mergé. J'ai expliqué ce fonctionnement dans [l'article sur la 4.4.0](/writing/pathfinder-4-4-0).
+
+L'essentiel de cette boucle relève de la procédure. Quel rôle passe ensuite, si un rapport correspond au head actuel de la PR, si un claim est terminé : le code répond à ces questions, et c'est normal, parce qu'elles ont des bonnes réponses.
+
+Deux endroits de la boucle posaient pourtant un autre type de question. Pas « dans quel état sommes-nous ? » mais « que signifie cette preuve ? ». Ce sont les deux endroits où j'ai commencé à utiliser un modèle. Pas comme orchestrateur. Comme lecteur.
+
+La règle est écrite en tête de la spec de la Feature 57 :
+
+```text
+model = epistemic authority
+code  = procedural authority
+```
+
+Le modèle peut dire ce qu'il pense que la preuve signifie. Le code décide de ce qui a le droit de se produire en conséquence. Je décide si ça se produit.
+
+## Feature 56 : un second lecteur pour les preuves
+
+Le premier endroit, c'est la fin d'un ticket. Un PASS du Tester fait passer le claim dans l'état interne `done` de Pathfinder. `done` n'est pas une acceptation : le ticket reste In Progress et m'attend. Avant qu'il m'arrive, la Feature 56 peut poser à Jev, le modèle de décision structurée de TypeSafe, une question par élément de vérification : les preuves enregistrées par le Tester et l'Adversary soutiennent-elles ce critère ?
+
+```text
+Developer → Adversary → Tester PASS (done) → optional Evidence Judge → Pathfinder policy → human gate
+```
+
+Jev répond par des choix typés et des niveaux de confiance, pas par de la prose. C'est pour cette forme que je l'ai choisi. Je peux valider un choix dans un ensemble fermé. Je ne peux pas valider une dissertation.
+
+La liste de ce que le juge ne peut pas faire est plus longue que celle de ce qu'il peut faire. Ce n'est ni un Tester, ni un Adversary, ni un relecteur, et ce n'est pas une source de PASS/FAIL, d'acceptation, de rejet, d'approbation de merge ou d'état du cycle de vie. Il ne peut pas lancer d'agent. Toute erreur, tout timeout, toute réponse mal formée ou requête refusée remonte jusqu'à moi. Il est désactivé par défaut : une ligne marqueur dans `context/execution-mode.md` l'active, et une `TYPESAFE_API_KEY` présente dans l'environnement ne l'active jamais.
+
+### Le détecteur qui n'a pas marché
+
+La difficulté de la Feature 56 n'était pas la question. C'était de décider quoi envoyer.
+
+L'approche évidente consistait à envoyer les preuves enregistrées du Tester et de l'Adversary en les passant d'abord dans un détecteur de secrets. Ce détecteur a subi huit rounds adversariaux, et ils continuaient à trouver des syntaxes qu'il laissait passer. Le registre de décision du 2 octobre est clair sur l'issue : l'exigence de preuve est satisfaite « through a judge-facing projection, not the raw records ».
+
+La frontière est donc devenue une projection plutôt qu'un filtre. À côté de leurs preuves brutes, le Tester et l'Adversary écrivent chacun un court résumé pour le juge, dans ce que le code appelle judge prose :
+
+- une ligne, 280 caractères au maximum
+- uniquement des lettres, des chiffres, des espaces et `. , ; ( ) ' % -`
+- aucun mot en forme de token, aucune option de ligne de commande, aucune valeur juste après un mot comme `password` ou `token`
+
+Sans deux-points, signe égal, barre oblique, guillemets, accolades, pipe ni retour à la ligne, les formes sous lesquelles une credential circule d'habitude (`user:pass`, `KEY=value`, URLs, headers, JSON, pipelines shell, logs multilignes) ne peuvent tout simplement pas s'écrire. « The expired token was rejected with HTTP 401. » est du judge prose. Une commande curl, non.
+
+Les preuves brutes restent dans le checkpoint local du claim. Les identifiants que voit le fournisseur, comme `tester:verification:2` ou `adversary:1`, sont générés par Pathfinder et renvoient à des enregistrements locaux. L'URL de la PR, le SHA du head, les commandes, les chemins de fichiers et le mot PASS/FAIL du Tester ne quittent jamais la machine.
+
+La limite est écrite, et je la répète ici : cela empêche la transmission accidentelle de payloads techniques bruts et de credentials courantes. Ce n'est pas de la prévention de fuite de données face à un secret court écrit comme une phrase ordinaire. Ce choix sur le modèle de menace, c'est moi qui l'ai fait, et la documentation l'enregistre comme une décision humaine, pas comme une garantie.
+
+### Les octets validés sont les octets transmis
+
+La deuxième frontière, c'est le transport. Un fournisseur déclare à l'avance son endpoint et ses headers exacts. Pathfinder lui fournit un fetch protégé qui compare chaque appel à cette déclaration : la destination, `POST`, `redirect: "error"`, les mêmes headers et aucun autre, et un body qui est exactement la sérialisation canonique de son propre contenu. Ensuite, le fetch envoie les valeurs qu'il a validées : la même chaîne d'URL, une copie des headers déclarés, la même chaîne de body.
+
+Si on valide un objet puis qu'on en sérialise un autre, la validation est décorative. La Feature 57 en a trouvé un cas réel. Dans le ticket 57.3, l'Adversary a confirmé deux findings où des hooks de sérialisation contrôlés par l'appelant, ou des lectures qui changeaient entre la validation et l'envoi, pouvaient remplacer le contenu déjà vérifié. La correction fige l'entrée dans un snapshot avant la validation et construit la requête transmise à partir de ce même snapshot.
+
+La Feature 56 a été mergée avec 250/250 tests de jugement et 437/437 tests d'orchestration au vert sur `main`. Aucun test n'appelle un vrai fournisseur. Le parsing des réponses de Jev est vérifié contre une réponse enregistrée lors d'un unique test synthétique en conditions réelles, le 1er octobre. Un suivi reste ouvert : le seuil de confiance de 0.8 n'a pas encore été calibré sur de vraies preuves Pathfinder.
+
+## Feature 57 : une préoccupation qui ne se résout pas
+
+La seconde question sémantique arrive plus tôt et elle est plus confuse. La revue est complète au head actuel, mais une préoccupation reste ouverte, et rien de déterministe ne dit quoi en faire. L'exemple de la documentation est « Repeated boundary input lacks an observation. » Est-ce un test que personne n'a lancé ? Une hypothèse que quelqu'un devrait essayer de casser ? Ou une exigence que je suis le seul à pouvoir clarifier ?
+
+La Feature 57 pose cette question à Jev, et rien de plus large. Il y a trois réponses possibles :
+
+- **Tester**: rassembler davantage de preuves observées
+- **Adversary**: lancer une expérience qui met une hypothèse à l'épreuve
+- **Human**: clarifier ou décider
+
+Il n'y a pas de route Developer. La spec dit que les findings confirmés du Tester au head actuel restent la seule source d'autorité pour réparer, et que « suspicions, provider classifications, and provider confidence are not repair authority. » Il n'y a pas non plus de `continue`, `next_state`, `dispatch`, `accept` ou `merge`. Une réponse qui contient un champ hors contrat est rejetée.
+
+L'adaptateur Jev pose quatre questions typées : qu'est-ce qui résoudrait cette préoccupation, pourquoi elle reste non résolue, quel élément de preuve le soutient le plus directement, et s'il existe une préoccupation qui nécessite une clarification humaine. La confiance de l'évaluation est la plus basse des quatre réponses, pas leur moyenne.
+
+Ensuite, la politique déterministe traduit la réponse validée :
+
+- Tester, observation manquante, aucune préoccupation, refs à l'appui, confiance ≥ 0.8 → **Recommander Tester, en attente de ma décision**
+- Adversary, hypothèse non testée, aucune préoccupation, refs à l'appui, confiance ≥ 0.8 → **Recommander Adversary, en attente de ma décision**
+- Route Human, quelle que soit la confiance → **Human**
+- Toute préoccupation de sécurité, de risque élevé ou de périmètre, quelle que soit la confiance → **Human**
+- Confiance basse, refs invalides, sortie mal formée, mauvais modèle, credential absente, timeout, panne du fournisseur, requête refusée → **Human**
+
+La sécurité ou l'incertitude ne peuvent que rendre le résultat plus prudent. Une réponse sûre d'elle qui signale un problème de sécurité part quand même vers Human, et un timeout aussi.
+
+Le chemin complet ressemble à ceci :
+
+```text
+local workflow evidence      raw reports, commands, logs, PR URL, head SHA: stay local
+        │
+        ▼
+bounded projection           restricted prose and generated ids             (57.2)
+        │
+        ▼
+guarded Jev transport        pinned jev-1.13.0, one request, no retry       (57.3)
+        │
+        ▼
+strict validation            closed contract, refs must resolve             (57.1)
+        │
+        ▼
+deterministic policy         Tester | Adversary | Human, threshold 0.8      (57.1)
+        │
+        ▼
+human-authorized follow-up   separate command, separate authorization       (57.5)
+```
+
+Chaque flèche est un endroit qui peut refuser, et chaque refus aboutit à Human.
+
+## Pourquoi c'est construit par tranches
+
+L'ordre des tickets, c'est le design.
+
+**57.1 : contrat et politique, aucun réseau.** Avant qu'un modèle n'entre dans la boucle, chaque combinaison peut être testée en table. Cette PR indique que les 4 094 cas de restriction combinés aboutissent tous à Human. L'Adversary a aussi trouvé un vrai défaut : des tableaux forgés avec une itération héritée, des accesseurs ou des trous pouvaient exécuter du code pendant la validation. C'était corrigé avant le merge.
+
+**57.2 : une projection propre au routing, toujours sans réseau.** Elle fonctionne avec l'Evidence Judge désactivé. Le routing et le jugement se configurent séparément et utilisent des credentials distinctes : le routing lit `PATHFINDER_ROUTING_API_KEY` et ne se rabat jamais sur la clé `TYPESAFE_*` du juge.
+
+**57.3 : transport protégé vers Jev.** C'est le premier ticket capable de faire un appel HTTP, et il n'a été testé que contre un double en loopback. Le ticket lui-même précise que le construire n'autorise pas d'appel réel.
+
+**57.4 : budget et cache.** Deux nouvelles tentatives par ticket par défaut, et seulement après que j'ai initialisé cette enveloppe explicitement. Une tentative est réservée de façon durable avant tout envoi, les échecs comptent, les refus locaux et les hits de cache valides non, et une tentative interrompue n'est jamais remboursée en silence. Le routing écrit dans le même fichier de checkpoint que les findings du Tester et les mises à jour de portes, donc ce ticket a placé tous les écrivains de checkpoint de l'orchestrateur derrière un seul verrou partagé avec remplacement atomique.
+
+**57.5 : suivi au même head.** Celui-ci a corrigé un bug qui existait avant le routing. Extrait de la PR : « A human request for more investigation at an unchanged PR head previously left the old Adversary report and Tester PASS eligible, so resume could return directly to done. » Le même SHA de commit tenait lieu de revue fraîche. Désormais, un suivi explicite retire les rapports actifs (un suivi Tester retire le rapport du Tester, un suivi Adversary retire les deux), les garde comme historique et exige de nouveaux rapports liés à la préoccupation avant que le claim puisse revenir à `done`.
+
+**57.6 : le point d'entrée explicite.** Le routing a son propre fichier de configuration, et chaque invocation exige son propre enregistrement de consentement qui nomme le ticket, la préoccupation, le fournisseur et l'empreinte. Quand le fournisseur répond, le coordinateur relit l'identité, la configuration, les workers actifs, les exigences et les preuves. Si quelque chose a changé, la réponse est rejetée.
+
+## Ce qui est livré, et ce qui ne l'est pas
+
+- La Feature 56 est mergée sur `main` (PR #151).
+- Les tickets 57.1 à 57.6 de la Feature 57 sont mergés (PRs #168 à #173). Le dernier est arrivé aujourd'hui.
+- 57.7, qui fait tourner des scénarios hostiles et interrompus à travers les composants, est en cours. 57.8, la documentation et la preuve d'acceptation, n'a pas commencé. La spec de la Feature 57 indique toujours In Progress.
+- Aucune des deux n'est dans une version taguée. Si vous installez Pathfinder depuis npm aujourd'hui, vous n'avez ni l'une ni l'autre.
+- Aucun test de routing n'a appelé Jev en conditions réelles. Tous utilisent un double du fournisseur.
+- Les deux seuils de 0.8 sont des seuils d'abstention provisoires. Aucun n'est une promesse de précision calibrée.
+
+## Compromis
+
+**La friction est voulue, et ça reste de la friction.** Demander une évaluation de routing exige une requête préparée, une enveloppe explicite, un fichier de consentement pour cette invocation, puis une seconde instruction humaine, séparée, avant tout suivi. Une recommandation ne coûte presque rien à produire et devrait coûter cher à appliquer par accident.
+
+**Le modèle ne voit qu'une tranche fine.** Le judge prose ne peut pas contenir une stack trace. Certaines préoccupations reviendront avec un contexte insuffisant et iront vers Human. C'est la bonne manière d'échouer, mais ça reste une limite.
+
+**Le risque résiduel est réel.** Un secret court écrit comme une phrase ordinaire peut passer. Le modèle de menace le dit au lieu de prétendre le contraire.
+
+**Le coût est estimé, pas mesuré.** Les bornes de la spec sont zéro appel de routing pour un ticket ordinaire, un pour une préoccupation ambiguë éligible, et zéro quand une entrée valide identique touche le cache. Ce sont des bornes de conception. Il faut aussi son propre compte TypeSafe, distinct de tout abonnement à un agent de code. La Feature 56 a par ailleurs une inefficacité connue : les questions représentent environ 85 % de chaque requête à Jev, parce que chaque critère répète chaque option de preuve.
+
+## Ce que ça rend possible
+
+Le but n'est pas d'ajouter plus d'IA dans la boucle. La majeure partie de la boucle ne devrait pas contenir de modèle. Fraîcheur, propriété, quel rôle passe ensuite, si un rapport est encore valide : tout ça a des bonnes réponses, et c'est le code qui les calcule.
+
+Les endroits où j'utilise un modèle sont ceux où la question porte vraiment sur le sens, et où une mauvaise réponse assurée coûte peu parce qu'elle m'arrive sous forme de recommandation et non de changement d'état. Ce que 57.7 et 57.8 doivent encore prouver, c'est que ça tient quand les entrées sont hostiles, interrompues ou périmées. Une fois que ce sera fait, une préoccupation ouverte en revue ne sera plus une impasse où je dois reconstruire l'étape suivante à partir de rien. Elle deviendra une question à trois réponses possibles, avec une preuve citée, et par défaut, une question qu'on me pose.
+
+Jev lit. Pathfinder décide de ce qui est permis. Je décide de ce qui se passe.
+
+**Pathfinder sur GitHub :** https://github.com/rikilamadrid/pathfinder
