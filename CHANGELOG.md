@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.18.2] - 2026-10-08
+
 ### Changed
 - The Field Notes post on letting the model judge now names Jev in its title,
   summary, and tags. English, Spanish, and French.
