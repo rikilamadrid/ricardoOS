@@ -7,6 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+## [1.18.0] - 2026-10-08
+
 ### Added
 - A Field Notes post, "Letting the model judge without letting it drive", on
   how Pathfinder uses Jev to read evidence and suggest the next investigation
