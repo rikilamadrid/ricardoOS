@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- A Field Notes post, "Letting the model judge without letting it drive", on
+  how Pathfinder uses Jev to read evidence and suggest the next investigation
+  for an unresolved review concern, while deterministic code and a human keep
+  every workflow decision. English, Spanish, and French.
+
 ## [1.17.0] - 2026-10-02
 
 ### Added
