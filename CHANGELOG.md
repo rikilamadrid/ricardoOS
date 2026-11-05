@@ -7,6 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+- A landing entrance: as the boot screen fades, a swarm of cursors builds the
+  desktop, making the apps in the middle of the screen and hauling them out to
+  their places, drawing the menu bar and dock, and raising the hill. It plays on
+  each full page load, ends on any input, and is skipped for reduced motion.
+
 ## [1.18.2] - 2026-10-08
 
 ### Changed

@@ -171,6 +171,7 @@ function DraggableIcon({
   return (
     <button
       type="button"
+      data-swarm-icon
       onPointerDown={onPointerDown}
       onPointerMove={onPointerMove}
       onPointerUp={onPointerUp}

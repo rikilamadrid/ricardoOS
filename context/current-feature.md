@@ -20,3 +20,10 @@ newsletter while RicardoOS remains the canonical publication.
 - `23.2 — Subscribe to English Field Notes`: Proposed; not started.
 
 The current implementation and review cycle is limited to ticket 23.1.
+
+## Also in delivery
+
+Feature 24 — Swarm Entrance
+([`context/features/24-swarm-entrance.md`](features/24-swarm-entrance.md), ticket
+`24.1`): merged at the owner's request; stays In Progress until the before/after
+performance comparison is recorded.

@@ -803,6 +803,83 @@
     opacity: 0;
     pointer-events: none;
   }
+  /* ---- Landing cursor swarm (decorative, removed when finished) ---- */
+  .os-swarm {
+    position: fixed;
+    inset: 0;
+    z-index: 100000;
+    overflow: hidden;
+    pointer-events: none;
+    contain: strict;
+  }
+  .os-swarm-cursor {
+    position: absolute;
+    top: -2px;
+    left: -3px;
+    width: 24px;
+    height: 24px;
+    opacity: 0;
+    transform-origin: 3px 2px;
+  }
+  .os-swarm-cursor--ibeam,
+  .os-swarm-cursor--cross {
+    top: -12px;
+    left: -12px;
+    transform-origin: 12px 12px;
+  }
+  .os-swarm-selection,
+  .os-swarm-outline,
+  .os-swarm-ghost,
+  .os-swarm-line,
+  .os-swarm-ripple,
+  .os-swarm-caret {
+    position: absolute;
+    opacity: 0;
+  }
+  .os-swarm-selection {
+    border: 1.5px solid var(--swarm-1);
+    border-radius: 14px;
+    transform-origin: 0 0;
+  }
+  .os-swarm-selection > span {
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-top: 4px;
+    padding: 1px 6px;
+    border-radius: 5px;
+    font-size: 10px;
+    font-weight: 600;
+    line-height: 1.5;
+    white-space: nowrap;
+    color: #fff;
+    background: var(--swarm-1);
+    translate: -50% 0;
+  }
+  .os-swarm-outline {
+    border: 1.5px dashed var(--swarm-3);
+    border-radius: 24px;
+    transform-origin: 0 0;
+  }
+  .os-swarm-line {
+    background: var(--swarm-1);
+  }
+  .os-swarm-line--bar {
+    transform-origin: 0 50%;
+  }
+  .os-swarm-line--guide {
+    background: var(--swarm-2);
+    transform-origin: 50% 0;
+  }
+  .os-swarm-ripple {
+    border: 2px solid #fff;
+    border-radius: 50%;
+  }
+  .os-swarm-caret {
+    background: var(--swarm-1);
+    transform-origin: 0 0;
+  }
+
   .os-boot-orb {
     width: 60px;
     height: 60px;

@@ -25,6 +25,15 @@
 }
 
 :root {
+  /* Landing cursor swarm. Read from JS, so they can't live in @theme,
+     where Tailwind drops variables it doesn't see used. */
+  --swarm-1: #1c8ce0;
+  --swarm-2: #7a6ff0;
+  --swarm-3: #00a9d6;
+  --swarm-4: #3fae4a;
+  --swarm-5: #e8735a;
+  --swarm-6: #e29a2f;
+
   --cb-sky-top: #0072b2;
   --cb-sky-mid: #56b4e9;
   --cb-sky-low: #e6f6ff;
