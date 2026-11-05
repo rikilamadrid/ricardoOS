@@ -3,6 +3,10 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { branding } from "@/data";
+import { armSwarmEntrance } from "@/lib/swarm-entrance";
+
+const BOOT_FADE_MS = 2300;
+const BOOT_DONE_MS = 3100;
 
 /**
  * First-load boot sequence: a breathing orb + filling progress bar, then a
@@ -12,11 +16,13 @@ export function BootScreen() {
   const [phase, setPhase] = useState<"loading" | "fading" | "done">("loading");
 
   useEffect(() => {
-    const fade = setTimeout(() => setPhase("fading"), 2300);
-    const done = setTimeout(() => setPhase("done"), 3100);
+    const fade = setTimeout(() => setPhase("fading"), BOOT_FADE_MS);
+    const done = setTimeout(() => setPhase("done"), BOOT_DONE_MS);
+    const swarm = armSwarmEntrance(BOOT_FADE_MS);
     return () => {
       clearTimeout(fade);
       clearTimeout(done);
+      swarm.dispose();
     };
   }, []);
 
