@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   their places, drawing the menu bar and dock, and raising the hill. It plays on
   each full page load, ends on any input, and is skipped for reduced motion.
 
+### Changed
+- On phones, the landing entrance now plays the same full choreography as on
+  desktop instead of a reduced version.
+
 ## [1.18.2] - 2026-10-08
 
 ### Changed

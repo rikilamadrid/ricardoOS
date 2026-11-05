@@ -30,9 +30,9 @@ seconds, without costing the page any speed or usability.
 - All hidden states live inside running Web Animations. Cancelling them, or never
   starting, leaves the real page. Native WAAPI only; no dependencies.
 - Interactive elements are never moved, so hit-testing stays at final positions.
-- At most 28 cursors on desktop and 8 on phones, raised from the brief's initial
-  6–8 at the owner's request for more visible work. Phones leave the glass menu
-  bar and dock alone; only the dock tiles and hill join in.
+- At most 28 cursors on desktop and 26 on phones, raised from the brief's initial
+  6–8 at the owner's request for more visible work. Phones run the same
+  choreography as desktop, at the owner's request, with a tighter workshop layout.
 - Plays on every full page load including refresh, at the owner's request (this
   replaces the brief's once-per-session rule). Client-side navigation back to the
   desktop does not replay it.
