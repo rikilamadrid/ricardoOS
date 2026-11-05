@@ -13,7 +13,7 @@ const MAX_START_LATENESS = 250;
 const LONG_TASK_LIMIT = 150;
 const MOBILE_WIDTH = 640;
 const DESKTOP_CURSORS = 28;
-const MOBILE_CURSORS = 8;
+const MOBILE_CURSORS = 26;
 const CURSOR_COLORS = 6;
 const BAR_DRAW = [240, 620];
 const GUIDE_DRAW = [420, 900];
@@ -32,6 +32,7 @@ const TILE_DRAG = 420;
 const WORKSHOP_PITCH = 112;
 const WORKSHOP_PITCH_MOBILE = 104;
 const WORKSHOP_COLUMNS_MOBILE = 3;
+const WORKSHOP_TILE_PITCH_MOBILE = 62;
 const HILL_PUSH = [440, 1120];
 const HILL_CREW = [0.3, 0.42, 0.58, 0.7];
 const HILL_CREW_MOBILE = [0.32, 0.68];
@@ -236,11 +237,16 @@ function play(layer: HTMLElement, running: Animation[]): void {
   const sweep = (items: Element[], from: number, to: number, tool: Tool, pop = false, caret = false): void => {
     const points = items.map((el) => ({ el, point: center(el.getBoundingClientRect()) }));
     if (points.length === 0) return;
-    const first = points[0].point;
-    const end = points[points.length - 1].point;
+    let first = points[0].point;
+    let end = points[points.length - 1].point;
     const span = end.x - first.x || 1;
     for (const { el, point } of points) {
       reveal(el, from + ((point.x - first.x) / span) * (to - from), pop);
+    }
+    if (points.length === 1) {
+      const rect = points[0].el.getBoundingClientRect();
+      first = { x: rect.left, y: first.y };
+      end = { x: rect.right, y: first.y };
     }
     cursor(
       [
@@ -258,6 +264,12 @@ function play(layer: HTMLElement, running: Animation[]): void {
 
   /** Where item `index` of `count` sits in the workshop in the middle of the screen. */
   const workshopSlot = (index: number, count: number, row: number): Point => {
+    if (mobile && row > 0) {
+      return {
+        x: origin.x + (index - (count - 1) / 2) * WORKSHOP_TILE_PITCH_MOBILE,
+        y: origin.y + WORKSHOP_PITCH_MOBILE + 8,
+      };
+    }
     if (mobile) {
       const inRow = Math.min(WORKSHOP_COLUMNS_MOBILE, count - (index - (index % WORKSHOP_COLUMNS_MOBILE)));
       return {
@@ -310,7 +322,6 @@ function play(layer: HTMLElement, running: Animation[]): void {
       GLIDE,
     );
     ripple(target, drop);
-    if (mobile) return;
 
     const topLeft = { x: rect.left + delta.x, y: rect.top + delta.y };
     const bottomRight = { x: rect.right + delta.x, y: rect.bottom + delta.y };
@@ -473,15 +484,6 @@ function play(layer: HTMLElement, running: Animation[]): void {
 
   const icons = Array.from(document.querySelectorAll("[data-swarm-icon]"));
   const tiles = Array.from(document.querySelectorAll(".os-dock .os-tile"));
-
-  // The glass menu bar and dock are costly to recomposite, so phones keep them static
-  // and only their tiles join in.
-  if (mobile) {
-    icons.forEach(buildIcon);
-    sweep(tiles, 900, 1400, "arrow", true);
-    pushHill();
-    return;
-  }
 
   const header = document.querySelector(".os-menubar");
   if (header) {
